@@ -5,3 +5,7 @@ ignored
 
 # Generated lexer file
 lexer.hs
+
+# Stack-generated
+.stack-work/
+*~
