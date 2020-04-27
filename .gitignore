@@ -2,3 +2,6 @@
 **.exe
 **.hi
 ignored
+
+# Generated lexer file
+lexer.hs
