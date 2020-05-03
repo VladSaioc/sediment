@@ -2,6 +2,7 @@
 **.exe
 **.hi
 ignored
+sketches
 
 # Generated lexer file
 lexer.hs

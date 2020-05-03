@@ -3,10 +3,73 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: ghc-8.6.5@sha256:3591225289bdf8cf8f62b10f2aebc9ea3e25a15294545a5312a419e0317784f9,13976
+    pantry-tree:
+      size: 32889
+      sha256: dbca05a66e154668c2a39df4a24815164220bb7d5e20a881a9f020c4c068a0c7
+  original:
+    hackage: ghc-8.6.5@sha256:3591225289bdf8cf8f62b10f2aebc9ea3e25a15294545a5312a419e0317784f9,13976
+- completed:
+    hackage: ghc-boot-8.6.5@sha256:8b608d2f36aad99a37a7d1b70319d43195128de6485b15fa7d4638b2942ce2a2,1772
+    pantry-tree:
+      size: 508
+      sha256: 57e753f5f5bfe96aecc700f875e1f12eeb223873fd4d1401e5926272552f16bb
+  original:
+    hackage: ghc-boot-8.6.5@sha256:8b608d2f36aad99a37a7d1b70319d43195128de6485b15fa7d4638b2942ce2a2,1772
+- completed:
+    hackage: ghc-boot-th-8.6.5@sha256:c120f0d15944e770e2b698f5139f0003a86f9e25e5d1a7c6631e442129232748,1075
+    pantry-tree:
+      size: 346
+      sha256: 635e6cbe4f4be6f1a00a8e4d8221f4302faf2fe02abfb661f4762899f2e2d567
+  original:
+    hackage: ghc-boot-th-8.6.5@sha256:c120f0d15944e770e2b698f5139f0003a86f9e25e5d1a7c6631e442129232748,1075
+- completed:
+    hackage: ghci-8.6.5@sha256:886e52e6ab43b0de39fd5d92d8d1a5d7fac04c0f145c62b39baae04476208bd9,2126
+    pantry-tree:
+      size: 1055
+      sha256: 472e831a0ab1dcd2110197660781a54529f1a04eaf8521e4e62c99609660826d
+  original:
+    hackage: ghci-8.6.5@sha256:886e52e6ab43b0de39fd5d92d8d1a5d7fac04c0f145c62b39baae04476208bd9,2126
+- completed:
+    hackage: template-haskell-2.14.0.0@sha256:e3747ae9e2aeec160196706dd470b5fc4175678ec4136bcec9124534f67d83bc,1724
+    pantry-tree:
+      size: 850
+      sha256: f9b83407460047e23f730ac0d492ae80f86667a5ba15d3294e61d2aa147ec3d4
+  original:
+    hackage: template-haskell-2.14.0.0@sha256:e3747ae9e2aeec160196706dd470b5fc4175678ec4136bcec9124534f67d83bc,1724
+- completed:
+    hackage: time-1.8.0.4@sha256:3f6eddf238b828eb4f82683acce1c3afe64784f0d20114239b738c123316c85c,5494
+    pantry-tree:
+      size: 5406
+      sha256: 1a186b21ff55d3e8f7d66ed2075bbce4dcc9ccaeef87665aa88752412f14073f
+  original:
+    hackage: time-1.8.0.4@sha256:3f6eddf238b828eb4f82683acce1c3afe64784f0d20114239b738c123316c85c,5494
+- completed:
+    hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
+    pantry-tree:
+      size: 3433
+      sha256: 9247d0e7cfbf9946b922d23bd56a6b765cdb91f71d72f8ae6ed22c94dbd9f1db
+  original:
+    hackage: directory-1.3.6.1@sha256:3dc9c69c8e09ec95a7a45c6d06abe0f0d2f604439c37e5f88e5a6c335b088d71,2810
+- completed:
+    hackage: hpc-0.6.0.3@sha256:de3f7982345d315f1d7713df38b4f2cf09bd274f7d64dffec0cf2a0d9c8aab19,1185
+    pantry-tree:
+      size: 432
+      sha256: 4686c367eb25eb4d32d66bd4c080d6caa2b5e78c73beea3993db690137e1d6cb
+  original:
+    hackage: hpc-0.6.0.3@sha256:de3f7982345d315f1d7713df38b4f2cf09bd274f7d64dffec0cf2a0d9c8aab19,1185
+- completed:
+    hackage: process-1.6.8.2@sha256:c2c95560dab7cea7f77b190166c3916945155f0daf5928b28c20a0ac34d4ea2a,2468
+    pantry-tree:
+      size: 1211
+      sha256: 2481cbecea22846b5dc4de765efe4adc9cb5ead9e9933ebd9d8ab12ef68aa8c7
+  original:
+    hackage: process-1.6.8.2@sha256:c2c95560dab7cea7f77b190166c3916945155f0daf5928b28c20a0ac34d4ea2a,2468
 snapshots:
 - completed:
-    size: 493124
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/15/10.yaml
-    sha256: 48bc6d1d59224a5166265ef6cdda6a512f29ecc8ef7331826312b82377e89507
-  original: lts-15.10
+    size: 524162
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/21.yaml
+    sha256: 9a55dd75853718f2bbbe951872b36a3b7802fcd71796e0f25b8664f24e34c666
+  original: lts-14.21
