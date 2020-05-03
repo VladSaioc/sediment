@@ -77,8 +77,8 @@ $alpha = [a-zA-Z]		-- alphabetic characters
 
   "++"          { \s -> Concat }
 
-  "true"        { \s -> True }
-  "false"       { \s -> False }
+  "true"        { \s -> BConst True }
+  "false"       { \s -> BConst False }
   "_|_"         { \s -> Bottom }
   \" . # [\"] \"        { \s -> Str s }
   `@var`        { \s -> Sym s }
@@ -158,8 +158,7 @@ data Token =
 -- -- String operators
   Concat  |
 -- -- Constants & variables
-  True        |
-  False       |
+  BConst Bool |
   Bottom      |
   Str String  |
 	Sym String	|
