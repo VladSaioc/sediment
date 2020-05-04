@@ -29,7 +29,8 @@ library:
   - src/Syntax
   exposed-modules:
   - Lib
-  - Lexer
+  - LexSediment
+  - ParSediment
 
 executables:
   Sediment-exe:

@@ -4,8 +4,8 @@
 ignored
 sketches
 
-# Generated lexer file
-lexer.hs
+# Generated front-end
+src/Syntax
 
 # Stack-generated
 .stack-work/

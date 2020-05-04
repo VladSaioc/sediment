@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1be770952d1aa0179cd8baf61f400eefb0122634e5c2f9154cb80e44bd7f9a15
+-- hash: 9c8b8e16b58e635a492ae7ea399f268a47f199db748333bbbd280f38d9be2996
 
 name:           Sediment
 version:        0.1.0.0
@@ -28,8 +28,23 @@ source-repository head
 library
   exposed-modules:
       Lib
-      Lexer
+      LexSediment
+      ParSediment
   other-modules:
+      Syntax.AbsSediment
+      Syntax.ErrM
+      Syntax.LexSediment
+      Syntax.LexSediment
+      Syntax.ParSediment
+      Syntax.ParSediment
+      Syntax.PrintSediment
+      Syntax.SkelSediment
+      Syntax.TestSediment
+      AbsSediment
+      ErrM
+      PrintSediment
+      SkelSediment
+      TestSediment
       Paths_Sediment
   hs-source-dirs:
       src

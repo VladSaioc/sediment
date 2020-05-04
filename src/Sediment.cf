@@ -1,0 +1,94 @@
+comment "//" ;
+comment "/*" "*/" ;
+
+-- Entry point
+Spec. Specification ::= [Def] [Ev];
+
+-- Definitions
+[]. [Def] ::= ;
+(:). [Def] ::= Def [Def] ;
+
+-- -- Domain definitions
+DefineDom. Def ::= "domain" Ident ":=" DomDef ";";
+UnionDef. DomDef ::= Union ;
+-- -- -- Union domains
+separator nonempty Branch "+";
+Union. Union ::= "[" [Branch] "]";
+Branch. Branch ::= Tag "[" Dom "]";
+Tag. Tag ::= Ident;
+-- -- -- Non-union domains
+coercions Dom 2;
+NonUnionDef. DomDef ::= Dom;
+FuncDom. Dom ::= Dom1 "->" Dom;
+ProdDom. Dom1 ::= Dom2 "*" Dom1;
+IntDom. Dom2 ::= "int";
+BoolDom. Dom2 ::= "bool";
+SymDom. Dom2 ::= "symbol";
+StrDom. Dom2 ::= "string";
+
+-- -- Syntax definitions
+SyntaxDef. Def ::= "syntax" Ident ":=" [Term] ";";
+separator nonempty Term "|";
+Term. Term ::= Ident "of" Dom;
+
+-- -- Transition systems
+TSystem. Def ::= "system" GTDom ":" Ident ":=" [Rule] "end";
+-- -- -- Transition system domains
+TDom. GTDom ::= Dom "|-" Dom "==>" Dom;
+ETDom. GTDom ::= Dom "=>" Dom;
+-- -- -- Rules
+separator nonempty Rule ";";
+Rule. Rule ::= "[" Ident "]:"  Ident "|-" Config "==>" Exp "\\\\" [Premise];
+ERule. Rule ::= "[" Ident "]:" Config "==>" Exp "\\\\" [Premise];
+-- -- -- Premises
+separator nonempty Premise ",";
+PremiseIf. Premise ::= "if" Exp;
+PremiseLet. Premise ::= "let" Ident ":=" Exp;
+PremiseLetrec. Premise ::= "letrec" Dom ":" Ident ":=" Exp;
+PremiseTrInternal. Premise ::=  Exp "|-" Exp "==>" Config;
+PremiseTrExternal. Premise ::=  Exp "|-" Exp "=" Ident "=>" Config;
+EPremiseTrInternal. Premise ::=  Exp "==>" Config;
+EPremiseTrExternal. Premise ::=  Exp "=" Ident "=>" Config;
+-- -- -- Configurations
+TagConfig. Config ::= Ident "[" Config "]";
+PairConfig. Config ::= "(" Config "," Config ")";
+VarConfig. Config ::= Ident;
+ConstConfig. Config ::= Const;
+
+-- -- Data definitions
+Data. Def ::= "data" Ident ":=" Exp ";";
+DataRec. Def ::= "datarec" Dom ":" Ident ":=" Exp ";";
+
+-- -- Expressions
+-- -- -- Lambda-calculus elements
+Lambda. Exp ::= "\\" Dom ":" Ident "." Exp;
+App. Exp ::= Exp Exp;
+-- -- -- Extended functional expressions
+Let. Exp ::= "let" Ident "in" Exp;
+Letrec. Exp ::= "letrec" Dom ":" Ident "in" Exp;
+If. Exp ::= "if" Exp "then" Exp "else" Exp;
+Update. Exp ::= "[" Exp "->" Exp "]" Exp;
+-- -- -- Infix expressions
+-- -- -- Pairs and tuples
+
+
+
+
+
+-- -- -- Variables and constants
+Var. Exp ::= Ident;
+ConstE. Exp ::= Const;
+-- -- Constants
+Botm. Const ::= Dom ":_|_";
+Int. Const ::= Integer;
+Str. Const ::= String;
+Sym. Const ::= "`" Ident "`";
+BTrue. Const ::= "true";
+BFalse. Const ::= "false";
+
+-- Evaluations
+separator Ev ";";
+Eval. Ev ::= "evaluate" Exp "|-" Exp "in" Ident;
+EEval. Ev ::= "evaluate" Exp "in" Ident;
+
+entrypoints Specification;
