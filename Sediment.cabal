@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9c8b8e16b58e635a492ae7ea399f268a47f199db748333bbbd280f38d9be2996
+-- hash: 8ce5d7a7bf6285a3cf36431ed2ebda34f27e1b0d9e77f3a2d53c48b614f73e6e
 
 name:           Sediment
 version:        0.1.0.0
@@ -30,6 +30,7 @@ library
       Lib
       LexSediment
       ParSediment
+      AbsSediment
   other-modules:
       Syntax.AbsSediment
       Syntax.ErrM
@@ -40,7 +41,6 @@ library
       Syntax.PrintSediment
       Syntax.SkelSediment
       Syntax.TestSediment
-      AbsSediment
       ErrM
       PrintSediment
       SkelSediment

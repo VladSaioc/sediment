@@ -31,6 +31,7 @@ library:
   - Lib
   - LexSediment
   - ParSediment
+  - AbsSediment
 
 executables:
   Sediment-exe:

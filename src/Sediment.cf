@@ -9,12 +9,12 @@ Spec. Specification ::= [Def] [Ev];
 (:). [Def] ::= Def [Def] ;
 
 -- -- Domain definitions
-DefineDom. Def ::= "domain" Ident ":=" DomDef ";";
-UnionDef. DomDef ::= Union ;
+DefineUnionDom. Def ::= "domain" Ident ":=" UnionDom ";";
+DefineDom. Def ::= "domain" Ident ":=" Dom ";";
 -- -- -- Union domains
-separator nonempty Branch "+";
-Union. Union ::= "[" [Branch] "]";
-Branch. Branch ::= Tag "[" Dom "]";
+separator nonempty UnionBranch "+";
+Union. UnionDom ::= "[" [UnionBranch] "]";
+Branch. UnionBranch ::= Tag "[" Dom "]";
 Tag. Tag ::= Ident;
 -- -- -- Non-union domains
 coercions Dom 2;
@@ -38,8 +38,8 @@ TDom. GTDom ::= Dom "|-" Dom "==>" Dom;
 ETDom. GTDom ::= Dom "=>" Dom;
 -- -- -- Rules
 separator nonempty Rule ";";
-Rule. Rule ::= "[" Ident "]:"  Ident "|-" Config "==>" Exp "\\\\" [Premise];
-ERule. Rule ::= "[" Ident "]:" Config "==>" Exp "\\\\" [Premise];
+BERule. Rule ::= "[" Ident "]:"  Ident "|-" Config "==>" Exp "\\\\" [Premise];
+NBERule. Rule ::= "[" Ident "]:" Config "==>" Exp "\\\\" [Premise];
 -- -- -- Premises
 separator nonempty Premise ",";
 PremiseIf. Premise ::= "if" Exp;
@@ -70,9 +70,6 @@ If. Exp ::= "if" Exp "then" Exp "else" Exp;
 Update. Exp ::= "[" Exp "->" Exp "]" Exp;
 -- -- -- Infix expressions
 -- -- -- Pairs and tuples
-
-
-
 
 
 -- -- -- Variables and constants
