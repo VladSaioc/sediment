@@ -1,5 +1,8 @@
 {
-module Lexer (main) where
+module Lexer (
+  performLexing,
+  Token (..)
+) where
 }
 
 %wrapper "basic"
@@ -27,7 +30,7 @@ $alpha = [a-zA-Z]		-- alphabetic characters
   "|-"          { \s -> BindModel }
   "=>"          { \s -> EvaluatesTo }
   "end"         { \s -> End }
-  "\\\\"        { \s -> PremiseSplit }
+  "\\"          { \s -> PremiseSplit }
 
   "*"           { \s -> Prod }
   "->"          { \s -> Map }
@@ -42,7 +45,7 @@ $alpha = [a-zA-Z]		-- alphabetic characters
   ")"           { \s -> RParen }
 
   "."           { \s -> Period }
-  "\\"          { \s -> Lambda }
+  "\"           { \s -> Lambda }
 
   letrec        { \s -> Letrec }
   let				  	{ \s -> Let }
@@ -80,8 +83,8 @@ $alpha = [a-zA-Z]		-- alphabetic characters
   "true"        { \s -> BConst True }
   "false"       { \s -> BConst False }
   "_|_"         { \s -> Bottom }
-  \" . # [\"] \"        { \s -> Str s }
-  `@var`        { \s -> Sym s }
+  \" [^\"]* \"  { \s -> Str (drop 1 (take ((length s) - 1) s)) }
+  `@var`        { \s -> Sym (drop 1 (take ((length s) - 1) s)) }
   $digit+				{ \s -> Num (read s) }
   @var	      	{ \s -> Var s }
 
@@ -166,7 +169,5 @@ data Token =
 	Num Int
 	deriving (Eq,Show)
 
-main = do
-  s <- getContents
-  print (alexScanTokens s)
+performLexing s = alexScanTokens s
 }

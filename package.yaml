@@ -2,8 +2,8 @@ name:                Sediment
 version:             0.1.0.0
 github:              "githubuser/Sediment"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
+author:              "Georgian-Vlad Saioc"
+maintainer:          "gsaioc18@student.aau.dk"
 copyright:           "2020 Author name here"
 
 extra-source-files:
@@ -21,9 +21,15 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- array
 
 library:
-  source-dirs: src
+  source-dirs:
+  - src
+  - src/Syntax
+  exposed-modules:
+  - Lib
+  - Lexer
 
 executables:
   Sediment-exe:
