@@ -8,6 +8,7 @@ sketches
 **/AbsSediment.hs
 **/DocSediment.txt
 **/ErrM.hs
+**/LayoutSediment.hs
 **/LexSediment.hs
 **/LexSediment.x
 **/ParSediment.hs
@@ -18,6 +19,7 @@ sketches
 **/AbsSediment.hs.bak
 **/DocSediment.txt.bak
 **/ErrM.hs.bak
+**/LayoutSediment.hs.bak
 **/LexSediment.hs.bak
 **/LexSediment.x.bak
 **/ParSediment.hs.bak
