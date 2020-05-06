@@ -41,7 +41,7 @@ TSystem_. Def_ ::= "system" TDom_ ":" Ident ":=" [Rule_] "end";
 BETDom_. TDom_ ::= Dom_ "|-" Dom_ "==>" Dom_;
 NBETDom_. TDom_ ::= Dom_ "==>" Dom_;
 -- -- -- Rules
-separator nonempty Rule_ ";";
+terminator nonempty Rule_ ";";
 BEAxiom_. Rule_ ::= "[" Ident "]:" Config_ "|-" Config_ "==>" Exp_;
 NBEAxiom_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_;
 BERule_. Rule_ ::= "[" Ident "]:"  Config_ "|-" Config_ "==>" Exp_ "\\\\" [Premise_];
