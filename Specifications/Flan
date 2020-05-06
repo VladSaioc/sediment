@@ -1,0 +1,96 @@
+domain Values := [
+  vconst[Fcon] +
+  vpair[Fcon * Fcon] +
+  cloj[symbol * Fexp * Env] +
+  rcloj[symbol * symbol * Fexp * Env]
+];
+
+domain Env := symbol -> Values;
+
+syntax Fcon := number of int
+  | bconst of bool
+  | plus | times | minus | equal | not | is0;
+
+syntax Fexp := var of symbol
+  | const of Fcon
+  | pair of Fexp * Fexp
+  | app of Fexp * Fexp
+  | iff of Fexp * Fexp * Fexp
+  | fn of symbol * Fexp
+  | letnr of symbol * Fexp * Fexp
+  | letr of symbol * Fexp * Fexp;
+
+data apply := \ (Fcon * Values) -> Values : fx.
+  let f := (<) fx in
+  let x := (>) fx in
+  vconst[
+    if x is pair then
+      let x' := x >> vpair in
+      let x1 := (<) x' in
+      let x2 := (>) x' in
+      if f is plus
+        then number[(x1 >> number) + (x2 >> number)]
+      else if f is minus
+        then number[(x1 >> number) - (x2 >> number)]
+      else if f is times
+        then (x1 >> number) * (x2 >> number)
+      else if f is equal
+        then if (x1 is number) & (x2 is number)
+          then bconst[(x1 >> number) == (x2 >> number)]
+        else if (x1 is bconst) & (x2 is bconst)
+          then bconst[(x1 >> bconst) == (x2 >> bconst)]
+          else _/Values\_
+      else _/Values\_
+    else if x is const
+      then let x' := x >> const in
+        if x' is bconst
+          then if f is not
+              then bconst[!(x' >> bconst)]
+            else if f is is0
+              then bconst[(x' >> bconst) == 0]
+          else _/Values\_
+        else _/Values\_
+      else _/Values\_
+  ];
+
+system Env |- Fexp ==> Values : Flan :=
+  [ VAR ]: env |- var[x] ==> env(x);
+  
+  [ CONST ]: env |- const[c] ==> const[c];
+  
+  [ PAIR ]: env |- pair[(e1, e2)] ==> pair[(v1, v2)] \\
+    env |- e1 ==> v1,
+    env |- e2 ==> v2;
+  
+  [ APP ]: env |- app[(e1, e2)] ==> v \\
+    env |- e1 ==> cloj[(x, exp, env')],
+    env |- e2 ==> v2,
+    [x -> v2]env' |- e2 ==> v;
+  
+  [ APP ]: env |- app[(e1, e2)] ==> (apply ((c, v2))) \\
+    env |- e1 ==> const[c],
+    env |- e2 ==> v2;
+  [ APP ]: env |- app[(e1, e2)] ==> v \\
+    env |- e1 ==> rcloj[(f, x, e, env')],
+    env |- e2 ==> v',
+    let rclojure := rcloj[(f, x, e, env')],
+    [x -> v'][f -> rclojure]env' |- e ==> v;
+
+  [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
+    env |- b ==> true,
+    env |- e1 ==> v;
+  
+  [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
+    env |- b ==> false,
+    env |- e2 ==> v;
+  
+  [ FN ]: env |- fn[(x, e)] ==> cloj[(x, e, env)];
+  
+  [ LET ]: env |- letnr[(x, e1, e2)] ==> v \\
+    env |- e1 ==> v',
+    [x -> v']env |- e2 ==> v;
+  
+  [ LETREC ]: env |- letr[(f, e1, e2)] ==> v \\
+    env |- e1 ==> cloj[(x, e, env')],
+    [f -> rcloj[(f, x, e, env')]]env |- e2 ==> v;
+end

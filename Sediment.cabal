@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 700bc25e756174e1f3b806a16e86b9a0e7c1d1a8736b3dc0197da6b1520576d1
+-- hash: 2328e0b733ff31215b7c8845d21e19d087c6e0a7cac589c82411625c9b5b4d6b
 
 name:           Sediment
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Syntax.ParSediment
       Syntax.ErrM
   other-modules:
+      Syntax.LayoutSediment
       Syntax.PrintSediment
       Syntax.SkelSediment
       Paths_Sediment

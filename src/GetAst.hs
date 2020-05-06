@@ -46,7 +46,7 @@ pUnionBranch (Tag_ i) = (pIdent i, EDom)
 pDom :: Dom_ -> Dom
 pDom StrDom_ = StrDom
 pDom BoolDom_ = BoolDom
-pDom SymDom_ = StrDom
+pDom SymDom_ = SymDom
 pDom IntDom_ = IntDom
 pDom (VarDom_ i) = VarDom (pIdent i)
 pDom (FuncDom_ d1 d2) = FuncDom (pDom d1) (pDom d2)
