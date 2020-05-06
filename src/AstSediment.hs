@@ -1,6 +1,6 @@
 module AstSediment where
 
-data Spec = Spec [Df] [Ev]
+data Spec = Spec [Df] [Ev] | SpecError String
   deriving (Eq, Ord, Show, Read)
 
 data Df = DomDf String Dom
