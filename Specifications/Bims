@@ -1,0 +1,91 @@
+domain State := symbol -> int;
+
+syntax Aexp := add of Aexp * Aexp
+  | mul of Aexp * Aexp
+  | sub of Aexp * Aexp
+  | aparens of Aexp
+  | aconst of int
+  | var of sym;
+
+syntax Bexp := eq of Aexp * Aexp
+  | lt of Aexp * Aexp
+  | not of Bexp
+  | and of Bexp
+  | bparens of Bexp
+  | bconst of bool;
+
+syntax Stm := skip
+  | ass of sym * Aexp
+  | comp of Stm * Stm
+  | ifs of Bexp * Stm * Stm
+  | while of Bexp * Stm;
+
+system State |- Aexp ==> int : Aexp :=
+  [ VAR ]: s |- var[x] ==> s(x);
+  
+  [ CONST ]: s |- aconst[n] ==> n;
+
+  [ ADD ]: s |- add[(a1, a2)] ==> v1 + v2 \\
+    s |- a1 ==> v1,
+    s |- a2 ==> v2;
+  
+  [ MUL ]: s |- mul[(a1, a2)] ==> v1 * v2 \\
+    s |- a1 ==> v1,
+    s |- a2 ==> v2;
+    
+  [ SUB ]: s |- sub[(a1, a2)] ==> v1 - v2 \\
+    s |- a1 ==> v1,
+    s |- a2 ==> v2;
+
+  [ PARENS ]: s |- aparens[a] ==> v \\
+    s |- a ==> v;
+end
+
+system State |- Bexp ==> bool : Bexp :=
+  [ CONST ]: s |- bconst[b] ==> b;
+
+  [ EQ ]: s |- eq[(a1, a2)] ==> v1 == v2 \\
+    s |- a1 =Aexp=> v1,
+    s |- a2 =Aexp=> v2;
+    
+  [ LT ]: s |- lt[(a1, a2)] ==> v1 < v2 \\
+    s |- a1 =Aexp=> v1,
+    s |- a2 =Aexp=> v2;
+    
+  [ NOT ]: s |- not[b] ==> !v \\
+    s |- b ==> v;
+
+  [ PARENS ]: s |- bparens[b] ==> v \\
+    s |- b ==> v;
+    
+  [ AND ]: s |- and[(b1, b2)] ==> v1 & v2 \\
+    s |- b1 ==> v1,
+    s |- b2 ==> v2;
+end
+
+system Stm * State ==> State : Stm :=
+  [ SKIP ]: (skip, s) ==> s;
+    
+  [ ASS ]: (ass[(x, a)], s) ==> [ x -> v ]s \\
+    s |- a =Aexp=> v;
+    
+  [ COMP ]: (comp[(S1, S2)], s) ==> s' \\
+    (S1, s) ==> s'',
+    (S2, s'') ==> s';
+    
+  [ IF ]: (ifs[(b, (S1, S2))], s) ==> s' \\
+    s |- b =Bexp=> true,
+    (S1, s) ==> s';
+    
+  [ IF ]: (ifs[(b, (S1, S2))], s) ==> s' \\
+    s |- b =Bexp=> false,
+    (S2, s) ==> s';
+    
+  [ WHILE ]: (while[(b, S)], s) ==> s' \\
+    s |- b =Bexp=> true,
+    (S, s) ==> s'',
+    (while[(b, S)], s'') ==> s';
+    
+  [ WHILE ]: (while[(b, S)], s) ==> s \\
+    s |- b =Bexp=> false;
+end
