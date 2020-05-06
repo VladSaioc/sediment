@@ -20,6 +20,7 @@ polishAst (Ok (Spec_ dfs evs)) =
   Spec
     (map pDef dfs)
     (map pEval evs)
+polishAst (Bad err) = SpecError err
 
 getAst = polishAst . getRawAst
 
