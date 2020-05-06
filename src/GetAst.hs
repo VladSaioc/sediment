@@ -75,9 +75,9 @@ pPremise :: Premise_ -> Pr
 pPremise (IfPremise_ e) = IfPr (pExp e)
 pPremise (LetPremise_ i e) = LetPr (pIdent i) (pExp e)
 pPremise (LetrecPremise_ d i e) = LetrPr (pDom d) (pIdent i) (pExp e)
-pPremise (BETrInternalPremise_ e1 e2 c) = TrPr (pExp e1) (pExp e2) "/phi"  (pConfig c)
+pPremise (BETrInternalPremise_ e1 e2 c) = TrPr (pExp e1) (pExp e2) "/"  (pConfig c)
 pPremise (BETrExternalPremise_ e1 e2 i c) = TrPr (pExp e1) (pExp e2) (pIdent i)  (pConfig c)
-pPremise (NBETrInternalPremise_ e c) = TrPr EExp (pExp e) "/phi"  (pConfig c)
+pPremise (NBETrInternalPremise_ e c) = TrPr EExp (pExp e) "/"  (pConfig c)
 pPremise (NBETrExternalPremise_ e i c) = TrPr EExp (pExp e) (pIdent i)  (pConfig c)
 
 -- -- Configuration polish
