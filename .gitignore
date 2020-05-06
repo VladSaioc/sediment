@@ -5,26 +5,26 @@ ignored
 sketches
 
 # Generated front-end
-src/AbsSediment.hs
-src/DocSediment.txt
-src/ErrM.hs
-src/LexSediment.hs
-src/LexSediment.x
-src/ParSediment.hs
-src/ParSediment.y
-src/PrintSediment.hs
-src/SkelSediment.hs
-src/TestSediment.hs
-src/AbsSediment.hs.bak
-src/DocSediment.txt.bak
-src/ErrM.hs.bak
-src/LexSediment.hs.bak
-src/LexSediment.x.bak
-src/ParSediment.hs.bak
-src/ParSediment.y.bak
-src/PrintSediment.hs.bak
-src/SkelSediment.hs.bak
-src/TestSediment.hs.bak
+**/AbsSediment.hs
+**/DocSediment.txt
+**/ErrM.hs
+**/LexSediment.hs
+**/LexSediment.x
+**/ParSediment.hs
+**/ParSediment.y
+**/PrintSediment.hs
+**/SkelSediment.hs
+**/TestSediment.hs
+**/AbsSediment.hs.bak
+**/DocSediment.txt.bak
+**/ErrM.hs.bak
+**/LexSediment.hs.bak
+**/LexSediment.x.bak
+**/ParSediment.hs.bak
+**/ParSediment.y.bak
+**/PrintSediment.hs.bak
+**/SkelSediment.hs.bak
+**/TestSediment.hs.bak
 
 # Stack-generated
 .stack-work/

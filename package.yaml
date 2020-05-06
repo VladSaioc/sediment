@@ -26,12 +26,11 @@ dependencies:
 library:
   source-dirs:
   - src
-  - src/Syntax
   exposed-modules:
   - Lib
-  - LexSediment
-  - ParSediment
-  - AbsSediment
+  - Syntax.LexSediment
+  - Syntax.AbsSediment
+  - Syntax.ParSediment
 
 executables:
   Sediment-exe:

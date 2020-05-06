@@ -1,91 +1,122 @@
 comment "//" ;
 comment "/*" "*/" ;
 
+token Symbol ((letter | ["$_"]) (letter | digit | ["$_\'"])*);
+
 -- Entry point
-Spec. Specification ::= [Def] [Ev];
+Spec_. Specification_ ::= [Def_] [Eval_];
 
 -- Definitions
-[]. [Def] ::= ;
-(:). [Def] ::= Def [Def] ;
+[]. [Def_] ::= ;
+(:). [Def_] ::= Def_ [Def_] ;
 
 -- -- Domain definitions
-DefineUnionDom. Def ::= "domain" Ident ":=" UnionDom ";";
-DefineDom. Def ::= "domain" Ident ":=" Dom ";";
+DefDom_. Def_ ::= "domain" Ident ":=" DomDef_ ";";
 -- -- -- Union domains
-separator nonempty UnionBranch "+";
-Union. UnionDom ::= "[" [UnionBranch] "]";
-Branch. UnionBranch ::= Tag "[" Dom "]";
-Tag. Tag ::= Ident;
+DefUnion_. DomDef_ ::= Union_;
+separator nonempty UnionBranch_"+";
+UnionDom_. Union_ ::= "[" [UnionBranch_] "]";
+TagDom_. UnionBranch_ ::= Ident "[" Dom_ "]";
+Tag_. UnionBranch_ ::= Ident;
 -- -- -- Non-union domains
-coercions Dom 2;
-NonUnionDef. DomDef ::= Dom;
-FuncDom. Dom ::= Dom1 "->" Dom;
-ProdDom. Dom1 ::= Dom2 "*" Dom1;
-IntDom. Dom2 ::= "int";
-BoolDom. Dom2 ::= "bool";
-SymDom. Dom2 ::= "symbol";
-StrDom. Dom2 ::= "string";
+coercions Dom_ 2;
+DefNonUnion_. DomDef_ ::= Dom_;
+FuncDom_. Dom_ ::= Dom_1 "->" Dom_;
+ProdDom_. Dom_1 ::= Dom_2 "*" Dom_1;
+VarDom_. Dom_2 ::= Ident;
+IntDom_. Dom_2 ::= "int";
+BoolDom_. Dom_2 ::= "bool";
+SymDom_. Dom_2 ::= "symbol";
+StrDom_. Dom_2 ::= "string";
 
 -- -- Syntax definitions
-SyntaxDef. Def ::= "syntax" Ident ":=" [Term] ";";
-separator nonempty Term "|";
-Term. Term ::= Ident "of" Dom;
+SyntaxDef_. Def_ ::= "syntax" Ident ":=" [FormRule_] ";";
+separator nonempty FormRule_ "|";
+Term_. FormRule_ ::= Ident "of" Dom_;
+BareTerm_. FormRule_ ::= Ident;
 
 -- -- Transition systems
-TSystem. Def ::= "system" GTDom ":" Ident ":=" [Rule] "end";
+TSystem_. Def_ ::= "system" TDom_ ":" Ident ":=" [Rule_] "end";
 -- -- -- Transition system domains
-TDom. GTDom ::= Dom "|-" Dom "==>" Dom;
-ETDom. GTDom ::= Dom "=>" Dom;
+BETDom_. TDom_ ::= Dom_ "|-" Dom_ "==>" Dom_;
+NBETDom_. TDom_ ::= Dom_ "==>" Dom_;
 -- -- -- Rules
-separator nonempty Rule ";";
-BERule. Rule ::= "[" Ident "]:"  Ident "|-" Config "==>" Exp "\\\\" [Premise];
-NBERule. Rule ::= "[" Ident "]:" Config "==>" Exp "\\\\" [Premise];
+separator nonempty Rule_ ";";
+BEAxiom_. Rule_ ::= "[" Ident "]:" Config_ "|-" Config_ "==>" Exp_;
+NBEAxiom_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_;
+BERule_. Rule_ ::= "[" Ident "]:"  Config_ "|-" Config_ "==>" Exp_ "\\\\" [Premise_];
+NBERule_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_ "\\\\" [Premise_];
 -- -- -- Premises
-separator nonempty Premise ",";
-PremiseIf. Premise ::= "if" Exp;
-PremiseLet. Premise ::= "let" Ident ":=" Exp;
-PremiseLetrec. Premise ::= "letrec" Dom ":" Ident ":=" Exp;
-PremiseTrInternal. Premise ::=  Exp "|-" Exp "==>" Config;
-PremiseTrExternal. Premise ::=  Exp "|-" Exp "=" Ident "=>" Config;
-EPremiseTrInternal. Premise ::=  Exp "==>" Config;
-EPremiseTrExternal. Premise ::=  Exp "=" Ident "=>" Config;
+separator nonempty Premise_ ",";
+PremiseIf_. Premise_ ::= "if" Exp_;
+PremiseLet_. Premise_ ::= "let" Ident ":=" Exp_;
+PremiseLetrec_. Premise_ ::= "letrec" Dom_ ":" Ident ":=" Exp_;
+BEPremiseTrInternal_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_;
+BEPremiseTrExternal_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_;
+NBEPremiseTrInternal_. Premise_ ::=  Exp_ "==>" Config_;
+NBEPremiseTrExternal_. Premise_ ::=  Exp_ "=" Ident "=>" Config_;
 -- -- -- Configurations
-TagConfig. Config ::= Ident "[" Config "]";
-PairConfig. Config ::= "(" Config "," Config ")";
-VarConfig. Config ::= Ident;
-ConstConfig. Config ::= Const;
+separator Config_ ",";
+TagConfig_. Config_ ::= Ident "[" Config_ "]";
+PairConfig_. Config_ ::= "(" Config_ "," [Config_] ")";
+BareTagConfig_. Config_ ::= Ident "[]";
+VarConfig_. Config_ ::= Ident;
+ConstConfig_. Config_ ::= Const_;
 
 -- -- Data definitions
-Data. Def ::= "data" Ident ":=" Exp ";";
-DataRec. Def ::= "datarec" Dom ":" Ident ":=" Exp ";";
+Data_. Def_ ::= "data" Ident ":=" Exp_ ";";
+DataRec_. Def_ ::= "datarec" Dom_ ":" Ident ":=" Exp_ ";";
 
 -- -- Expressions
 -- -- -- Lambda-calculus elements
-Lambda. Exp ::= "\\" Dom ":" Ident "." Exp;
-App. Exp ::= Exp Exp;
+Lambda_. Exp_ ::= "\\" Dom_ ":" Ident "." Exp_6;
+App_. Exp_ ::= Exp_6 "(" Exp_ ")";
 -- -- -- Extended functional expressions
-Let. Exp ::= "let" Ident "in" Exp;
-Letrec. Exp ::= "letrec" Dom ":" Ident "in" Exp;
-If. Exp ::= "if" Exp "then" Exp "else" Exp;
-Update. Exp ::= "[" Exp "->" Exp "]" Exp;
+Let_. Exp_ ::= "let" Ident "in" Exp_ "tel";
+Letrec_. Exp_ ::= "letrec" Dom_ ":" Ident "in" Exp_ "tel";
+If_. Exp_ ::= "if" Exp_ "then" Exp_ "else" Exp_ "fi";
+Update_. Exp_ ::= "[" Exp_ "->" Exp_ "]" Exp_6;
 -- -- -- Infix expressions
--- -- -- Pairs and tuples
+coercions Exp_ 6;
+Concat_. Exp_ ::= Exp_ "++" Exp_1;
+Plus_. Exp_1 ::= Exp_1 "+" Exp_2;
+Minus_. Exp_1 ::= Exp_1 "-" Exp_2;
+Prod_. Exp_2 ::= Exp_2 "*" Exp_3;
+Div_. Exp_2 ::= Exp_2 "/" Exp_3;
+Mod_. Exp_2 ::= Exp_2 "%" Exp_3;
+Or_. Exp_3 ::= Exp_3 "|" Exp_4;
+And_. Exp_4 ::= Exp_4 "&" Exp_5;
+Equal_. Exp_5 ::= Exp_6 "==" Exp_6;
+NotEqual_. Exp_5 ::= Exp_6 "!=" Exp_6;
+LessThan_. Exp_5 ::= Exp_6 "<" Exp_6;
+LessEqThan_. Exp_5 ::= Exp_6 "<=" Exp_6;
+GreaterThan_. Exp_5 ::= Exp_6 ">" Exp_6;
+GreaterEqThan_. Exp_5 ::= Exp_6 ">=" Exp_6;
+-- -- -- Unary expressions
+Inverse_. Exp_6 ::= "-" Exp_6;
+Neg_. Exp_6 ::= "!" Exp_6;
 
+-- -- -- Pairs and tuples
+separator Exp_ ",";
+Pair_. Exp_ ::= "(" Exp_ "," [Exp_] ")";
+Project_. Exp_ ::= Exp_6 ">>" Ident;
+Inject_. Exp_ ::= Ident "[" Exp_ "]";
+IsTag_. Exp_ ::= Exp_ "is" Ident;
 
 -- -- -- Variables and constants
-Var. Exp ::= Ident;
-ConstE. Exp ::= Const;
--- -- Constants
-Botm. Const ::= Dom ":_|_";
-Int. Const ::= Integer;
-Str. Const ::= String;
-Sym. Const ::= "`" Ident "`";
-BTrue. Const ::= "true";
-BFalse. Const ::= "false";
+Var_. Exp_6 ::= Ident;
+ConstE_. Exp_6 ::= Const_;
+BareTag_. Exp_6 ::= Ident "[]";
+Bot_. Const_ ::= "_(" Dom_ ")_";
+Int_. Const_ ::= Integer;
+Str_. Const_ ::= String;
+Sym_. Const_ ::= "`" Symbol "`";
+BTrue_. Const_ ::= "true";
+BFalse_. Const_ ::= "false";
 
 -- Evaluations
-separator Ev ";";
-Eval. Ev ::= "evaluate" Exp "|-" Exp "in" Ident;
-EEval. Ev ::= "evaluate" Exp "in" Ident;
+terminator Eval_ ";";
+BEEval_. Eval_ ::= "evaluate" Exp_ "|-" Exp_ "in" Ident;
+NBEEval_. Eval_ ::= "evaluate" Exp_ "in" Ident;
 
-entrypoints Specification;
+entrypoints Specification_;
