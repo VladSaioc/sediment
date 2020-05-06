@@ -1,7 +1,7 @@
 comment "//" ;
 comment "/*" "*/" ;
 
-token Symbol ((letter | ["$_"]) (letter | digit | ["$_\'"])*);
+token Symbol '`' ((letter | ["$_"]) (letter | digit | ["$_\'"])*) '`';
 
 -- Entry point
 Spec_. Specification_ ::= [Def_] [Eval_];
@@ -11,16 +11,16 @@ Spec_. Specification_ ::= [Def_] [Eval_];
 (:). [Def_] ::= Def_ [Def_] ;
 
 -- -- Domain definitions
-DefDom_. Def_ ::= "domain" Ident ":=" DomDef_ ";";
+DomDef_. Def_ ::= "domain" Ident ":=" DomDefExp_ ";";
 -- -- -- Union domains
-DefUnion_. DomDef_ ::= Union_;
+DefUnion_. DomDefExp_ ::= Union_;
 separator nonempty UnionBranch_"+";
 UnionDom_. Union_ ::= "[" [UnionBranch_] "]";
 TagDom_. UnionBranch_ ::= Ident "[" Dom_ "]";
 Tag_. UnionBranch_ ::= Ident;
 -- -- -- Non-union domains
 coercions Dom_ 2;
-DefNonUnion_. DomDef_ ::= Dom_;
+DefNonUnion_. DomDefExp_ ::= Dom_;
 FuncDom_. Dom_ ::= Dom_1 "->" Dom_;
 ProdDom_. Dom_1 ::= Dom_2 "*" Dom_1;
 VarDom_. Dom_2 ::= Ident;
@@ -48,15 +48,15 @@ BERule_. Rule_ ::= "[" Ident "]:"  Config_ "|-" Config_ "==>" Exp_ "\\\\" [Premi
 NBERule_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_ "\\\\" [Premise_];
 -- -- -- Premises
 separator nonempty Premise_ ",";
-PremiseIf_. Premise_ ::= "if" Exp_;
-PremiseLet_. Premise_ ::= "let" Ident ":=" Exp_;
-PremiseLetrec_. Premise_ ::= "letrec" Dom_ ":" Ident ":=" Exp_;
-BEPremiseTrInternal_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_;
-BEPremiseTrExternal_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_;
-NBEPremiseTrInternal_. Premise_ ::=  Exp_ "==>" Config_;
-NBEPremiseTrExternal_. Premise_ ::=  Exp_ "=" Ident "=>" Config_;
+IfPremise_. Premise_ ::= "if" Exp_;
+LetPremise_. Premise_ ::= "let" Ident ":=" Exp_;
+LetrecPremise_. Premise_ ::= "letrec" Dom_ ":" Ident ":=" Exp_;
+BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_;
+BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_;
+NBETrInternalPremise_. Premise_ ::=  Exp_ "==>" Config_;
+NBETrExternalPremise_. Premise_ ::=  Exp_ "=" Ident "=>" Config_;
 -- -- -- Configurations
-separator Config_ ",";
+separator nonempty Config_ ",";
 TagConfig_. Config_ ::= Ident "[" Config_ "]";
 PairConfig_. Config_ ::= "(" Config_ "," [Config_] ")";
 BareTagConfig_. Config_ ::= Ident "[]";
@@ -72,8 +72,8 @@ DataRec_. Def_ ::= "datarec" Dom_ ":" Ident ":=" Exp_ ";";
 Lambda_. Exp_ ::= "\\" Dom_ ":" Ident "." Exp_6;
 App_. Exp_ ::= Exp_6 "(" Exp_ ")";
 -- -- -- Extended functional expressions
-Let_. Exp_ ::= "let" Ident "in" Exp_ "tel";
-Letrec_. Exp_ ::= "letrec" Dom_ ":" Ident "in" Exp_ "tel";
+Let_. Exp_ ::= "let" Ident ":=" Exp_ "in" Exp_ "tel";
+Letrec_. Exp_ ::= "letrec" Dom_ ":" Ident ":=" Exp_ "in" Exp_ "tel";
 If_. Exp_ ::= "if" Exp_ "then" Exp_ "else" Exp_ "fi";
 Update_. Exp_ ::= "[" Exp_ "->" Exp_ "]" Exp_6;
 -- -- -- Infix expressions
@@ -97,8 +97,10 @@ Inverse_. Exp_6 ::= "-" Exp_6;
 Neg_. Exp_6 ::= "!" Exp_6;
 
 -- -- -- Pairs and tuples
-separator Exp_ ",";
+separator nonempty Exp_ ",";
 Pair_. Exp_ ::= "(" Exp_ "," [Exp_] ")";
+Head_. Exp_ ::= "(<)" Exp_6 ;
+Tail_. Exp_ ::= "(>)" Exp_6 ;
 Project_. Exp_ ::= Exp_6 ">>" Ident;
 Inject_. Exp_ ::= Ident "[" Exp_ "]";
 IsTag_. Exp_ ::= Exp_ "is" Ident;
@@ -110,7 +112,7 @@ BareTag_. Exp_6 ::= Ident "[]";
 Bot_. Const_ ::= "_(" Dom_ ")_";
 Int_. Const_ ::= Integer;
 Str_. Const_ ::= String;
-Sym_. Const_ ::= "`" Symbol "`";
+Sym_. Const_ ::= Symbol;
 BTrue_. Const_ ::= "true";
 BFalse_. Const_ ::= "false";
 

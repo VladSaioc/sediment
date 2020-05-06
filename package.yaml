@@ -27,10 +27,12 @@ library:
   source-dirs:
   - src
   exposed-modules:
-  - Lib
+  - AstSediment
+  - GetAst
   - Syntax.LexSediment
   - Syntax.AbsSediment
   - Syntax.ParSediment
+  - Syntax.ErrM
 
 executables:
   Sediment-exe:

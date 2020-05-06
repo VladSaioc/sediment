@@ -4,7 +4,7 @@ data Spec = Spec [Df] [Ev]
   deriving (Eq, Ord, Show, Read)
 
 data Df = DomDf String Dom
-  | SynDf String Syn
+  | SynDf String [(String, Dom)]
   | TSysDf TDom String [Rule]
   | DataDf String Exp
   | DataRecDf Dom String Exp
@@ -13,24 +13,21 @@ data Df = DomDf String Dom
 data Ev = Ev Exp Exp String
   deriving (Eq, Ord, Show, Read)
 
-data Dom = IntDom | BoolDom | StrDom | SymDom | EmptyDom
+data Dom = IntDom | BoolDom | StrDom | SymDom | EDom
   | VarDom String | FuncDom Dom Dom | ProdDom Dom Dom
   | UnionDom [(String, Dom)]
-  deriving (Eq, Ord, Show, Read)
-
-newtype Syn = Syn [(String, Dom)]
   deriving (Eq, Ord, Show, Read)
 
 data TDom = TDom Dom Dom Dom
   deriving (Eq, Ord, Show, Read)
 
 data Exp = Var String -- Variables & constants
-  | EmptyExp
+  | EExp
   | ConstE Const
   | Lambda Dom String Exp -- Basic \-calculus expressions
   | App Exp Exp
   | Let String Exp Exp -- Extended \-calculus expressions
-  | Letrec Dom String Exp Exp
+  | Letr Dom String Exp Exp
   | If Exp Exp Exp
   | Update Exp Exp Exp
   | Concat Exp Exp -- String expressions
@@ -65,18 +62,18 @@ data Const
   | BConst Bool
   deriving (Eq, Ord, Show, Read)
 
-data Rule = Rule String Config Config Exp [Premise]
+data Rule = Rule String Con Con Exp [Pr]
   deriving (Eq, Ord, Show, Read)
 
-data Premise = IfPremise Exp
-    | LetPremiseL String Exp
-    | LetrecPremise Dom String Exp
-    | TrPremise Exp Exp String Config
+data Pr = IfPr Exp
+    | LetPr String Exp
+    | LetrPr Dom String Exp
+    | TrPr Exp Exp String Con
   deriving (Eq, Ord, Show, Read)
 
-data Config = EmptyConfig
-  | TagConfig String Config
-  | PairConfig Config Config
-  | VarConfig String
-  | ConstConfig Const
+data Con = ECon
+  | TagCon String Con
+  | PairCon Con Con
+  | VarCon String
+  | ConstCon Const
   deriving (Eq, Ord, Show, Read)

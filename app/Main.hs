@@ -1,12 +1,10 @@
 module Main where
 
-import Lib
-import Lexer
+import GetAst
+import System.Environment
 
 main :: IO ()
 main = do
-  -- s <- getLine
-  -- let tokens = performLexing s
-  -- let sometok = Let
-  -- print tokens
-  print "aleluia"
+  s <- getLine
+  let ast = getAst s
+  print ast
