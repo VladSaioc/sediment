@@ -68,47 +68,48 @@ Data_. Def_ ::= "data" Ident ":=" Exp_ ";";
 DataRec_. Def_ ::= "datarec" Dom_ ":" Ident ":=" Exp_ ";";
 
 -- -- Expressions
+coercions Exp_ 9;
 -- -- -- Lambda-calculus elements
-Lambda_. Exp_ ::= "\\" Dom_ ":" Ident "." Exp_6;
-App_. Exp_ ::= Exp_6 "(" Exp_6 ")";
+Lambda_. Exp_ ::= "\\" Dom_ ":" Ident "." Exp_;
+App_. Exp_8 ::= Exp_9 "(" Exp_ ")";
 -- -- -- Extended functional expressions
-Let_. Exp_6 ::= "let" Ident ":=" Exp_ "in" Exp_6;
-Letrec_. Exp_6 ::= "letrec" Dom_ ":" Ident ":=" Exp_ "in" Exp_6;
-If_. Exp_6 ::= "if" Exp_ "then" Exp_ "else" Exp_6;
-Update_. Exp_6 ::= "[" Exp_ "->" Exp_ "]" Exp_6;
+Let_. Exp_ ::= "let" Ident ":=" Exp_ "in" Exp_;
+Letrec_. Exp_ ::= "letrec" Dom_ ":" Ident ":=" Exp_ "in" Exp_;
+If_. Exp_ ::= "if" Exp_ "then" Exp_ "else" Exp_;
+Update_. Exp_9 ::= "[" Exp_ "->" Exp_ "]" Exp_9;
 -- -- -- Infix expressions
-coercions Exp_ 6;
-Concat_. Exp_ ::= Exp_ "++" Exp_1;
-Plus_. Exp_1 ::= Exp_1 "+" Exp_2;
-Minus_. Exp_1 ::= Exp_1 "-" Exp_2;
-Prod_. Exp_2 ::= Exp_2 "*" Exp_3;
-Div_. Exp_2 ::= Exp_2 "/" Exp_3;
-Mod_. Exp_2 ::= Exp_2 "%" Exp_3;
-Or_. Exp_3 ::= Exp_3 "|" Exp_4;
-And_. Exp_4 ::= Exp_4 "&" Exp_5;
-Equal_. Exp_5 ::= Exp_6 "==" Exp_6;
-NotEqual_. Exp_5 ::= Exp_6 "!=" Exp_6;
-LessThan_. Exp_5 ::= Exp_6 "<" Exp_6;
-LessEqThan_. Exp_5 ::= Exp_6 "<=" Exp_6;
-GreaterThan_. Exp_5 ::= Exp_6 ">" Exp_6;
-GreaterEqThan_. Exp_5 ::= Exp_6 ">=" Exp_6;
--- -- -- Unary expressions
-Inverse_. Exp_6 ::= "-" Exp_6;
-Neg_. Exp_6 ::= "!" Exp_6;
+Concat_. Exp_1 ::= Exp_1 "++" Exp_2;
+Plus_. Exp_2 ::= Exp_2 "+" Exp_3;
+Minus_. Exp_2 ::= Exp_2 "-" Exp_3;
+Prod_. Exp_3 ::= Exp_3 "*" Exp_4;
+Div_. Exp_3 ::= Exp_3 "/" Exp_4;
+Mod_. Exp_3 ::= Exp_3 "%" Exp_4;
+Or_. Exp_4 ::= Exp_4 "|" Exp_5;
+And_. Exp_5 ::= Exp_5 "&" Exp_6;
+Equal_. Exp_6 ::= Exp_7 "==" Exp_7;
+NotEqual_. Exp_6 ::= Exp_7 "!=" Exp_7;
+LessThan_. Exp_6 ::= Exp_7 "<" Exp_7;
+LessEqThan_. Exp_6 ::= Exp_7 "<=" Exp_7;
+GreaterThan_. Exp_6 ::= Exp_7 ">" Exp_7;
+GreaterEqThan_. Exp_6 ::= Exp_7 ">=" Exp_7;
 
 -- -- -- Pairs and tuples
 separator nonempty Exp_ ",";
-Pair_. Exp_6 ::= "(" Exp_ "," [Exp_] ")";
-Head_. Exp_6 ::= "(<)" Exp_6 ;
-Tail_. Exp_6 ::= "(>)" Exp_6 ;
-Project_. Exp_ ::= Exp_6 ">>" Ident;
-Inject_. Exp_6 ::= Ident "[" Exp_ "]";
-IsTag_. Exp_ ::= Exp_ "is" Ident;
+Pair_. Exp_7 ::= "(" Exp_ "," [Exp_] ")";
+Head_. Exp_7 ::= "(<)" Exp_8 ;
+Tail_. Exp_7 ::= "(>)" Exp_8 ;
+Project_. Exp_7 ::= Exp_8 ">>" Ident;
+Inject_. Exp_7 ::= Ident "[" Exp_ "]";
+IsTag_. Exp_7 ::= Exp_8 "is" Ident;
+
+-- -- -- Unary expressions
+Inverse_. Exp_8 ::= "-" Exp_8;
+Neg_. Exp_8 ::= "!" Exp_8;
 
 -- -- -- Variables and constants
-Var_. Exp_6 ::= Ident;
-ConstE_. Exp_6 ::= Const_;
-BareTag_. Exp_6 ::= Ident "[]";
+Var_. Exp_9 ::= Ident;
+ConstE_. Exp_9 ::= Const_;
+BareTag_. Exp_9 ::= Ident "[]";
 Bot_. Const_ ::= "_/" Dom_ "\\_";
 Int_. Const_ ::= Integer;
 Str_. Const_ ::= String;
