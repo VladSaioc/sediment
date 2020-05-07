@@ -20,37 +20,39 @@ syntax Fexp := var of symbol
   | letnr of symbol * Fexp * Fexp
   | letr of symbol * Fexp * Fexp;
 
-data apply := \ (Fcon * Values) -> Values : fx.
+data apply := \ Fcon * Values -> Values : fx.
   let f := (<) fx in
   let x := (>) fx in
   vconst[
-    if x is pair then
+    if x is vpair then
       let x' := x >> vpair in
       let x1 := (<) x' in
       let x2 := (>) x' in
       if f is plus
-        then number[(x1 >> number) + (x2 >> number)]
+      then number[x1 >> number + x2 >> number]
       else if f is minus
-        then number[(x1 >> number) - (x2 >> number)]
+      then number[x1 >> number - x2 >> number]
       else if f is times
-        then (x1 >> number) * (x2 >> number)
+      then number[x1 >> number * x2 >> number]
       else if f is equal
-        then if (x1 is number) & (x2 is number)
-          then bconst[(x1 >> number) == (x2 >> number)]
-        else if (x1 is bconst) & (x2 is bconst)
-          then bconst[(x1 >> bconst) == (x2 >> bconst)]
+      then if x1 is number & x2 is number
+        then bconst[x1 >> number == x2 >> number]
+        else if x1 is bconst & x2 is bconst
+          then bconst[x1 >> bconst == x2 >> bconst]
           else _/Values\_
       else _/Values\_
-    else if x is const
-      then let x' := x >> const in
+    else if x is vconst
+      then let x' := x >> vconst in
         if x' is bconst
-          then if f is not
-              then bconst[!(x' >> bconst)]
-            else if f is is0
-              then bconst[(x' >> bconst) == 0]
+        then if f is not
+          then bconst[!(x' >> bconst)]
+          else _/Values\_
+        else if x' is number
+          then if f is is0
+            then number[x' >> number == 0]
+            else _/Values\_
           else _/Values\_
         else _/Values\_
-      else _/Values\_
   ];
 
 system Env |- Fexp ==> Values : Flan :=
