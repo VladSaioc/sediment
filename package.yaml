@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - array
 - pretty-simple
+- containers
 
 library:
   source-dirs:
@@ -30,6 +31,8 @@ library:
   exposed-modules:
   - AstSediment
   - GetAst
+  - Environments
+  - BindSystems
   - Syntax.LexSediment
   - Syntax.AbsSediment
   - Syntax.ParSediment

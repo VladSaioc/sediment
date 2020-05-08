@@ -4,7 +4,6 @@ data Spec = Spec [Df] [Ev] | SpecError String
   deriving (Eq, Ord, Show, Read)
 
 data Df = DomDf String Dom
-  | SynDf String [(String, Dom)]
   | TSysDf TDom String [Rule]
   | DataDf String Exp
   | DataRecDf Dom String Exp
@@ -66,9 +65,9 @@ data Rule = Rule String Con Con Exp [Pr]
   deriving (Eq, Ord, Show, Read)
 
 data Pr = IfPr Exp
-    | LetPr String Exp
-    | LetrPr Dom String Exp
-    | TrPr Exp Exp String Con
+  | LetPr String Exp
+  | LetrPr Dom String Exp
+  | TrPr Exp Exp String Con
   deriving (Eq, Ord, Show, Read)
 
 data Con = ECon

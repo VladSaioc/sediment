@@ -3,6 +3,7 @@ module Main where
 import System.IO
 import Control.Monad
 import GetAst
+import BindSystems
 import System.Environment
 import Text.Pretty.Simple (pPrint)
 
@@ -16,4 +17,8 @@ main = do
   --     source <- getContents
   source <- readFile fileName
   let ast = getAst source
-  pPrint ast
+  -- pPrint ast
+  let (domEnv, nuDomXs, uDomXs) = bindDom ast
+  -- pPrint domAst
+  -- pPrint sysAst
+  print nuDomXs
