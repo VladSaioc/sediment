@@ -27,7 +27,7 @@ getAst = polishAst . getRawAst
 -- Definition polish
 pDef :: Def_ -> Df
 pDef (DomDef_ i de) = DomDf (pIdent i) (pDomDefExp de)
-pDef (SyntaxDef_ i frs) = SynDf (pIdent i) (map pFormRule frs)
+pDef (SyntaxDef_ i frs) = DomDf (pIdent i) (UnionDom (map pFormRule frs))
 pDef (TSystem_ td i rs) = TSysDf (pTDom td) (pIdent i) (map pRule rs)
 pDef (Data_ i e) = DataDf (pIdent i) (pExp e)
 pDef (DataRec_ d i e) = DataRecDf (pDom d) (pIdent i) (pExp e)
