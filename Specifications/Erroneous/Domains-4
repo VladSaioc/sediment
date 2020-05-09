@@ -1,2 +1,3 @@
 domain d1 := [t1 [d1]];
-domain d2 := [t2 [int] + t3 [d2]];
+domain d2 := [t2 [int] + t3 [d3]];
+domain d3 := [t4 + t5 + t6[d1 * d1]];
