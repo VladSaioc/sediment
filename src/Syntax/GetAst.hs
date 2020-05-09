@@ -1,9 +1,9 @@
-module GetAst (getAst) where
+module Syntax.GetAst (getAst) where
 
 import Syntax.AbsSediment
 import Syntax.ParSediment
 import Syntax.ErrM
-import AstSediment
+import Syntax.Ast
 
 pIdent :: Ident -> String
 pIdent (Ident s) = s

@@ -1,11 +1,14 @@
 module Main where
 
 import System.IO
-import Control.Monad
-import GetAst
-import BindSystems
 import System.Environment
+import Control.Monad
 import Text.Pretty.Simple (pPrint)
+
+import Syntax.GetAst
+
+import Semantics.Bind
+import Semantics.Domains.Wellformed.UniqueTags
 
 main :: IO ()
 main = do
@@ -19,6 +22,5 @@ main = do
   let ast = getAst source
   -- pPrint ast
   let (domEnv, nuDomXs, uDomXs) = bindDom ast
-  -- pPrint domAst
-  -- pPrint sysAst
-  print nuDomXs
+  let Just ts = uniqueTags domEnv uDomXs
+  print ts

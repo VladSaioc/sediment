@@ -29,14 +29,19 @@ library:
   source-dirs:
   - src
   exposed-modules:
-  - AstSediment
-  - GetAst
-  - Environments
-  - BindSystems
+  # Syntactic modules
   - Syntax.LexSediment
   - Syntax.AbsSediment
   - Syntax.ParSediment
   - Syntax.ErrM
+  - Syntax.GetAst
+  # Semantics modules
+  - Semantics.Env
+  - Semantics.Bind
+  ## Well-formedness
+  - Semantics.Domains.Wellformed.UniqueTags
+  ## Expressions
+  - Semantics.Expressions.Value
 
 executables:
   Sediment-exe:

@@ -1,4 +1,4 @@
-module AstSediment where
+module Syntax.Ast where
 
 data Spec = Spec [Df] [Ev] | SpecError String
   deriving (Eq, Ord, Show, Read)
