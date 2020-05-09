@@ -1,0 +1,2 @@
+domain d1 := [t1 [int]];
+domain d2 := d1;

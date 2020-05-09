@@ -8,6 +8,7 @@ import Semantics.General
 import Semantics.Domains.Bind
 import Semantics.Domains.Sanity
 import Semantics.Domains.Wellformed
+import Semantics.Domains.Wellordered
 
 verifyDomains :: Spec -> Result DomEnv
 verifyDomains ast = case bindDom ast of
@@ -18,5 +19,7 @@ verifyDomains ast = case bindDom ast of
         Bad msg -> Bad msg
         _ -> case unionAliasCheck de nuxs of
           Bad msg -> Bad msg
-          _ -> Ok de
+          _ -> case wellordered de uxs of
+            Bad msg -> Bad msg
+            _ -> Ok de
   Bad msg -> Bad msg

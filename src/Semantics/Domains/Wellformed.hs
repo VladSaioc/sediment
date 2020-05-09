@@ -39,7 +39,7 @@ wellformed' de x p d = case d of
     in case pr1 of
       Ok p' -> wellformed' de x p' d2
       Bad msg -> Bad msg
-  VarDom x' -> if x' == x then Bad ("Self-recursion on variable " ++ x' ++ ".")
+  VarDom x' -> if x' == x then Bad ("Disallowed non-union self-reference: domain " ++ x' ++ " references itself in its definition.")
     else let 
       Just d' = Data.Map.lookup x' de
       in case d' of
@@ -48,7 +48,7 @@ wellformed' de x p d = case d of
             Just px = Data.Map.lookup x p
             isParent = Data.Set.member x' px
           in
-            if isParent then Bad ("Circular reference between domain variables " ++ x' ++ " and " ++ x ++ ".")
+            if isParent then Bad ("Disallowed non-union circular references: domain variables " ++ x' ++ " and " ++ x ++ " create a circular reference.")
             else let
               Just px' = Data.Map.lookup x' p
               p' = Data.Map.insert x' (px `Data.Set.union` px') p
