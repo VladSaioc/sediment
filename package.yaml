@@ -38,8 +38,14 @@ library:
   # Semantics modules
   - Semantics.Env
   - Semantics.Bind
-  ## Well-formedness
-  - Semantics.Domains.Wellformed.UniqueTags
+  - Semantics.General
+  ## Domains-related
+  - Semantics.Domains.Bind
+  - Semantics.Domains.General
+  - Semantics.Domains.Sanity
+  - Semantics.Domains.Wellformed
+  ### Main Verification pipeline
+  - Semantics.Domains.Verify
   ## Expressions
   - Semantics.Expressions.Value
 

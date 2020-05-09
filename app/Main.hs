@@ -7,8 +7,9 @@ import Text.Pretty.Simple (pPrint)
 
 import Syntax.GetAst
 
-import Semantics.Bind
-import Semantics.Domains.Wellformed.UniqueTags
+import Semantics.General
+
+import Semantics.Domains.Verify
 
 main :: IO ()
 main = do
@@ -21,6 +22,6 @@ main = do
   source <- readFile fileName
   let ast = getAst source
   -- pPrint ast
-  let (domEnv, nuDomXs, uDomXs) = bindDom ast
-  let Just ts = uniqueTags domEnv uDomXs
-  print ts
+  case verifyDomains ast of
+    Bad msg -> pPrint msg
+    Ok de -> pPrint de
