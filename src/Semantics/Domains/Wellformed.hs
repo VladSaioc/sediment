@@ -2,7 +2,9 @@ module Semantics.Domains.Wellformed (wellformed) where
 
 import Data.Map
 import Data.Set
+
 import Syntax.Ast
+
 import Semantics.Env
 import Semantics.General
 import Semantics.Domains.General
