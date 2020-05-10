@@ -1,15 +1,16 @@
-module Semantics.Domains.Wellordered (wellordered) where
+module Semantics.Dom.Wellordered (wellordered) where
 
 import Data.Map
 import Data.Set
+
 import Syntax.Ast
-import Semantics.Env
-import Semantics.General
-import Semantics.Domains.General
+import Syntax.ErrM
+
+import Semantics.Dom.General
 
 type VisitedTags = Set String
 
-wellordered :: DomEnv -> [String] -> Result ()
+wellordered :: DomEnv -> [String] -> Err ()
 wellordered de xs = let
     results = Prelude.map (\x -> case wellordered' de Data.Set.empty (VarDom x) of
       Bad msg -> Bad msg
@@ -21,7 +22,7 @@ wellordered de xs = let
         Bad msg -> Bad (msg ++ "\n" ++ msg')
         _ -> Bad msg') (Ok ()) results
 
-wellordered' :: DomEnv -> VisitedTags -> Dom -> Result ()
+wellordered' :: DomEnv -> VisitedTags -> Dom -> Err ()
 wellordered' de ts d = case d of
   IntDom -> Ok ()
   BoolDom -> Ok ()
@@ -53,7 +54,7 @@ wellordered' de ts d = case d of
       UnionDom tds -> wellordered'' de ts x tds
       _ -> wellordered' de ts d'
 
-wellordered'' :: DomEnv -> VisitedTags -> String -> [(String, Dom)] -> Result ()
+wellordered'' :: DomEnv -> VisitedTags -> String -> [(String, Dom)] -> Err ()
 wellordered'' de ts x [] = Bad ("Unions must be well-ordered: no well-ordered branch found for union " ++ x ++ ".")
 wellordered'' de ts x ((t, d) : tds) = if not (Data.Set.member t ts) then
     let

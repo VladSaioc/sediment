@@ -6,10 +6,9 @@ import Control.Monad
 import Text.Pretty.Simple (pPrint)
 
 import Syntax.GetAst
+import Syntax.ErrM
 
-import Semantics.General
-
-import Semantics.Domains.Verify
+import Semantics.Dom.Verify
 
 main :: IO ()
 main = do

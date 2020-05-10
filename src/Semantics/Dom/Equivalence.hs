@@ -1,11 +1,10 @@
-module Semantics.Domains.Equivalence (deq) where
+module Semantics.Dom.Equivalence (deq) where
 
 import Data.Map
 
 import Syntax.Ast
 
-import Semantics.Env
-import Semantics.General
+import Semantics.Dom.General
 
 deq :: DomEnv -> (Dom, Dom) -> Bool
 deq de ds = case ds of

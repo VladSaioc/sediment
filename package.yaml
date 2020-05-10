@@ -38,16 +38,16 @@ library:
   # Semantics modules
   - Semantics.Env
   - Semantics.Bind
-  - Semantics.General
   ## Domains-related
-  - Semantics.Domains.Bind
-  - Semantics.Domains.General
-  - Semantics.Domains.Sanity
-  - Semantics.Domains.Wellformed
+  - Semantics.Dom.Bind
+  - Semantics.Dom.General
+  - Semantics.Dom.Sanity
+  - Semantics.Dom.Wellformed
   ### Main Verification pipeline
-  - Semantics.Domains.Verify
+  - Semantics.Dom.Verify
   ## Expressions
-  - Semantics.Expressions.Value
+  - Semantics.Exp.General
+  - Semantics.Exp.Eval
 
 executables:
   Sediment-exe:

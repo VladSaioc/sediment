@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f8e54c4712ca7912a7a2da32d866a4e05f0860df9b475ba2aef3d64b61322344
+-- hash: dbf62ba93454c274576516ab67a1e5e310508fb91014bc6a0d2aceda66f10dab
 
 name:           Sediment
 version:        0.1.0.0
@@ -34,16 +34,16 @@ library
       Syntax.GetAst
       Semantics.Env
       Semantics.Bind
-      Semantics.General
-      Semantics.Domains.Bind
-      Semantics.Domains.General
-      Semantics.Domains.Sanity
-      Semantics.Domains.Wellformed
-      Semantics.Domains.Verify
-      Semantics.Expressions.Value
+      Semantics.Dom.Bind
+      Semantics.Dom.General
+      Semantics.Dom.Sanity
+      Semantics.Dom.Wellformed
+      Semantics.Dom.Verify
+      Semantics.Exp.General
+      Semantics.Exp.Eval
   other-modules:
-      Semantics.Domains.Equivalence
-      Semantics.Domains.Wellordered
+      Semantics.Dom.Equivalence
+      Semantics.Dom.Wellordered
       Syntax.Ast
       Syntax.LayoutSediment
       Syntax.PrintSediment

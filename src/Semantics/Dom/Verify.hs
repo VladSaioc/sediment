@@ -1,16 +1,15 @@
-module Semantics.Domains.Verify (verifyDomains) where
+module Semantics.Dom.Verify (verifyDomains) where
 
 import Syntax.Ast
+import Syntax.ErrM
 
-import Semantics.Env
-import Semantics.General
+import Semantics.Dom.Bind
+import Semantics.Dom.General
+import Semantics.Dom.Sanity
+import Semantics.Dom.Wellformed
+import Semantics.Dom.Wellordered
 
-import Semantics.Domains.Bind
-import Semantics.Domains.Sanity
-import Semantics.Domains.Wellformed
-import Semantics.Domains.Wellordered
-
-verifyDomains :: Spec -> Result DomEnv
+verifyDomains :: Spec -> Err DomEnv
 verifyDomains ast = case bindDom ast of
   Ok (de, nuxs, uxs) ->
     case uniqueTags de uxs of

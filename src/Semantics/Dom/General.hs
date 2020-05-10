@@ -1,8 +1,11 @@
-module Semantics.Domains.General where
+module Semantics.Dom.General where
 
 import Syntax.Ast
 import Semantics.Env
 import Data.Map
+
+-- Domain environment
+type DomEnv = Map String Dom
 
 isUnion :: Dom -> Bool
 isUnion (UnionDom _) = True

@@ -1,13 +1,15 @@
-module Semantics.Domains.Bind(
+module Semantics.Dom.Bind(
   bindDom
 ) where
 
-import Syntax.Ast
-import Semantics.Env
-import Semantics.General
 import Data.Map
 
-bindDom :: Spec -> Result (DomEnv, [String], [String])
+import Syntax.Ast
+import Syntax.ErrM
+
+import Semantics.Dom.General
+
+bindDom :: Spec -> Err (DomEnv, [String], [String])
 bindDom (Spec dfs _) = Ok (Prelude.foldl bindDom' (empty, [], []) dfs)
 bindDom (SpecError msg) = Bad msg
 

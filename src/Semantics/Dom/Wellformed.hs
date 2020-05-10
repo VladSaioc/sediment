@@ -1,18 +1,17 @@
-module Semantics.Domains.Wellformed (wellformed) where
+module Semantics.Dom.Wellformed (wellformed) where
 
 import Data.Map
 import Data.Set
 
 import Syntax.Ast
+import Syntax.ErrM
 
-import Semantics.Env
-import Semantics.General
-import Semantics.Domains.General
+import Semantics.Dom.General
 
 type Parents = Map String (Set String)
 type Host = String
 
-wellformed :: DomEnv -> [String] -> Result Parents
+wellformed :: DomEnv -> [String] -> Err Parents
 wellformed de = let
     p0 = Ok Data.Map.empty
     forEach pj x = let
@@ -24,7 +23,7 @@ wellformed de = let
   in
     Prelude.foldl forEach p0
 
-wellformed' :: DomEnv -> Host -> Parents -> Dom -> Result Parents
+wellformed' :: DomEnv -> Host -> Parents -> Dom -> Err Parents
 wellformed' de x p d = case d of
   IntDom -> Ok p
   BoolDom -> Ok p
