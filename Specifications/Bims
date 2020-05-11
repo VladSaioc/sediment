@@ -5,7 +5,7 @@ syntax Aexp := add of Aexp * Aexp
   | sub of Aexp * Aexp
   | aparens of Aexp
   | aconst of int
-  | var of sym;
+  | var of symbol;
 
 syntax Bexp := eq of Aexp * Aexp
   | lt of Aexp * Aexp
@@ -15,7 +15,7 @@ syntax Bexp := eq of Aexp * Aexp
   | bconst of bool;
 
 syntax Stm := skip
-  | ass of sym * Aexp
+  | ass of symbol * Aexp
   | comp of Stm * Stm
   | ifs of Bexp * Stm * Stm
   | while of Bexp * Stm;
