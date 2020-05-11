@@ -23,4 +23,4 @@ main = do
   -- pPrint ast
   case verifyDomains ast of
     Bad msg -> pPrint msg
-    Ok de -> pPrint de
+    Ok (de, tt) -> pPrint tt

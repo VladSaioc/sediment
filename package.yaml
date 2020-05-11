@@ -36,8 +36,9 @@ library:
   - Syntax.ErrM
   - Syntax.GetAst
   # Semantics modules
-  - Semantics.Env
   - Semantics.Bind
+  - Semantics.Env
+  - Semantics.General
   ## Domains-related
   - Semantics.Dom.Bind
   - Semantics.Dom.General
@@ -46,8 +47,10 @@ library:
   ### Main Verification pipeline
   - Semantics.Dom.Verify
   ## Expressions
-  - Semantics.Exp.General
+  - Semantics.Exp.Bind
   - Semantics.Exp.Eval
+  - Semantics.Exp.General
+  - Semantics.Exp.TypeS
 
 executables:
   Sediment-exe:
