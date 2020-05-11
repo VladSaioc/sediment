@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e6cbc51fdfb4f75f3370f782af5e9a9fb46f58f23b9cf3eb771fd331042a404c
+-- hash: a02566c94a04d931da108694ea65a60dd74c49c4e3a5315072f83f28b2de29ec
 
 name:           Sediment
 version:        0.1.0.0
@@ -47,7 +47,11 @@ library
   other-modules:
       Semantics.Dom.Equivalence
       Semantics.Dom.Wellordered
-      Semantics.Exp.Verify
+      Semantics.TSys.Bind
+      Semantics.TSys.General
+      Semantics.TSys.TypeS
+      Semantics.TSys.Verify
+      Semantics.TypeCheck
       Syntax.Ast
       Syntax.LayoutSediment
       Syntax.PrintSediment
