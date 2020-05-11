@@ -9,16 +9,20 @@ import Semantics.Dom.Sanity
 import Semantics.Dom.Wellformed
 import Semantics.Dom.Wellordered
 
-verifyDomains :: Spec -> Err DomEnv
+verifyDomains :: Spec -> Err (DomEnv, TagTable)
 verifyDomains ast = case bindDom ast of
   Ok (de, nuxs, uxs) ->
-    case uniqueTags de uxs of
+    case domDeclCheck de ast of
       Bad msg -> Bad msg
-      _ -> case wellformed de nuxs of
+      Ok _ -> case uniqueTags de uxs of
         Bad msg -> Bad msg
-        _ -> case unionAliasCheck de nuxs of
-          Bad msg -> Bad msg
-          _ -> case wellordered de uxs of
+        _ -> let
+            tt = makeTagTable de uxs
+          in case wellformed de nuxs of
             Bad msg -> Bad msg
-            _ -> Ok de
+            _ -> case unionAliasCheck de nuxs of
+              Bad msg -> Bad msg
+              _ -> case wellordered de uxs of
+                Bad msg -> Bad msg
+                _ -> Ok (de, tt)
   Bad msg -> Bad msg

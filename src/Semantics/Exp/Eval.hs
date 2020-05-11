@@ -5,17 +5,8 @@ import Data.Map
 import Syntax.Ast
 import Syntax.ErrM
 
+import Semantics.General
 import Semantics.Exp.General
-
-resultsOk :: [Err Value] -> Err [Value]
-resultsOk [] = Ok []
-resultsOk (r:rs) = case r of
-  Bad msg -> Bad msg
-  Ok v ->  let
-      rest = resultsOk rs
-    in case rest of
-      Bad msg -> Bad msg
-      Ok rs -> Ok (v : rs)
 
 getConst :: Const -> Err Value
 getConst (Bot _) = Bad "Undefined: tried to evaluate undefined value."
@@ -31,133 +22,89 @@ expEval env (Var x) = let
     Just v = Data.Map.lookup x env
   in Ok v
 -- Arithmetic expressions
-expEval env (Plus e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VInt (v1 + v2))
-expEval env (Minus e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VInt (v1 - v2))
-expEval env (Prod e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VInt (v1 * v2))
-expEval env (Div e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt 0] -> Bad "Attempted to divide by 0.";
-    Ok [VInt v1, VInt v2] -> Ok (VInt (v1 `div` v2))
-expEval env (Mod e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt 0] -> Bad "Attempted to divide by 0.";
-    Ok [VInt v1, VInt v2] -> Ok (VInt (v1 `mod` v2))
-expEval env (Inverse e) = let
-    r = expEval env e
-  in case r of
-    Bad msg -> Bad msg
-    Ok (VInt v) -> Ok (VInt (-v))
+expEval env (Plus e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VInt (v1 + v2))
+expEval env (Minus e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VInt (v1 - v2))
+expEval env (Prod e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VInt (v1 * v2))
+expEval env (Div e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt 0] -> Bad "Attempted to divide by 0.";
+  Ok [VInt v1, VInt v2] -> Ok (VInt (v1 `div` v2))
+expEval env (Mod e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt 0] -> Bad "Attempted to divide by 0.";
+  Ok [VInt v1, VInt v2] -> Ok (VInt (v1 `mod` v2))
+expEval env (Inverse e) = case expEval env e of
+  Bad msg -> Bad msg
+  Ok (VInt v) -> Ok (VInt (-v))
 -- Boolean expressions
-expEval env (Neg e) = let
-    r = expEval env e
-  in case r of
-    Bad msg -> Bad msg
-    Ok (VBool v) -> Ok (VBool (not v))
-expEval env (Or e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VBool v1, VBool v2] -> Ok (VBool (v1 || v2))
-expEval env (And e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VBool v1, VBool v2] -> Ok (VBool (v1 && v2))
+expEval env (Neg e) = case expEval env e of
+  Bad msg -> Bad msg
+  Ok (VBool v) -> Ok (VBool (not v))
+expEval env (Or e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VBool v1, VBool v2] -> Ok (VBool (v1 || v2))
+expEval env (And e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VBool v1, VBool v2] -> Ok (VBool (v1 && v2))
 -- Relational expressions
-expEval env (Equal e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [v1, v2] -> Ok (VBool (v1 == v2))
-expEval env (NotEqual e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [v1, v2] -> Ok (VBool (v1 /= v2))
-expEval env (LessThan e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VBool (v1 < v2))
-expEval env (LessEqThan e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VBool (v1 <= v2))
-expEval env (GreaterThan e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VBool (v1 > v2))
-expEval env (GreaterEqThan e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VInt v1, VInt v2] -> Ok (VBool (v1 >= v2))
+expEval env (Equal e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [v1, v2] -> Ok (VBool (v1 == v2))
+expEval env (NotEqual e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [v1, v2] -> Ok (VBool (v1 /= v2))
+expEval env (LessThan e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VBool (v1 < v2))
+expEval env (LessEqThan e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VBool (v1 <= v2))
+expEval env (GreaterThan e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VBool (v1 > v2))
+expEval env (GreaterEqThan e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VInt v1, VInt v2] -> Ok (VBool (v1 >= v2))
 -- String expressions
-expEval env (Concat e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [VStr v1, VStr v2] -> Ok (VStr (v1 ++ v2))
+expEval env (Concat e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [VStr v1, VStr v2] -> Ok (VStr (v1 ++ v2))
 -- Simple \-calculus
 expEval env (Lambda _ x e) = Ok (Cloj env x e)
-expEval env (App e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [Cloj env' x e', v] -> expEval (Data.Map.insert x v env') e'
-    Ok [RCloj env' x x' e', v] -> let
-        env_'' = Data.Map.insert x (RCloj env' x x' e') env'
-        env'' = Data.Map.insert x' v env_''
-      in expEval env'' e'
+expEval env (App e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [Cloj env' x e', v] -> expEval (Data.Map.insert x v env') e'
+  Ok [RCloj env' x x' e', v] -> let
+      env_'' = Data.Map.insert x (RCloj env' x x' e') env'
+      env'' = Data.Map.insert x' v env_''
+    in expEval env'' e'
 -- Extended \-calculus
-expEval env (Let x e1 e2) = let
-    r = expEval env e1
-  in case r of
-    Bad msg -> Bad msg
-    Ok v -> expEval (Data.Map.insert x v env) e2
-expEval env (Letr _ x e1 e2) = let
-    r = expEval env e1
-  in case r of
-    Bad msg -> Bad msg
-    Ok (Cloj env' x' e') -> let
-        env'' = Data.Map.insert x (RCloj env' x x' e') env
-      in expEval env'' e2
-expEval env (If e1 e2 e3) = let
-    r = expEval env e1
-  in case r of
-    Bad msg -> Bad msg
-    Ok (VBool True) -> expEval env e2
-    Ok (VBool False) -> expEval env e3
-expEval env (Update e1 e2 e3) = let
-    r = expEval env e3
-  in case r of
-    Bad msg -> Bad msg
-    Ok (Cloj env' x e) -> Ok (Cloj env' x (If (Equal (Var x) e1) e2 e))
-    Ok (RCloj env' x x' e) -> Ok (RCloj env' x x' (If (Equal (Var x) e1) e2 e))
+expEval env (Let x e1 e2) = case expEval env e1 of
+  Bad msg -> Bad msg
+  Ok v -> expEval (Data.Map.insert x v env) e2
+expEval env (Letr _ x e1 e2) = case expEval env e1 of
+  Bad msg -> Bad msg
+  Ok (Cloj env' x' e') -> let
+      env'' = Data.Map.insert x (RCloj env' x x' e') env
+    in expEval env'' e2
+expEval env (If e1 e2 e3) = case expEval env e1 of
+  Bad msg -> Bad msg
+  Ok (VBool True) -> expEval env e2
+  Ok (VBool False) -> expEval env e3
+expEval env (Update e1 e2 e3) = case expEval env e3 of
+  Bad msg -> Bad msg
+  Ok (Cloj env' x e) -> Ok (Cloj env' x (If (Equal (Var x) e1) e2 e))
+  Ok (RCloj env' x x' e) -> Ok (RCloj env' x x' (If (Equal (Var x) e1) e2 e))
 -- Operations on pairs
-expEval env (Pair e1 e2) = let
-    r = resultsOk [expEval env e1, expEval env e2]
-  in case r of
-    Bad msg -> Bad msg
-    Ok [v1, v2] -> Ok (VPair v1 v2)
+expEval env (Pair e1 e2) = case results [expEval env e1, expEval env e2] of
+  Bad msg -> Bad msg
+  Ok [v1, v2] -> Ok (VPair v1 v2)
 expEval env (Head e) = case expEval env e of
   Bad msg -> Bad msg
   Ok (VPair v1 v2) -> Ok v1
