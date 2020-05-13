@@ -20,6 +20,7 @@ getConst (BConst _) = Ok BoolDom
 
 expT :: DomEnv -> TagTable -> TEnv -> Exp -> Err Dom
 -- Constants and variables
+expT de tt env EExp = Ok EDom
 expT de tt env (ConstE c) = getConst c
 expT de tt env (Var x) = case Data.Map.lookup x env of
   Nothing -> Bad ("Undeclared variable: could not find variable " ++ x ++ " in scope.")
@@ -171,22 +172,18 @@ expT de tt env (Tail e) = case expT de tt env e of
   Ok (ProdDom _ d) -> Ok d
   Ok d -> Bad ("Incompatible tail operation: expected a pair domain, found " ++ show d ++ " instead.")
 -- Operations on tags
-expT de tt env (Inject t EExp) = case Data.Map.lookup t tt of
-  Nothing -> Bad ("Invalid tag injection: unrecognized tag " ++ t ++ ".")
-  Just (x, d) -> if deq de (d, EDom) then Ok (VarDom x)
-    else Bad ("Invalid tag injection: mismatched expression type. Expected an empty domain. Found " ++ show d ++ " instead.")
 expT de tt env (Inject t e) = case Data.Map.lookup t tt of
   Nothing -> Bad ("Invalid tag injection: unrecognized tag " ++ t ++ ".")
   Just (x, d) -> case expT de tt env e of
     Bad msg -> Bad msg
     Ok d' -> if deq de (d, d') then Ok (VarDom x)
-      else Bad ("Invalid tag injection: mismatched expression type. Expected an " ++ show d ++ ". Found " ++ show d' ++ " instead.")
+      else Bad ("Invalid tag injection: mismatched expression type. Expected " ++ show d ++ ". Found " ++ show d' ++ " instead.")
 expT de tt env (Project e t) = case Data.Map.lookup t tt of
   Nothing -> Bad ("Invalid tag projection: unrecognized tag " ++ t ++ ".")
   Just (x, d) -> case expT de tt env e of
     Bad msg -> Bad msg
     Ok (VarDom x') -> if x == x' then case d of
-        EDom -> Bad ("Invalid tag projection: domain-less tag " ++ t ++ " cannot be projected upon.")
+        EDom -> Bad ("Invalid tag projection: tag " ++ t ++ " is domain-less, hence it cannot be projected upon.")
         _ -> Ok d
       else Bad ("Invalid tag projection: mismatched expression type for projecting on " ++ t ++ ". Expected " ++ x ++ ". Found " ++ x' ++ " instead.")
     Ok d -> Bad ("Invalid tag projection: expected union domain " ++ x ++ ". Found " ++ show d ++ " instead.")
@@ -196,4 +193,4 @@ expT de tt env (IsTag e t) = case Data.Map.lookup t tt of
     Bad msg -> Bad msg
     Ok (VarDom x') -> if x == x' then Ok BoolDom
       else Bad ("Invalid tag check: expected union domain " ++ x ++ " when checking for tag " ++ t ++ ". Found " ++ x' ++ " instead.")
-    Ok d -> Bad ("Invalid tag check: expected union domain " ++ x ++ ". Found " ++ show d  ++ " instead.")
+    Ok d -> Bad ("Invalid tag check: expected union domain " ++ x ++ " when checking for tag " ++ t ++ ". Found " ++ show d  ++ " instead.")

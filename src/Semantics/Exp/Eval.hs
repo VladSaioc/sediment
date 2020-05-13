@@ -81,8 +81,8 @@ expEval env (App e1 e2) = case results [expEval env e1, expEval env e2] of
   Bad msg -> Bad msg
   Ok [Cloj env' x e', v] -> expEval (Data.Map.insert x v env') e'
   Ok [RCloj env' x x' e', v] -> let
-      env_'' = Data.Map.insert x (RCloj env' x x' e') env'
-      env'' = Data.Map.insert x' v env_''
+      env''' = Data.Map.insert x (RCloj env' x x' e') env'
+      env'' = Data.Map.insert x' v env'''
     in expEval env'' e'
 -- Extended \-calculus
 expEval env (Let x e1 e2) = case expEval env e1 of

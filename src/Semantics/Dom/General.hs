@@ -1,8 +1,8 @@
 module Semantics.Dom.General where
 
-import Syntax.Ast
-import Semantics.Env
 import Data.Map
+
+import Syntax.Ast
 
 -- Domain environment
 type DomEnv = Map String Dom
