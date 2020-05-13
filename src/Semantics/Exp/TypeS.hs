@@ -140,9 +140,10 @@ expT de tt env (Letr d x e1 e2) = let
       else Bad ("Incompatible letrec definition: recursive variable " ++ x ++ " declared with domain " ++ show d ++ " but found type " ++ show d1 ++ " instead.")
 expT de tt env (If e1 e2 e3) = case results [expT de tt env e1, expT de tt env e2, expT de tt env e3] of
   Bad msg -> Bad msg
-  Ok [BoolDom, d, d'] -> if deq de (d, d') then Ok d
-    else Bad ("Incompatible conditional branches: if statement branches are of domains " ++ show d ++ " and " ++ show d' ++ ". Expected the same type.")
-  Ok (d : _) -> Bad ("Incompatible conditional statement: expected to find `bool`, found " ++ show d ++ " instead.")
+  Ok [d1, d2, d3] -> case deepDomain de d1 of
+    BoolDom -> if deq de (d2, d3) then Ok d2
+      else Bad ("Incompatible conditional branches: if statement branches are of domains " ++ show d2 ++ " and " ++ show d3 ++ ". Expected the same type.")
+    d -> Bad ("Incompatible conditional statement: expected to find `bool`, found " ++ show d ++ " instead.")
 expT de tt env (Update e1 e2 e3) = case results [expT de tt env e1, expT de tt env e2, expT de tt env e3] of
   Bad msg -> Bad msg
   Ok [d1, d2, d3] -> if deq de (d3, FuncDom d1 d2) then let
@@ -161,12 +162,14 @@ expT de tt env (Pair e1 e2) = case results [expT de tt env e1, expT de tt env e2
   Ok [d1, d2] -> Ok (ProdDom d1 d2)
 expT de tt env (Head e) = case expT de tt env e of
   Bad msg -> Bad msg
-  Ok (ProdDom d _) -> Ok d
-  Ok d -> Bad ("Incompatible head operation: expected a pair domain, found " ++ show d ++ " instead.")
+  Ok d -> case deepDomain de d of
+    ProdDom d' _ -> Ok d'
+    d' -> Bad ("Incompatible head operation: expected a pair domain, found " ++ show d' ++ " instead.")
 expT de tt env (Tail e) = case expT de tt env e of
   Bad msg -> Bad msg
-  Ok (ProdDom _ d) -> Ok d
-  Ok d -> Bad ("Incompatible tail operation: expected a pair domain, found " ++ show d ++ " instead.")
+  Ok d -> case deepDomain de d of
+    ProdDom _ d' -> Ok d'
+    d' -> Bad ("Incompatible tail operation: expected a pair domain, found " ++ show d' ++ " instead.")
 -- Operations on tags
 expT de tt env (Inject t e) = case Data.Map.lookup t tt of
   Nothing -> Bad ("Invalid tag injection: unrecognized tag " ++ t ++ ".")

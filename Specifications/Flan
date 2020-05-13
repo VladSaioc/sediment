@@ -1,6 +1,6 @@
 domain Values := [
   vconst[Fcon] +
-  vpair[Fcon * Fcon] +
+  vpair[Values * Values] +
   cloj[symbol * Fexp * Env] +
   rcloj[symbol * symbol * Fexp * Env]
 ];
@@ -26,8 +26,12 @@ data apply := \ Fcon * Values -> Values : fx.
   vconst[
     if x is vpair then
       let x' := x >> vpair in
-      let x1 := (<) x' in
-      let x2 := (>) x' in
+      let x1' := (<) x' in
+      if !(x1' is vconst) then _/Fcon\_
+      else let x1 := x1' >> vconst in
+      let x2' := (>) x' in
+      if !(x2' is vconst) then _/Fcon\_
+      else let x2 := x2' >> vconst in
       if f is plus
       then number[x1 >> number + x2 >> number]
       else if f is minus
@@ -39,28 +43,28 @@ data apply := \ Fcon * Values -> Values : fx.
         then bconst[x1 >> number == x2 >> number]
         else if x1 is bconst & x2 is bconst
           then bconst[x1 >> bconst == x2 >> bconst]
-          else _/Values\_
-      else _/Values\_
+          else _/Fcon\_
+      else _/Fcon\_
     else if x is vconst
-      then let x' := x >> vconst in
-        if x' is bconst
-        then if f is not
-          then bconst[!(x' >> bconst)]
-          else _/Values\_
-        else if x' is number
-          then if f is is0
-            then number[x' >> number == 0]
-            else _/Values\_
-          else _/Values\_
-        else _/Values\_
+    then let x' := x >> vconst in
+      if x' is bconst
+      then if f is not
+        then bconst[!(x' >> bconst)]
+        else _/Fcon\_
+      else if x' is number
+      then if f is is0
+        then bconst[x' >> number == 0]
+        else _/Fcon\_
+      else _/Fcon\_
+    else _/Fcon\_
   ];
 
 system Env |- Fexp ==> Values : Flan :=
   [ VAR ]: env |- var[x] ==> env(x);
   
-  [ CONST ]: env |- const[c] ==> const[c];
+  [ CONST ]: env |- const[c] ==> vconst[c];
   
-  [ PAIR ]: env |- pair[(e1, e2)] ==> pair[(v1, v2)] \\
+  [ PAIR ]: env |- pair[(e1, e2)] ==> vpair[(v1, v2)] \\
     env |- e1 ==> v1,
     env |- e2 ==> v2;
   
@@ -69,8 +73,8 @@ system Env |- Fexp ==> Values : Flan :=
     env |- e2 ==> v2,
     [x -> v2]env' |- e2 ==> v;
   
-  [ APP ]: env |- app[(e1, e2)] ==> (apply ((c, v2))) \\
-    env |- e1 ==> const[c],
+  [ APP ]: env |- app[(e1, e2)] ==> apply ((c, v2)) \\
+    env |- e1 ==> vconst[c],
     env |- e2 ==> v2;
   [ APP ]: env |- app[(e1, e2)] ==> v \\
     env |- e1 ==> rcloj[(f, x, e, env')],
@@ -79,11 +83,11 @@ system Env |- Fexp ==> Values : Flan :=
     [x -> v'][f -> rclojure]env' |- e ==> v;
 
   [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
-    env |- b ==> true,
+    env |- b ==> vconst[bconst[true]],
     env |- e1 ==> v;
   
   [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
-    env |- b ==> false,
+    env |- b ==> vconst[bconst[false]],
     env |- e2 ==> v;
   
   [ FN ]: env |- fn[(x, e)] ==> cloj[(x, e, env)];
