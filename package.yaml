@@ -30,27 +30,12 @@ library:
   - src
   exposed-modules:
   # Syntactic modules
-  - Syntax.LexSediment
-  - Syntax.AbsSediment
-  - Syntax.ParSediment
   - Syntax.ErrM
   - Syntax.GetAst
   # Semantics modules
-  - Semantics.Bind
-  - Semantics.Env
-  - Semantics.General
+  - Semantics.TypeCheck
   ## Domains-related
-  - Semantics.Dom.Bind
-  - Semantics.Dom.General
-  - Semantics.Dom.Sanity
-  - Semantics.Dom.Wellformed
-  ### Main Verification pipeline
   - Semantics.Dom.Verify
-  ## Expressions
-  - Semantics.Exp.Bind
-  - Semantics.Exp.Eval
-  - Semantics.Exp.General
-  - Semantics.Exp.TypeS
 
 executables:
   Sediment-exe:

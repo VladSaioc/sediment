@@ -10,7 +10,7 @@ syntax Aexp := add of Aexp * Aexp
 syntax Bexp := eq of Aexp * Aexp
   | lt of Aexp * Aexp
   | not of Bexp
-  | and of Bexp
+  | and of Bexp * Bexp
   | bparens of Bexp
   | bconst of bool;
 

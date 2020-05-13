@@ -112,9 +112,9 @@ expT de tt env (Concat e1 e2) = case results [expT de tt env e1, expT de tt env 
   Ok [StrDom, StrDom] -> Ok StrDom
   Ok [d1, d2] -> Bad ("Incompatible types: concatenation expression evaluated with types " ++ show d1 ++ " and " ++ show d2 ++ ".")
 -- Simple \-calculus
-expT de tt env (Lambda d x e) = case d of
+expT de tt env (Lambda d x e) = case deepDomain de d of
   FuncDom d1 d2 -> let
-      env' = Data.Map.insert x d env
+      env' = Data.Map.insert x d1 env
     in case expT de tt env' e of
       Bad msg -> Bad msg
       Ok d2' -> if deq de (d2, d2') then Ok d
@@ -122,9 +122,10 @@ expT de tt env (Lambda d x e) = case d of
   _ -> Bad ("Incompatible types: lambda-expression declared with incopatible type " ++ show d ++ ".")
 expT de tt env (App e1 e2) = case results [expT de tt env e1, expT de tt env e2] of
   Bad msg -> Bad msg
-  Ok [FuncDom d'' d, d'] -> if deq de (d'', d') then Ok d
-    else Bad ("Incompatible types: supplied expression with type " ++ show d'' ++ " to function with input type " ++ show d' ++ ".")      
-  Ok [d1, d2] -> Bad ("Incompatible types: non-lambda-expression used as a function. Found domain " ++ show d1 ++ " instead.")
+  Ok [d1, d2] -> case deepDomain de d1 of
+    FuncDom d2' d ->  if deq de (d2', d2) then Ok d
+      else Bad ("Incompatible types: supplied expression with type " ++ show d2 ++ " as input to function with type " ++ show d1 ++ ".")
+    _ -> Bad ("Incompatible types: non-lambda-expression used as a function. Found domain " ++ show d1 ++ " instead.")
 -- Extended \-calculus
 expT de tt env (Let x e1 e2) = case expT de tt env e1 of
   Bad msg -> Bad msg
@@ -144,21 +145,16 @@ expT de tt env (If e1 e2 e3) = case results [expT de tt env e1, expT de tt env e
   Ok (d : _) -> Bad ("Incompatible conditional statement: expected to find `bool`, found " ++ show d ++ " instead.")
 expT de tt env (Update e1 e2 e3) = case results [expT de tt env e1, expT de tt env e2, expT de tt env e3] of
   Bad msg -> Bad msg
-  Ok [d1, d2, FuncDom d1' d2'] -> let
-      isBasic de d = case d of
-        IntDom -> True
-        BoolDom -> True
-        StrDom -> True
-        SymDom -> True
-        VarDom x -> let
-            Just d' = Data.Map.lookup x de
-          in isBasic de d'
-        _ -> False
-    in if not (isBasic de d1) then Bad ("Incompatible update: domain expression " ++ show d1 ++ " is not a basic domain, or basic domain alias.")
-    else if not (deq de (d1, d1')) then Bad ("Incompatible update: tried to update a function with domain of type " ++ show d1' ++ " with an expression of type " ++ show d1 ++ ".")
-    else if not (deq de (d2, d2')) then Bad ("Incompatible update: tried to update a function with range of type " ++ show d2' ++ " with an expression of type " ++ show d2 ++ ".")
-    else Ok (FuncDom d1' d2')
-  Ok [_, _, d] -> Bad ("Incompatible update: tried to update a non-function expression. Found type " ++ show d ++ " instead.")
+  Ok [d1, d2, d3] -> if deq de (d3, FuncDom d1 d2) then let
+        isBasic de d = case deepDomain de d of
+          IntDom -> True
+          BoolDom -> True
+          StrDom -> True
+          SymDom -> True
+          _ -> False
+      in if not (isBasic de d1) then Bad ("Incompatible types: domain expression " ++ show d1 ++ " is not a basic domain, or basic domain alias.")
+      else Ok d3
+    else Bad ("Incompatible types: update failed. Expected type " ++ show d3 ++ ". Found type " ++ show (FuncDom d1 d2) ++ " instead.")
 -- Operations on pairs
 expT de tt env (Pair e1 e2) = case results [expT de tt env e1, expT de tt env e2] of
   Bad msg -> Bad msg

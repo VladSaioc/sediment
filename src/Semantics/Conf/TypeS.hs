@@ -22,7 +22,7 @@ confT de tt env ECon d = case d of
   EDom -> Ok env
   _ -> Bad ("Invalid pattern: mismatched domains between pattern and transition system. Expected " ++ show EDom ++ " but found " ++ show d ++ " instead.")
 confT de tt env (ConstCon c) d = case getConst c of
-  Bad -> Bad msg
+  Bad msg -> Bad msg
   Ok d' -> if deq de (d, d') then Ok env
     else Bad ("Invalid pattern: mismatched domains between pattern and transition system. Expected " ++ show d ++ ", but found " ++ show d' ++ " instead.")
 confT de tt env (VarCon x) d = case d of
@@ -38,5 +38,6 @@ confT de tt env (PairCon c1 c2) d = case d of
   ProdDom d1 d2 -> case confT de tt env c1 d1 of
     Bad msg -> Bad msg
     Ok env' -> case confT de tt env' c2 d2 of
-      Bad msg -> a
+      Bad msg -> Bad msg
+      Ok env'' -> Ok env''
   _ -> Bad ("Invalid pattern: mismatched domains between pattern and transition system. Expected " ++ show d ++ ", but found a product domain instead.")

@@ -11,7 +11,6 @@ import Data.List
 import Syntax.Ast
 import Syntax.ErrM
 
-import Semantics.Env
 import Semantics.General
 import Semantics.Dom.General
 

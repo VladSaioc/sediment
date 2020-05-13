@@ -10,6 +10,8 @@ import Syntax.ErrM
 
 import Semantics.Dom.Verify
 
+import Semantics.TypeCheck
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -23,4 +25,6 @@ main = do
   -- pPrint ast
   case verifyDomains ast of
     Bad msg -> pPrint msg
-    Ok (de, tt) -> pPrint tt
+    Ok (de, tt) -> case typeCheck de tt ast of
+      Bad msg -> pPrint msg
+      Ok _ -> pPrint "done"
