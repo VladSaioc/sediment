@@ -48,6 +48,9 @@ executables:
     dependencies:
     - Sediment
 
+default-extensions:
+  - LambdaCase
+
 tests:
   Sediment-test:
     main:                Spec.hs

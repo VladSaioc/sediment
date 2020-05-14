@@ -11,25 +11,24 @@ import Semantics.Dom.General
 import Semantics.Dom.Equivalence
 import Semantics.Exp.General
 
-getConst :: Const -> Err Dom
-getConst (Bot d) = Ok d
-getConst (Int _) = Ok IntDom
-getConst (Str _) = Ok StrDom
-getConst (Sym _) = Ok SymDom
-getConst (BConst _) = Ok BoolDom
+getConst :: Const -> Dom
+getConst (Bot d) = d
+getConst (Int _) = IntDom
+getConst (Str _) = StrDom
+getConst (Sym _) = SymDom
+getConst (BConst _) = BoolDom
 
 expT :: DomEnv -> TagTable -> TEnv -> Exp -> Err Dom
 -- Constants and variables
 expT de tt env EExp = Ok EDom
-expT de tt env (ConstE c) = getConst c
+expT de tt env (ConstE c) = Ok (getConst c)
 expT de tt env (Var x) = case Data.Map.lookup x env of
   Nothing -> Bad ("Undeclared variable: could not find variable " ++ x ++ " in scope.")
   Just ty -> Ok ty
 -- Arithmetic expressions
-expT de tt env (Plus e1 e2) = case results [expT de tt env e1, expT de tt env e2] of
-  Bad msg -> Bad msg
-  Ok [IntDom, IntDom] -> Ok IntDom
-  Ok [d1, d2] -> Bad ("Incompatible types: arithmetic expression evaluated with types " ++ show d1 ++ " and " ++ show d2 ++ ".")
+expT de tt env (Plus e1 e2) = results [expT de tt env e1, expT de tt env e2] >>= \case
+  [IntDom, IntDom] -> Ok IntDom
+  [d1, d2] -> Bad ("Incompatible types: arithmetic expression evaluated with types " ++ show d1 ++ " and " ++ show d2 ++ ".")
 expT de tt env (Minus e1 e2) = case results [expT de tt env e1, expT de tt env e2] of
   Bad msg -> Bad msg
   Ok [IntDom, IntDom] -> Ok IntDom

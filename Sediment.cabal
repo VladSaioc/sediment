@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 509a921e1aec657bc693a08cf1bfdea049087956b9f5dff00d0e3c2a488760ed
+-- hash: 3b2f3bc2741cdb5f60c2c7def4072df706b7ff31fad1b306d776f761ccc5606e
 
 name:           Sediment
 version:        0.1.0.0
@@ -32,6 +32,7 @@ library
       Semantics.TypeCheck
       Semantics.Dom.Verify
   other-modules:
+      Semantics.Conf.Eval
       Semantics.Conf.TypeS
       Semantics.Dom.Bind
       Semantics.Dom.Equivalence
@@ -46,6 +47,7 @@ library
       Semantics.Exp.TypeS
       Semantics.General
       Semantics.TSys.Bind
+      Semantics.TSys.Eval
       Semantics.TSys.General
       Semantics.TSys.TypeS
       Syntax.AbsSediment
@@ -60,6 +62,7 @@ library
       Paths_Sediment
   hs-source-dirs:
       src
+  default-extensions: LambdaCase
   build-depends:
       array
     , base >=4.7 && <5
@@ -73,6 +76,7 @@ executable Sediment-exe
       Paths_Sediment
   hs-source-dirs:
       app
+  default-extensions: LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Sediment
@@ -89,6 +93,7 @@ test-suite Sediment-test
       Paths_Sediment
   hs-source-dirs:
       test
+  default-extensions: LambdaCase
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Sediment
