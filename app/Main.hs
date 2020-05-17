@@ -26,12 +26,16 @@ main = do
   source <- readFile fileName
   let ast = getAst source
   -- pPrint ast
-  print testUpdate
-  let result = verifyDomains ast >>=
-        \(de, tt) -> staticAnalysis de tt ast >>
-        execute ast >>= \results ->
-        let evalLog log v = log ++ "\n" ++ show v  
-        in Ok (foldl evalLog "Specification evaluation successful." results)
-  case result of
+  -- print testUpdate
+  let staticResults = verifyDomains ast >>= \(de, tt) -> staticAnalysis de tt ast
+  case staticResults of
     Bad msg -> putStr msg
-    Ok msg -> putStr msg
+    Ok _ -> do
+      putStr ("Static analysis successful for " ++ fileName ++ ".")
+      let results =execute ast
+      let
+        evalLog log = \case
+          Bad msg -> log ++ "\n" ++ msg
+          Ok v -> log ++ "\n" ++ show v
+      let resultLogs = foldl evalLog "" results
+      putStr resultLogs

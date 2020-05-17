@@ -14,10 +14,10 @@ import Semantics.Exp.Eval
 
 import Semantics.TSys.General
 
-tsysEval :: TSEnv -> Env -> Value -> Value -> [Rule] -> Err Value
-tsysEval tenv env v ve [] = Bad "Failed evaluation: no rules matched."
-tsysEval tenv env v ve (r:rs) = case ruleEval tenv env v ve r of
-  Bad _ -> tsysEval tenv env v ve rs
+tsysEval :: String -> TSEnv -> Env -> Value -> Value -> [Rule] -> Err Value
+tsysEval errm tenv env v ve [] = Bad  (errm ++ "\n" ++ "Failed evaluation: no rules matched." ++ "\n" ++ "Values evaluated against: " ++ show ve ++ " |- " ++ show v ++ "\n")
+tsysEval errm tenv env v ve (r@(Rule label _ _ _ _) : rs) = case ruleEval tenv env v ve r of
+  Bad msg -> tsysEval (errm ++ "\n" ++ "[[" ++ label ++ "]]: " ++ msg) tenv env v ve rs
   Ok v -> Ok v
 
 ruleEval :: TSEnv -> Env -> Value -> Value -> Rule -> Err Value
@@ -41,5 +41,5 @@ prEval' tenv (Ok env) = \case
   TrPr e1 e2 x c -> results [expEval env e1, expEval env e2] >>= \[ve, v] -> do
     let Just tsys = Data.Map.lookup x tenv
     let tenv' = Data.Map.insert thisTSys tsys tenv
-    v <- tsysEval tenv' env v ve tsys
+    v <- tsysEval ("|-> " ++ x ++ " :\n") tenv' env v ve tsys
     confEval env c v

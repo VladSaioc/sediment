@@ -9,11 +9,12 @@ import Semantics.General
 import Semantics.Exp.General
 
 getConst :: Const -> Err Value
-getConst (Bot _) = Bad "Undefined: tried to evaluate undefined value."
-getConst (Int i) = Ok (VInt i)
-getConst (Str s) = Ok (VStr s)
-getConst (Sym y) = Ok (VSym y)
-getConst (BConst b) = Ok (VBool b)
+getConst = \case
+  Bot _ -> Bad "Undefined: tried to evaluate undefined value."
+  Int i -> Ok (VInt i)
+  Str s -> Ok (VStr s)
+  Sym y -> Ok (VSym y)
+  BConst b -> Ok (VBool b)
 
 expEval :: Env -> Exp -> Err Value
 expEval env = let
@@ -22,9 +23,9 @@ expEval env = let
   -- Constants and variables
   EExp -> Ok VEmpty
   ConstE c -> getConst c
-  Var x -> let
-      Just v = Data.Map.lookup x env
-    in Ok v
+  Var x -> case Data.Map.lookup x env of
+    Just v -> Ok v
+    Nothing -> Bad x
   -- Arithmetic expressions
   Plus e1 e2 -> results [this e1, this e2] >>=
     \[VInt v1, VInt v2] -> Ok (VInt (v1 + v2))

@@ -66,11 +66,10 @@ system State |- Bexp ==> bool : Bexp :=
 end
 
 system Stm * State ==> State : Stm :=
-  [ SKIP ]: (skip, s) ==> s;
+  [ SKIP ]: (skip[], s) ==> s;
     
-  [ ASS ]: (ass[(x, a)], s) ==> [ x -> v ]s' \\
-    s |- a =Aexp=> v,
-    let s' := [ x -> v ]s;
+  [ ASS ]: (ass[(x, a)], s) ==> [ x -> v ]s \\
+    s |- a =Aexp=> v;
     
   [ COMP ]: (comp[(S1, S2)], s) ==> s' \\
     (S1, s) ==> s'',
@@ -94,7 +93,8 @@ system Stm * State ==> State : Stm :=
 end
 
 evaluate freshState |- add[(aconst[4], aconst[5])] in Aexp;
-evaluate (skip[], freshState) in Stm;
+evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;
+evaluate (ass[(`x`, aconst[5])], freshState) in Stm;
 evaluate (
    comp[(
      ass[(

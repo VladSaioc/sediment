@@ -45,119 +45,64 @@ domDeclCheck de (Spec dfs _) = case results (Prelude.map (ddc de) dfs) of
   Ok _ -> Ok ()
 
 ddc :: DomEnv -> Df -> Err ()
-ddc de (DomDf _ d) = ddcd de d
-ddc de (DataDf _ e) = ddce de e
-ddc de (DataRecDf d _ e) = case results [ddcd de d, ddce de e] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddc de (TSysDf (TDom d1 d2 d3) _ rs) = case results ([
-    ddcd de d1,
-    ddcd de d2,
-    ddcd de d3
-  ] ++ Prelude.map (ddcr de) rs) of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
+ddc de = \case
+  DomDf _ d -> ddcd de d
+  DataDf _ e -> ddce de e
+  DataRecDf d _ e -> results [ddcd de d, ddce de e] >> Ok ()
+  TSysDf (TDom d1 d2 d3) _ rs -> results ([
+      ddcd de d1,
+      ddcd de d2,
+      ddcd de d3
+    ] ++ Prelude.map (ddcr de) rs) >> Ok ()
 
 ddcd :: DomEnv -> Dom -> Err ()
-ddcd de (VarDom x) = case Data.Map.lookup x de of
-  Nothing -> Bad ("Undeclared variable: domain variable " ++ x ++ " not in the scope of the specification")
-  Just _ -> Ok ()
-ddcd de (UnionDom ds) = Prelude.foldl (\r (_,d) -> case r of
-  Bad msg -> Bad msg
-  Ok () -> case ddcd de d of
-    Bad msg -> Bad msg
-    Ok () -> Ok ()) (Ok ()) ds
-ddcd de (FuncDom d1 d2) = case results [ddcd de d1, ddcd de d2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddcd de (ProdDom d1 d2) = case results [ddcd de d1, ddcd de d2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddcd de _ = Ok ()
+ddcd de = \case
+  VarDom x -> case Data.Map.lookup x de of
+    Nothing -> Bad ("Undeclared variable: domain variable " ++ x ++ " not in the scope of the specification")
+    Just _ -> Ok ()
+  UnionDom ds -> Prelude.foldl (\r (_,d) -> r >> ddcd de d >> Ok ()) (Ok ()) ds
+  FuncDom d1 d2 -> results [ddcd de d1, ddcd de d2] >> Ok ()
+  ProdDom d1 d2 -> results [ddcd de d1, ddcd de d2] >> Ok ()
+  _ -> Ok ()
 
 ddce :: DomEnv -> Exp -> Err ()
-ddce de (Lambda d _ e) = case results [ddcd de d, ddce de e] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (App e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Let _ e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Letr d _ e1 e2) = case results [ddcd de d, ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (If e1 e2 e3) = case results [ddce de e1, ddce de e2, ddce de e3] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Update e1 e2 e3) = case results [ddce de e1, ddce de e2, ddce de e3] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Concat e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Inverse e) = ddce de e
-ddce de (Plus e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Minus e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Prod e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Div e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Mod e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Neg e) = ddce de e
-ddce de (Or e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (And e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Equal e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (NotEqual e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (LessThan e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (LessEqThan e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (GreaterThan e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (GreaterEqThan e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Pair e1 e2) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
-ddce de (Head e) = ddce de e
-ddce de (Tail e) = ddce de e
-ddce de (Project e _) = ddce de e
-ddce de (Inject _ e) = ddce de e
-ddce de (IsTag e _) = ddce de e
-ddce de _ = Ok ()
+ddce de = \case
+  Lambda d _ e -> results [ddcd de d, ddce de e] >> Ok ()
+  App e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Let _ e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Letr d _ e1 e2 -> results [ddcd de d, ddce de e1, ddce de e2] >> Ok ()
+  If e1 e2 e3 -> results [ddce de e1, ddce de e2, ddce de e3] >> Ok ()
+  Update e1 e2 e3 -> results [ddce de e1, ddce de e2, ddce de e3] >> Ok ()
+  Concat e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Inverse e -> ddce de e
+  Plus e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Minus e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Prod e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Div e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Mod e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Neg e -> ddce de e
+  Or e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  And e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Equal e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  NotEqual e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  LessThan e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  LessEqThan e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  GreaterThan e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  GreaterEqThan e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Pair e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
+  Head e -> ddce de e
+  Tail e -> ddce de e
+  Project e _ -> ddce de e
+  Inject _ e -> ddce de e
+  IsTag e _ -> ddce de e
+  _ -> Ok ()
 
 ddcr :: DomEnv -> Rule -> Err ()
-ddcr de (Rule _ _ _ e prs) = case results (ddce de e : Prelude.map (ddcp de) prs) of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
+ddcr de (Rule _ _ _ e prs) = results (ddce de e : Prelude.map (ddcp de) prs) >> Ok ()
 
 ddcp :: DomEnv -> Pr -> Err ()
-ddcp de (IfPr e) = ddce de e
-ddcp de (LetPr _ e) = ddce de e
-ddcp de (LetrPr d _ e) = case results [ddcd de d, ddce de e] of
-  Ok _ -> Ok ()
-ddcp de (TrPr e1 e2 _ _) = case results [ddce de e1, ddce de e2] of
-  Bad msg -> Bad msg
-  Ok _ -> Ok ()
+ddcp de = \case
+  IfPr e -> ddce de e
+  LetPr _ e -> ddce de e
+  LetrPr d _ e -> results [ddcd de d, ddce de e] >> Ok ()
+  TrPr e1 e2 _ _ -> results [ddce de e1, ddce de e2] >> Ok()

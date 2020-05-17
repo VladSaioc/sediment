@@ -7,18 +7,7 @@ domain Values := [
 
 domain Env := symbol -> Values;
 
-syntax Fcon := number of int
-  | bconst of bool
-  | plus | times | minus | equal | not | is0;
-
-syntax Fexp := var of symbol
-  | const of Fcon
-  | pair of Fexp * Fexp
-  | app of Fexp * Fexp
-  | iff of Fexp * Fexp * Fexp
-  | fn of symbol * Fexp
-  | letnr of symbol * Fexp * Fexp
-  | letr of symbol * Fexp * Fexp;
+data freshEnv := \ symbol: x . _/Values\_;
 
 data apply := \ Fcon * Values : fx.
   let f := (<) fx in
@@ -58,8 +47,21 @@ data apply := \ Fcon * Values : fx.
       else _/Fcon\_
     else _/Fcon\_
   ];
+  
+syntax Fexp := var of symbol
+  | const of Fcon
+  | pair of Fexp * Fexp
+  | app of Fexp * Fexp
+  | iff of Fexp * Fexp * Fexp
+  | fn of symbol * Fexp
+  | letnr of symbol * Fexp * Fexp
+  | letr of symbol * Fexp * Fexp;
 
-system Env |- Fexp ==> Values : Flan :=
+syntax Fcon := number of int
+  | bconst of bool
+  | plus | times | minus | equal | not | is0;
+
+system Env |- Fexp ==> Values : Fexp :=
   [ VAR ]: env |- var[x] ==> env(x);
   
   [ CONST ]: env |- const[c] ==> vconst[c];
@@ -69,13 +71,14 @@ system Env |- Fexp ==> Values : Flan :=
     env |- e2 ==> v2;
   
   [ APP ]: env |- app[(e1, e2)] ==> v \\
-    env |- e1 ==> cloj[(x, exp, env')],
-    env |- e2 ==> v2,
-    [x -> v2]env' |- e2 ==> v;
+    env |- e1 ==> cloj[(x, e, env')],
+    env |- e2 ==> v',
+    [x -> v']env' |- e ==> v;
   
   [ APP ]: env |- app[(e1, e2)] ==> apply ((c, v2)) \\
     env |- e1 ==> vconst[c],
     env |- e2 ==> v2;
+
   [ APP ]: env |- app[(e1, e2)] ==> v \\
     env |- e1 ==> rcloj[(f, x, e, env')],
     env |- e2 ==> v',
@@ -100,3 +103,16 @@ system Env |- Fexp ==> Values : Flan :=
     env |- e1 ==> cloj[(x, e, env')],
     [f -> rcloj[(f, x, e, env')]]env |- e2 ==> v;
 end
+
+evaluate [`x` -> vconst[number[5]]]freshEnv |- app[(
+  fn[(`x`,
+    app[(
+      const[plus[]],
+      pair[(
+        var[`y`],
+        const[number[5]]
+      )]
+    )]
+  )],
+  const[number[3]]
+)] in Fexp;
