@@ -20,7 +20,7 @@ syntax Fexp := var of symbol
   | letnr of symbol * Fexp * Fexp
   | letr of symbol * Fexp * Fexp;
 
-data apply := \ Fcon * Values -> Values : fx.
+data apply := \ Fcon * Values : fx.
   let f := (<) fx in
   let x := (>) fx in
   vconst[

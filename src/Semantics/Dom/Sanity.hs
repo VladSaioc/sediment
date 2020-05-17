@@ -34,9 +34,8 @@ uniqueTags' _ err _ = err
 unionAliasCheck :: DomEnv -> [String] -> Err ()
 unionAliasCheck de = let
     forEach b x = case b of
-      Ok{} -> case deepDomain de (VarDom x) of
-        UnionDom{} -> Bad ("Disallowed union aliasing: domain " ++ x ++ " is a union alias.")
-        _ -> Ok ()
+      Ok{} -> if isUnion de (VarDom x) then Bad ("Disallowed union aliasing: domain " ++ x ++ " is a union alias.")
+        else Ok ()
       _ -> b
   in Prelude.foldl forEach (Ok ())
 

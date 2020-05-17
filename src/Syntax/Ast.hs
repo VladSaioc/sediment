@@ -1,5 +1,7 @@
 module Syntax.Ast where
 
+import Data.List
+
 data Spec = Spec [Df] [Ev] | SpecError String
   deriving (Eq, Ord, Show, Read)
 
@@ -15,7 +17,7 @@ data Ev = Ev Exp Exp String
 data Dom = IntDom | BoolDom | StrDom | SymDom | EDom
   | VarDom String | FuncDom Dom Dom | ProdDom Dom Dom
   | UnionDom [(String, Dom)]
-  deriving (Eq, Ord, Show, Read)
+  deriving (Eq, Ord, Read)
 
 data TDom = TDom Dom Dom Dom
   deriving (Eq, Ord, Show, Read)
@@ -51,7 +53,7 @@ data Exp = Var String -- Variables & constants
   | Project Exp String
   | Inject String Exp
   | IsTag Exp String
-  deriving (Eq, Ord, Show, Read)
+  deriving (Eq, Ord, Read)
 
 data Const
   = Bot Dom
@@ -59,7 +61,7 @@ data Const
   | Str String
   | Sym String
   | BConst Bool
-  deriving (Eq, Ord, Show, Read)
+  deriving (Eq, Ord, Read)
 
 data Rule = Rule String Con Con Exp [Pr]
   deriving (Eq, Ord, Show, Read)
@@ -76,3 +78,58 @@ data Con = ECon
   | VarCon String
   | ConstCon Const
   deriving (Eq, Ord, Show, Read)
+
+instance Show Dom where
+  show = \case
+    EDom -> ""
+    VarDom x -> x
+    IntDom -> "Integer"
+    BoolDom -> "Boolean"
+    SymDom -> "Symbol"
+    StrDom -> "String"
+    FuncDom d1 d2 -> show d1 ++ " -> " ++ show d2
+    ProdDom d1 d2 -> show d1 ++ " * " ++ show d2
+    UnionDom us -> "[" ++ intercalate " + " (map (\(t,d) -> t ++ "<" ++ show d ++ ">") us) ++ "]"
+  
+instance Show Const where
+  show = \case
+    Bot d -> "_|_"
+    BConst b -> if b then "tt"
+      else "ff"
+    Int i -> show i
+    Str s -> "\"" ++ s ++ "\""
+    Sym y -> "`" ++ y ++ "`"
+
+instance Show Exp where
+  show = \case
+    Var x -> x
+    EExp -> "__"
+    ConstE c -> show c
+    Lambda _ x e -> "\\" ++ x ++ "." ++ show e
+    App e1 e2 -> "(" ++ show e1 ++ ")" ++ "(" ++ show e2 ++ ")"
+    Let x e1 e2 -> "let " ++ x ++ " := " ++ show e1 ++ " in " ++ show e2
+    Letr _ x e1 e2 -> "letrec" ++ x ++ " := " ++ show e1 ++ " in " ++ show e2
+    If e1 e2 e3 -> "if " ++ show e1 ++ " then " ++ show e2 ++ " else " ++ show e3
+    Update e1 e2 e3 -> "[" ++ show e1 ++ " -> " ++ show e3 ++ "]" ++ "(" ++ show e3 ++ ")"
+    Concat e1 e2 -> show e1 ++ " ++ " ++ show e2
+    Inverse e -> "-(" ++ show e ++ ")"
+    Plus e1 e2 -> show e1 ++ " + " ++ show e2
+    Minus e1 e2 -> show e1 ++ " - " ++ show e2
+    Prod e1 e2 -> show e1 ++ " * " ++ show e2
+    Div e1 e2 -> show e1 ++ " / " ++ show e2
+    Mod e1 e2 -> show e1 ++ " % " ++ show e2
+    Neg e -> "!(" ++ show e ++ ")"
+    Or e1 e2 -> show e1 ++ " || " ++ show e2
+    And e1 e2 -> show e1 ++ " & " ++ show e2
+    Equal e1 e2 -> show e1 ++ " == " ++ show e2
+    NotEqual e1 e2 -> show e1 ++ " != " ++ show e2
+    LessThan e1 e2 -> show e1 ++ " < " ++ show e2
+    LessEqThan e1 e2 -> show e1 ++ " <= " ++ show e2
+    GreaterThan e1 e2 -> show e1 ++ " > " ++ show e2
+    GreaterEqThan e1 e2 -> show e1 ++ " >= " ++ show e2
+    Pair e1 e2 -> "(" ++ show e1 ++ ", " ++ show e2 ++ ")"
+    Head e -> "(<) " ++ show e
+    Tail e -> "(>) " ++ show e
+    Project e t -> show e ++ " >> " ++ t
+    Inject t e -> t ++ "[" ++ show e ++ "]"
+    IsTag e t -> show e ++ " is " ++ t

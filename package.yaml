@@ -33,7 +33,9 @@ library:
   - Syntax.ErrM
   - Syntax.GetAst
   # Semantics modules
-  - Semantics.TypeCheck
+  - Semantics.StaticAnalysis
+  - Semantics.Execute
+  - Semantics.Playground
   ## Domains-related
   - Semantics.Dom.Verify
 

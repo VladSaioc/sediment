@@ -1,5 +1,7 @@
 domain State := symbol -> int;
 
+data freshState := \symbol : x  ._/int\_;
+
 syntax Aexp := add of Aexp * Aexp
   | mul of Aexp * Aexp
   | sub of Aexp * Aexp
@@ -66,8 +68,9 @@ end
 system Stm * State ==> State : Stm :=
   [ SKIP ]: (skip, s) ==> s;
     
-  [ ASS ]: (ass[(x, a)], s) ==> [ x -> v ]s \\
-    s |- a =Aexp=> v;
+  [ ASS ]: (ass[(x, a)], s) ==> [ x -> v ]s' \\
+    s |- a =Aexp=> v,
+    let s' := [ x -> v ]s;
     
   [ COMP ]: (comp[(S1, S2)], s) ==> s' \\
     (S1, s) ==> s'',
@@ -89,3 +92,25 @@ system Stm * State ==> State : Stm :=
   [ WHILE ]: (while[(b, S)], s) ==> s \\
     s |- b =Bexp=> false;
 end
+
+evaluate freshState |- add[(aconst[4], aconst[5])] in Aexp;
+evaluate (skip[], freshState) in Stm;
+evaluate (
+   comp[(
+     ass[(
+       `x`,
+       aconst[6]
+     )],
+     ass[(
+       `y`,
+       mul[(
+         var[`x`],
+         add[(
+           aconst[4],
+           aconst[2]
+         )]
+       )]
+     )]
+   )],
+   freshState
+) in Stm;

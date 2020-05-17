@@ -1,4 +1,4 @@
-module Semantics.TypeCheck (typeCheck) where
+module Semantics.StaticAnalysis (staticAnalysis) where
 
 import Data.Map
 
@@ -19,23 +19,20 @@ import Semantics.TSys.Bind
 import Semantics.TSys.General
 import Semantics.TSys.TypeS
 
-typeCheck :: DomEnv -> TagTable -> Spec -> Err [[()]]
-typeCheck de tt (Spec dfs evs) = case bindDataT de tt dfs of
-  Bad msg -> Bad msg
-  Ok env -> let
-      tenv = bindTSysT dfs
-    in results (tcdf de tt tenv env dfs ++ tcev de tt tenv env evs)
+staticAnalysis :: DomEnv -> TagTable -> Spec -> Err [[()]]
+staticAnalysis de tt (Spec dfs evs) = bindDataT de tt dfs >>= \env -> let
+    tenv = bindTSysT dfs
+  in results (tcdf de tt tenv env dfs ++ tcev de tt tenv env evs)
 
 tcdf :: DomEnv -> TagTable -> TTSEnv -> TEnv -> [Df] -> [Err [()]]
 tcdf de tt tenv env = Prelude.map (tcdf' de tt tenv env)
 
 tcdf' :: DomEnv -> TagTable -> TTSEnv -> TEnv -> Df -> Err [()]
-tcdf' de tt tenv env (TSysDf td _ rs) = let
-    tenv' = Data.Map.insert thisTSys td tenv
-  in tsysT de tt tenv' env rs
-tcdf' de tt tenv env DataDf{} = Ok []
-tcdf' de tt tenv env DataRecDf{} = Ok []
-tcdf' de tt tenv env DomDf{} = Ok []
+tcdf' de tt tenv env = \case
+  TSysDf td _ rs -> let
+      tenv' = Data.Map.insert thisTSys td tenv
+    in tsysT de tt tenv' env rs
+  _ -> Ok []
 
 tcev :: DomEnv -> TagTable -> TTSEnv -> TEnv -> [Ev] -> [Err [()]]
 tcev de tt tenv env = Prelude.map (evalT de tt tenv env)

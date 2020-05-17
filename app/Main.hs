@@ -10,7 +10,10 @@ import Syntax.ErrM
 
 import Semantics.Dom.Verify
 
-import Semantics.TypeCheck
+import Semantics.StaticAnalysis
+import Semantics.Execute
+
+import Semantics.Playground
 
 main :: IO ()
 main = do
@@ -23,8 +26,12 @@ main = do
   source <- readFile fileName
   let ast = getAst source
   -- pPrint ast
-  case verifyDomains ast of
-    Bad msg -> pPrint msg
-    Ok (de, tt) -> case typeCheck de tt ast of
-      Bad msg -> pPrint msg
-      Ok _ -> pPrint "done"
+  print testUpdate
+  let result = verifyDomains ast >>=
+        \(de, tt) -> staticAnalysis de tt ast >>
+        execute ast >>= \results ->
+        let evalLog log v = log ++ "\n" ++ show v  
+        in Ok (foldl evalLog "Specification evaluation successful." results)
+  case result of
+    Bad msg -> putStr msg
+    Ok msg -> putStr msg

@@ -6,27 +6,29 @@ import Syntax.Ast
 
 import Semantics.Dom.General
 
-deq :: DomEnv -> (Dom, Dom) -> Bool
-deq de ds = case ds of
+deq :: DomEnv -> Dom -> Dom -> Bool
+deq de d1 d2 = let
+  this = deq de
+  in case (d1, d2) of
   (EDom, EDom) -> True
   (IntDom, IntDom) -> True
   (BoolDom, BoolDom) -> True
   (StrDom, StrDom) -> True
   (SymDom, SymDom) -> True
-  (FuncDom d1 d2, FuncDom d1' d2') -> deq de (d1, d1') && deq de (d2, d2')
-  (ProdDom d1 d2, ProdDom d1' d2') -> deq de (d1, d1') && deq de (d2, d2')
+  (FuncDom d1 d2, FuncDom d1' d2') -> this d1 d1' && this d2 d2'
+  (ProdDom d1 d2, ProdDom d1' d2') -> this d1 d1' && this d2 d2'
   (VarDom x, d) -> let
       Just d' = Data.Map.lookup x de
     in case d' of
       UnionDom{} -> case d of
         VarDom x' -> x == x'
         _ -> False
-      _ -> deq de (d', d)
+      _ -> this d' d
   (d, VarDom x) -> let
       Just d' = Data.Map.lookup x de
     in case d' of
       UnionDom{} -> case d of
         VarDom x' -> x == x'
         _ -> False
-      _ -> deq de (d, d')
+      _ -> this d d'
   _ -> False
