@@ -40,4 +40,8 @@ bindData' (Ok env) = \case
   DataDf x e -> do
     v <- expEval env e
     Ok (Data.Map.insert x v env)
+  DataRecDf _ x e -> expEval env e >>=
+    \(Cloj env' x' e') -> let
+        env'' = Data.Map.insert x (RCloj env' x x' e') env
+      in Ok env''
   _ -> Ok env
