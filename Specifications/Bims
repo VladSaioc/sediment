@@ -1,6 +1,6 @@
 domain State := symbol -> int;
 
-data freshState := \symbol : x  ._/int\_;
+let freshState := \symbol : x  ._/int\_;
 
 syntax Aexp := add of Aexp * Aexp
   | mul of Aexp * Aexp

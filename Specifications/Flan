@@ -7,9 +7,9 @@ domain Values := [
 
 domain Env := symbol -> Values;
 
-data freshEnv := \ symbol: x . _/Values\_;
+let freshEnv := \ symbol: x . _/Values\_;
 
-data apply := \ Fcon * Values : fx.
+let apply := \ Fcon * Values : fx.
   let f := (<) fx in
   let x := (>) fx in
   vconst[
@@ -104,7 +104,7 @@ system Env |- Fexp ==> Values : Fexp :=
     [f -> rcloj[(f, x, e, env')]]env |- e2 ==> v;
 end
 
-evaluate [`x` -> vconst[number[5]]]freshEnv |- app[(
+evaluate [`y` -> vconst[number[5]]]freshEnv |- app[(
   fn[(`x`,
     app[(
       const[plus[]],

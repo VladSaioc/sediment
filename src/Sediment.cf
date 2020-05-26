@@ -64,8 +64,8 @@ VarConfig_. Config_ ::= Ident;
 ConstConfig_. Config_ ::= Const_;
 
 -- -- Data definitions
-Data_. Def_ ::= "data" Ident ":=" Exp_ ";";
-DataRec_. Def_ ::= "datarec" Dom_ ":" Ident ":=" Exp_ ";";
+Data_. Def_ ::= "let" Ident ":=" Exp_ ";";
+DataRec_. Def_ ::= "letrec" Dom_ ":" Ident ":=" Exp_ ";";
 
 -- -- Expressions
 coercions Exp_ 9;
