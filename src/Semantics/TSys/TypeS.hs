@@ -52,7 +52,7 @@ prT' de tt tenv (Ok env) = let
           else Bad ("Incompatible types: recursive variable " ++ x ++ " declared with domain " ++ show d ++ " but found type " ++ show d' ++ " instead.")
     _ -> Bad ("Incompatible letrec definition: expected a function dmain. Found " ++ show d ++ " instead.")
   TrPr e1 e2 x c1 -> case Data.Map.lookup x tenv of
-    Nothing -> Bad ("Undeclared variable: could find transition system " ++ x ++ ".")
+    Nothing -> Bad ("Undeclared variable: could find transition system " ++ x ++ " in the scope of the specification.")
     Just (TDom d1 d2 d3) -> rootDs [expT de tt env e1, expT de tt env e2] >>= \[d1', d2'] -> if deq de d1 d1' then
           if deq de d2 d2' then confT de tt env c1 d3
           else Bad ("Incompatible types: expected domain " ++ show d2 ++ ". Found " ++ show d2' ++ " instead.")

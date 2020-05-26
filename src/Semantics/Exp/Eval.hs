@@ -82,8 +82,9 @@ expEval env = let
     VBool True -> this e2
     VBool False -> this e3
   Update e1 e2 e3 -> this e3 >>= \case
-    Cloj env' x e -> Ok (Cloj env' x (If (Equal (Var x) e1) e2 e))
-    RCloj env' x x' e -> Ok (RCloj env' x x' (If (Equal (Var x) e1) e2 e))
+    Cloj env' x e -> Ok (Cloj env' x (If (Equal (Var x) (Closure env e1)) (Closure env e2) e))
+    RCloj env' x x' e -> Ok (RCloj env' x x' (If (Equal (Var x) (Closure env e1)) (Closure env e2) e))
+  Closure env' e -> expEval env' e
 -- Operations on pairs
   Pair e1 e2 -> results [this e1, this e2] >>=
     \[v1, v2] -> Ok (VPair v1 v2)

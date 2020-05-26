@@ -1,6 +1,7 @@
 module Syntax.Ast where
 
 import Data.List
+import Data.Map
 
 data Spec = Spec [Df] [Ev] | SpecError String
   deriving (Eq, Ord, Show, Read)
@@ -53,6 +54,7 @@ data Exp = Var String -- Variables & constants
   | Project Exp String
   | Inject String Exp
   | IsTag Exp String
+  | Closure Env Exp
   deriving (Eq, Ord, Read)
 
 data Const
@@ -89,7 +91,7 @@ instance Show Dom where
     StrDom -> "String"
     FuncDom d1 d2 -> show d1 ++ " -> " ++ show d2
     ProdDom d1 d2 -> show d1 ++ " * " ++ show d2
-    UnionDom us -> "[" ++ intercalate " + " (map (\(t,d) -> t ++ "<" ++ show d ++ ">") us) ++ "]"
+    UnionDom us -> "[" ++ intercalate " + " (Data.List.map (\(t,d) -> t ++ "<" ++ show d ++ ">") us) ++ "]"
   
 instance Show Const where
   show = \case
@@ -133,3 +135,25 @@ instance Show Exp where
     Project e t -> show e ++ " >> " ++ t
     Inject t e -> t ++ "[" ++ show e ++ "]"
     IsTag e t -> show e ++ " is " ++ t
+    Closure env e -> "((" ++ show env ++ "," ++ show e ++ "))"
+    
+type Env = Map String Value
+
+data Value = VEmpty | VInt Integer | VStr String | VBool Bool | VSym String
+  | VPair Value Value
+  | VTag String | VTagE String Value
+  | Cloj Env String Exp
+  | RCloj Env String String Exp
+  deriving (Eq, Ord, Read)
+
+instance Show Value where
+  show = \case
+    VEmpty -> "_"
+    VInt i -> show i
+    VStr s -> "\"" ++ s ++ "\""
+    VSym y -> "`" ++ y ++ "`"
+    VPair v1 v2 -> "(" ++ show v1 ++ ", " ++ show v2 ++ ")"
+    VTag t -> t ++ "[]"
+    VTagE t v -> t ++ "[" ++ show v ++ "]"
+    Cloj env x e -> "{" ++ show env ++ ", " ++ x ++ ", " ++ show e ++ "}"
+    RCloj env x x' e -> "{" ++ show env ++ ", " ++ x ++ ", " ++ x' ++ ", " ++ show e ++ "}"
