@@ -24,10 +24,10 @@ DefNonUnion_. DomDefExp_ ::= Dom_;
 FuncDom_. Dom_ ::= Dom_1 "->" Dom_;
 ProdDom_. Dom_1 ::= Dom_2 "*" Dom_1;
 VarDom_. Dom_2 ::= Ident;
-IntDom_. Dom_2 ::= "int";
-BoolDom_. Dom_2 ::= "bool";
-SymDom_. Dom_2 ::= "symbol";
-StrDom_. Dom_2 ::= "string";
+IntDom_. Dom_2 ::= "Int";
+BoolDom_. Dom_2 ::= "Bool";
+SymDom_. Dom_2 ::= "Symbol";
+StrDom_. Dom_2 ::= "String";
 
 -- -- Syntax definitions
 SyntaxDef_. Def_ ::= "syntax" Ident ":=" [FormRule_] ";";
@@ -68,15 +68,15 @@ Data_. Def_ ::= "let" Ident ":=" Exp_ ";";
 DataRec_. Def_ ::= "letrec" Dom_ ":" Ident ":=" Exp_ ";";
 
 -- -- Expressions
-coercions Exp_ 9;
+coercions Exp_ 10;
 -- -- -- Lambda-calculus elements
 Lambda_. Exp_ ::= "\\" Dom_ ":" Ident "." Exp_;
-App_. Exp_8 ::= Exp_9 "(" Exp_ ")";
+App_. Exp_9 ::= Exp_9 "(" Exp_ ")";
 -- -- -- Extended functional expressions
 Let_. Exp_ ::= "let" Ident ":=" Exp_ "in" Exp_;
 Letrec_. Exp_ ::= "letrec" Dom_ ":" Ident ":=" Exp_ "in" Exp_;
 If_. Exp_ ::= "if" Exp_ "then" Exp_ "else" Exp_;
-Update_. Exp_9 ::= "[" Exp_ "->" Exp_ "]" Exp_9;
+Update_. Exp_9 ::= "[" Exp_ "->" Exp_ "]" Exp_10;
 -- -- -- Infix expressions
 Concat_. Exp_1 ::= Exp_1 "++" Exp_2;
 Plus_. Exp_2 ::= Exp_2 "+" Exp_3;
@@ -107,9 +107,9 @@ Inverse_. Exp_8 ::= "-" Exp_8;
 Neg_. Exp_8 ::= "!" Exp_8;
 
 -- -- -- Variables and constants
-Var_. Exp_9 ::= Ident;
-ConstE_. Exp_9 ::= Const_;
-BareTag_. Exp_9 ::= Ident "[]";
+Var_. Exp_10 ::= Ident;
+ConstE_. Exp_10 ::= Const_;
+BareTag_. Exp_10 ::= Ident "[]";
 Bot_. Const_ ::= "_/" Dom_ "\\_";
 Int_. Const_ ::= Integer;
 Str_. Const_ ::= String;
