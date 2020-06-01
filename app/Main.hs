@@ -17,11 +17,10 @@ import Semantics.Playground
 
 main :: IO ()
 main = do
-  args <- getArgs
-  let fileName = head args
+  [fileName] <- getArgs
   -- if not (null fileName)
   --   then do source <- readFile fileName
-  --   else do  print "No file name provided. Type a text in Sediment to interpret ad-hoc:"
+  --   else do  print "No file name provided. Type a program in Sediment to interpret ad-hoc:"
   --     source <- getContents
   source <- readFile fileName
   let ast = getAst source
