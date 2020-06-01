@@ -28,7 +28,7 @@ main = do
   -- print testUpdate
   let staticResults = verifyDomains ast >>= \(de, tt) -> staticAnalysis de tt ast
   case staticResults of
-    Bad msg -> putStr msg
+    Bad msg -> putStr (fileName ++ ":" ++ msg)
     Ok _ -> do
       putStr ("Static analysis successful for " ++ fileName ++ ".")
       let results =execute ast
