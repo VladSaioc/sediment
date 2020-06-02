@@ -25,7 +25,7 @@ expEval env = let
   ConstE c -> getConst c
   Var x -> case Data.Map.lookup x env of
     Just v -> Ok v
-    Nothing -> Bad x
+    Nothing -> Bad ("Undeclared variable: " ++ x)
   -- Arithmetic expressions
   Plus e1 e2 -> results [this e1, this e2] >>=
     \[VInt v1, VInt v2] -> Ok (VInt (v1 + v2))

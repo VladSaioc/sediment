@@ -35,7 +35,6 @@ library:
   # Semantics modules
   - Semantics.StaticAnalysis
   - Semantics.Execute
-  - Semantics.Playground
   ## Domains-related
   - Semantics.Dom.Verify
 

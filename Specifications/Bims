@@ -1,28 +1,28 @@
-domain State := symbol -> int;
+domain State := Symbol -> Int;
 
-let freshState := \symbol : x  ._/int\_;
+let freshState := \Symbol : x  ._/Int\_;
 
 syntax Aexp := add of Aexp * Aexp
   | mul of Aexp * Aexp
   | sub of Aexp * Aexp
   | aparens of Aexp
-  | aconst of int
-  | var of symbol;
+  | aconst of Int
+  | var of Symbol;
 
 syntax Bexp := eq of Aexp * Aexp
   | lt of Aexp * Aexp
   | not of Bexp
   | and of Bexp * Bexp
   | bparens of Bexp
-  | bconst of bool;
+  | bconst of Bool;
 
 syntax Stm := skip
-  | ass of symbol * Aexp
+  | ass of Symbol * Aexp
   | comp of Stm * Stm
   | ifs of Bexp * Stm * Stm
   | while of Bexp * Stm;
 
-system State |- Aexp ==> int : Aexp :=
+system State |- Aexp ==> Int : Aexp :=
   [ VAR ]: s |- var[x] ==> s(x);
   
   [ CONST ]: s |- aconst[n] ==> n;
@@ -30,7 +30,7 @@ system State |- Aexp ==> int : Aexp :=
   [ ADD ]: s |- add[(a1, a2)] ==> v1 + v2 \\
     s |- a1 ==> v1,
     s |- a2 ==> v2;
-  
+
   [ MUL ]: s |- mul[(a1, a2)] ==> v1 * v2 \\
     s |- a1 ==> v1,
     s |- a2 ==> v2;
@@ -43,14 +43,14 @@ system State |- Aexp ==> int : Aexp :=
     s |- a ==> v;
 end
 
-system State |- Bexp ==> bool : Bexp :=
+system State |- Bexp ==> Bool : Bexp :=
   [ CONST ]: s |- bconst[b] ==> b;
 
-  [ EQ ]: s |- eq[(a1, a2)] ==> v1 == v2 \\
+  [ EQ ]: s |- eq[a1, a2] ==> v1 == v2 \\
     s |- a1 =Aexp=> v1,
     s |- a2 =Aexp=> v2;
     
-  [ LT ]: s |- lt[(a1, a2)] ==> v1 < v2 \\
+  [ LT ]: s |- lt[a1, a2] ==> v1 < v2 \\
     s |- a1 =Aexp=> v1,
     s |- a2 =Aexp=> v2;
     
@@ -60,57 +60,72 @@ system State |- Bexp ==> bool : Bexp :=
   [ PARENS ]: s |- bparens[b] ==> v \\
     s |- b ==> v;
     
-  [ AND ]: s |- and[(b1, b2)] ==> v1 & v2 \\
+  [ AND ]: s |- and[b1, b2] ==> v1 & v2 \\
     s |- b1 ==> v1,
     s |- b2 ==> v2;
 end
 
 system Stm * State ==> State : Stm :=
-  [ SKIP ]: (skip[], s) ==> s;
+  [ SKIP ]: skip[], s ==> s;
     
-  [ ASS ]: (ass[(x, a)], s) ==> [ x -> v ]s \\
+  [ ASS ]: ass[x, a], s ==> [ x -> v ]s \\
     s |- a =Aexp=> v;
     
-  [ COMP ]: (comp[(S1, S2)], s) ==> s' \\
+  [ COMP ]: comp[S1, S2], s ==> s' \\
     (S1, s) ==> s'',
     (S2, s'') ==> s';
     
-  [ IF ]: (ifs[(b, (S1, S2))], s) ==> s' \\
+  [ IF ]: ifs[b, S1, S2], s ==> s' \\
     s |- b =Bexp=> true,
-    (S1, s) ==> s';
+    S1, s ==> s';
     
-  [ IF ]: (ifs[(b, (S1, S2))], s) ==> s' \\
+  [ IF ]: ifs[b, S1, S2], s ==> s' \\
     s |- b =Bexp=> false,
-    (S2, s) ==> s';
+    S2, s ==> s';
     
-  [ WHILE ]: (while[(b, S)], s) ==> s' \\
+  [ WHILE ]: while[b, S], s ==> s' \\
     s |- b =Bexp=> true,
-    (S, s) ==> s'',
-    (while[(b, S)], s'') ==> s';
+    S, s ==> s'',
+    while[b, S], s'' ==> s';
     
-  [ WHILE ]: (while[(b, S)], s) ==> s \\
+  [ WHILE ]: while[b, S], s ==> s \\
     s |- b =Bexp=> false;
 end
 
-evaluate freshState |- add[(aconst[4], aconst[5])] in Aexp;
+evaluate freshState |- add[aconst[4], aconst[5]] in Aexp;
 evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;
-evaluate (ass[(`x`, aconst[5])], freshState) in Stm;
-evaluate (
-   comp[(
-     ass[(
-       `x`,
-       aconst[6]
-     )],
-     ass[(
-       `y`,
-       mul[(
-         var[`x`],
-         add[(
-           aconst[4],
-           aconst[2]
-         )]
-       )]
-     )]
-   )],
-   freshState
-) in Stm;
+evaluate ass[`x`, aconst[5]], freshState in Stm;
+// evaluate comp[
+//      ass[`x`, aconst[6]],
+//      ass[`y`, mul[
+//          var[`x`],
+//          add[aconst[4], aconst[2]]
+//        ]
+//      ]
+//    ],
+//    freshState
+//    in Stm;
+evaluate comp[
+ // skip[],
+  ass[`x`, aconst[5]],
+  while[
+    not[eq[
+      var[`x`],
+      aconst[5]
+    ]],
+    ass[`x`, add[var[`x`], aconst[1]]]
+  ]
+ ]
+, freshState in Stm;
+evaluate comp[
+ // skip[],
+  ass[`x`, aconst[5]],
+  while[
+    not[eq[
+      var[`x`],
+      aconst[5]
+    ]],
+    ass[`x`, add[var[`x`], aconst[1]]]
+  ]
+ ]
+, freshState in Stm;

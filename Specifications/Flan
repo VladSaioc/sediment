@@ -1,13 +1,13 @@
 domain Values := [
   vconst[Fcon] +
   vpair[Values * Values] +
-  cloj[symbol * Fexp * Env] +
-  rcloj[symbol * symbol * Fexp * Env]
+  cloj[Symbol * Fexp * Env] +
+  rcloj[Symbol * Symbol * Fexp * Env]
 ];
 
-domain Env := symbol -> Values;
+domain Env := Symbol -> Values;
 
-let freshEnv := \ symbol: x . _/Values\_;
+let freshEnv := \ Symbol: x . _/Values\_;
 
 let apply := \ Fcon * Values : fx.
   let f := (<) fx in
@@ -48,17 +48,17 @@ let apply := \ Fcon * Values : fx.
     else _/Fcon\_
   ];
   
-syntax Fexp := var of symbol
+syntax Fexp := var of Symbol
   | const of Fcon
   | pair of Fexp * Fexp
   | app of Fexp * Fexp
   | iff of Fexp * Fexp * Fexp
-  | fn of symbol * Fexp
-  | letnr of symbol * Fexp * Fexp
-  | letr of symbol * Fexp * Fexp;
+  | fn of Symbol * Fexp
+  | letnr of Symbol * Fexp * Fexp
+  | letr of Symbol * Fexp * Fexp;
 
-syntax Fcon := number of int
-  | bconst of bool
+syntax Fcon := number of Int
+  | bconst of Bool
   | plus | times | minus | equal | not | is0;
 
 system Env |- Fexp ==> Values : Fexp :=
@@ -66,53 +66,53 @@ system Env |- Fexp ==> Values : Fexp :=
   
   [ CONST ]: env |- const[c] ==> vconst[c];
   
-  [ PAIR ]: env |- pair[(e1, e2)] ==> vpair[(v1, v2)] \\
+  [ PAIR ]: env |- pair[e1, e2] ==> vpair[v1, v2] \\
     env |- e1 ==> v1,
     env |- e2 ==> v2;
   
-  [ APP ]: env |- app[(e1, e2)] ==> v \\
-    env |- e1 ==> cloj[(x, e, env')],
+  [ APP ]: env |- app[e1, e2] ==> v \\
+    env |- e1 ==> cloj[x, e, env'],
     env |- e2 ==> v',
     [x -> v']env' |- e ==> v;
   
-  [ APP ]: env |- app[(e1, e2)] ==> apply ((c, v2)) \\
+  [ APP ]: env |- app[e1, e2] ==> apply (c, v2) \\
     env |- e1 ==> vconst[c],
     env |- e2 ==> v2;
 
-  [ APP ]: env |- app[(e1, e2)] ==> v \\
-    env |- e1 ==> rcloj[(f, x, e, env')],
+  [ APP ]: env |- app[e1, e2] ==> v \\
+    env |- e1 ==> rcloj[f, x, e, env'],
     env |- e2 ==> v',
-    let rclojure := rcloj[(f, x, e, env')],
+    let rclojure := rcloj[f, x, e, env'],
     [x -> v'][f -> rclojure]env' |- e ==> v;
 
   [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
     env |- b ==> vconst[bconst[true]],
     env |- e1 ==> v;
   
-  [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
+  [ IF ]: env |- iff[b, e1, e2] ==> v \\
     env |- b ==> vconst[bconst[false]],
     env |- e2 ==> v;
   
-  [ FN ]: env |- fn[(x, e)] ==> cloj[(x, e, env)];
+  [ FN ]: env |- fn[(x, e)] ==> cloj[x, e, env];
   
-  [ LET ]: env |- letnr[(x, e1, e2)] ==> v \\
+  [ LET ]: env |- letnr[x, e1, e2] ==> v \\
     env |- e1 ==> v',
     [x -> v']env |- e2 ==> v;
   
   [ LETREC ]: env |- letr[(f, e1, e2)] ==> v \\
     env |- e1 ==> cloj[(x, e, env')],
-    [f -> rcloj[(f, x, e, env')]]env |- e2 ==> v;
+    [f -> rcloj[f, x, e, env']]env |- e2 ==> v;
 end
 
-evaluate [`y` -> vconst[number[5]]]freshEnv |- app[(
-  fn[(`x`,
-    app[(
+evaluate [`y` -> vconst[number[5 % 2]]]freshEnv |- app[
+  fn[`x`,
+    app[
       const[plus[]],
-      pair[(
-        var[`y`],
+      pair[
+        var[`x`],
         const[number[5]]
-      )]
-    )]
-  )],
-  const[number[3]]
-)] in Fexp;
+      ]
+    ]
+  ],
+  var[`y`]
+] in Fexp;

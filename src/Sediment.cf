@@ -51,24 +51,25 @@ separator nonempty Premise_ ",";
 IfPremise_. Premise_ ::= "if" Exp_1;
 LetPremise_. Premise_ ::= "let" Ident ":=" Exp_1;
 LetrecPremise_. Premise_ ::= "letrec" Dom_ ":" Ident ":=" Exp_1;
-BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_;
-BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_;
-NBETrInternalPremise_. Premise_ ::=  Exp_ "==>" Config_;
-NBETrExternalPremise_. Premise_ ::=  Exp_ "=" Ident "=>" Config_;
+BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_1;
+BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_1;
+NBETrInternalPremise_. Premise_ ::=  Exp_ "==>" Config_1;
+NBETrExternalPremise_. Premise_ ::=  Exp_ "=" Ident "=>" Config_1;
 -- -- -- Configurations
-separator nonempty Config_ ",";
-TagConfig_. Config_ ::= Ident "[" Config_ "]";
-PairConfig_. Config_ ::= "(" Config_ "," [Config_] ")";
-BareTagConfig_. Config_ ::= Ident "[]";
-VarConfig_. Config_ ::= Ident;
-ConstConfig_. Config_ ::= Const_;
+coercions Config_ 1;
+separator nonempty Config_1 ",";
+PairConfig_. Config_ ::= Config_1 "," [Config_1];
+TagConfig_. Config_1 ::= Ident "[" Config_ "]";
+BareTagConfig_. Config_1 ::= Ident "[]";
+VarConfig_. Config_1 ::= Ident;
+ConstConfig_. Config_1 ::= Const_;
 
 -- -- Data definitions
 Data_. Def_ ::= "let" Ident ":=" Exp_1 ";";
 DataRec_. Def_ ::= "letrec" Dom_ ":" Ident ":=" Exp_1 ";";
 
 -- -- Expressions
-coercions Exp_ 11;
+coercions Exp_ 12;
 separator nonempty Exp_1 ",";
 Pair_. Exp_ ::= Exp_1 "," [Exp_1];
 -- -- -- Lambda-calculus elements
@@ -108,12 +109,12 @@ Neg_. Exp_9 ::= "!" Exp_9;
 
 -- -- -- Function application
 App_. Exp_10 ::= Exp_10 "(" Exp_ ")";
-Update_. Exp_10 ::= "[" Exp_ "->" Exp_ "]" Exp_11;
+Update_. Exp_11 ::= "[" Exp_ "->" Exp_ "]" Exp_11;
 
 -- -- -- Variables and constants
-Var_. Exp_11 ::= Ident;
-ConstE_. Exp_11 ::= Const_;
-BareTag_. Exp_11 ::= Ident "[]";
+Var_. Exp_12 ::= Ident;
+ConstE_. Exp_12 ::= Const_;
+BareTag_. Exp_12 ::= Ident "[]";
 Bot_. Const_ ::= "_/" Dom_ "\\_";
 Int_. Const_ ::= Integer;
 Str_. Const_ ::= String;

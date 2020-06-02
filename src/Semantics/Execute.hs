@@ -16,7 +16,7 @@ import Semantics.TSys.Bind
 import Semantics.TSys.General
 import Semantics.TSys.Eval
 
-execute :: Spec -> [Err Value]
+execute :: Spec -> [Err String]
 execute (Spec dfs evs) = let tenv = bindTSys dfs
   in case bindData dfs of
     Ok env -> Prelude.map (evalEval tenv env) evs
