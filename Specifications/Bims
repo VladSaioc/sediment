@@ -1,26 +1,26 @@
-domain State := Symbol -> Int;
+domain State = Symbol -> Int;
 
-syntax Aexp := add of Aexp * Aexp
+syntax Aexp = add of Aexp * Aexp
   | mul of Aexp * Aexp
   | sub of Aexp * Aexp
   | aparens of Aexp
   | aconst of Int
   | var of Symbol;
 
-syntax Bexp := eq of Aexp * Aexp
+syntax Bexp = eq of Aexp * Aexp
   | lt of Aexp * Aexp
   | not of Bexp
   | and of Bexp * Bexp
   | bparens of Bexp
   | bconst of Bool;
 
-syntax Stm := skip
+syntax Stm = skip
   | ass of Symbol * Aexp
   | comp of Stm * Stm
   | ifs of Bexp * Stm * Stm
   | while of Bexp * Stm;
 
-system State |- Aexp ==> Int : Aexp :=
+system Aexp : State |- Aexp ==> Int =
   [ VAR ]: s |- var[x] ==> s(x);
   
   [ CONST ]: s |- aconst[n] ==> n;
@@ -41,7 +41,7 @@ system State |- Aexp ==> Int : Aexp :=
     s |- a ==> v;
 end
 
-system State |- Bexp ==> Bool : Bexp :=
+system Bexp : State |- Bexp ==> Bool =
   [ CONST ]: s |- bconst[b] ==> b;
 
   [ EQ ]: s |- eq[a1, a2] ==> v1 == v2 \\
@@ -63,7 +63,7 @@ system State |- Bexp ==> Bool : Bexp :=
     s |- b2 ==> v2;
 end
 
-system Stm * State ==> State : Stm :=
+system Stm : Stm * State ==> State =
   [ SKIP ]: skip[], s ==> s;
     
   [ ASS ]: ass[x, a], s ==> [ x -> v ]s \\
@@ -90,7 +90,7 @@ system Stm * State ==> State : Stm :=
     s |- b =Bexp=> false;
 end
 
-let freshState := \Symbol : x  ._/Int\_;
+let freshState = \x : Symbol . _/Int\_;
 
 evaluate freshState |- add[aconst[4], aconst[5]] in Aexp;
 evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;

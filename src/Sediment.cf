@@ -11,7 +11,7 @@ Spec_. Specification_ ::= [Def_] [Eval_];
 (:). [Def_] ::= Def_ [Def_] ;
 
 -- -- Domain definitions
-DomDef_. Def_ ::= "domain" Ident ":=" DomDefExp_ ";";
+DomDef_. Def_ ::= "domain" Ident "=" DomDefExp_ ";";
 -- -- -- Union domains
 DefUnion_. DomDefExp_ ::= Union_;
 separator nonempty UnionBranch_"+";
@@ -30,13 +30,13 @@ SymDom_. Dom_2 ::= "Symbol";
 StrDom_. Dom_2 ::= "String";
 
 -- -- Syntax definitions
-SyntaxDef_. Def_ ::= "syntax" Ident ":=" [FormRule_] ";";
+SyntaxDef_. Def_ ::= "syntax" Ident "=" [FormRule_] ";";
 separator nonempty FormRule_ "|";
 Term_. FormRule_ ::= Ident "of" Dom_;
 BareTerm_. FormRule_ ::= Ident;
 
 -- -- Transition systems
-TSystem_. Def_ ::= "system" TDom_ ":" Ident ":=" [Rule_] "end";
+TSystem_. Def_ ::= "system" Ident ":" TDom_ "=" [Rule_] "end";
 -- -- -- Transition system domains
 BETDom_. TDom_ ::= Dom_ "|-" Dom_ "==>" Dom_;
 NBETDom_. TDom_ ::= Dom_ "==>" Dom_;
@@ -49,8 +49,8 @@ NBERule_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_ "\\\\" [Premise_];
 -- -- -- Premises
 separator nonempty Premise_ ",";
 IfPremise_. Premise_ ::= "if" Exp_1;
-LetPremise_. Premise_ ::= "let" Ident ":=" Exp_1;
-LetrecPremise_. Premise_ ::= "letrec" Dom_ ":" Ident ":=" Exp_1;
+LetPremise_. Premise_ ::= "let" Ident "=" Exp_1;
+LetrecPremise_. Premise_ ::= "letrec" Ident ":" Dom_ "=" Exp_1;
 BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_1;
 BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_1;
 NBETrInternalPremise_. Premise_ ::=  Exp_ "==>" Config_1;
@@ -65,8 +65,8 @@ VarConfig_. Config_1 ::= Ident;
 ConstConfig_. Config_1 ::= Const_;
 
 -- -- Data definitions
-Data_. Def_ ::= "let" Ident ":=" Exp_1 ";";
-DataRec_. Def_ ::= "letrec" Dom_ ":" Ident ":=" Exp_1 ";";
+Data_. Def_ ::= "let" Ident "=" Exp_1 ";";
+DataRec_. Def_ ::= "letrec" Ident ":" Dom_ "=" Exp_1 ";";
 
 -- -- Expressions
 coercions Exp_ 13;
@@ -75,11 +75,11 @@ separator nonempty Exp_1 ",";
 Pair_. Exp_ ::= Exp_1 "," [Exp_1];
 
 -- -- -- Lambda-calculus elements
-Lambda_. Exp_1 ::= "\\" Dom_ ":" Ident "." Exp_1;
+Lambda_. Exp_1 ::= "\\" Ident ":" Dom_ "." Exp_1;
 
 -- -- -- Extended functional expressions
-Let_. Exp_1 ::= "let" Ident ":=" Exp_1 "in" Exp_1;
-Letrec_. Exp_1 ::= "letrec" Dom_ ":" Ident ":=" Exp_1 "in" Exp_1;
+Let_. Exp_1 ::= "let" Ident "=" Exp_1 "in" Exp_1;
+Letrec_. Exp_1 ::= "letrec" Ident ":" Dom_ "=" Exp_1 "in" Exp_1;
 If_. Exp_1 ::= "if" Exp_1 "then" Exp_1 "else" Exp_1;
 
 -- -- -- Infix expressions

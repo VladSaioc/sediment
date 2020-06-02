@@ -29,9 +29,9 @@ pDef :: Def_ -> Df
 pDef = \case
   DomDef_ i de -> DomDf (pIdent i) (pDomDefExp de)
   SyntaxDef_ i frs -> DomDf (pIdent i) (UnionDom (map pFormRule frs))
-  TSystem_ td i rs -> TSysDf (pTDom td) (pIdent i) (map pRule rs)
+  TSystem_ i td rs -> TSysDf (pTDom td) (pIdent i) (map pRule rs)
   Data_ i e -> DataDf (pIdent i) (pExp e)
-  DataRec_ d i e -> DataRecDf (pDom d) (pIdent i) (pExp e)
+  DataRec_ i d e -> DataRecDf (pDom d) (pIdent i) (pExp e)
 
 -- Domain definition polish
 pDomDefExp :: DomDefExp_ -> Dom
@@ -82,7 +82,7 @@ pPremise :: Premise_ -> Pr
 pPremise = \case
   IfPremise_ e -> IfPr (pExp e)
   LetPremise_ i e -> LetPr (pIdent i) (pExp e)
-  LetrecPremise_ d i e -> LetrPr (pDom d) (pIdent i) (pExp e)
+  LetrecPremise_ i d e -> LetrPr (pDom d) (pIdent i) (pExp e)
   BETrInternalPremise_ e1 e2 c -> TrPr (pExp e1) (pExp e2) "/"  (pConfig c)
   BETrExternalPremise_ e1 e2 i c -> TrPr (pExp e1) (pExp e2) (pIdent i)  (pConfig c)
   NBETrInternalPremise_ e c -> TrPr EExp (pExp e) "/"  (pConfig c)
@@ -106,11 +106,11 @@ pExp = \case
   Var_ i -> Var (pIdent i)
   ConstE_ c -> ConstE (pConst c)
 -- -- Basic \-calculus expressions
-  Lambda_ d i e -> Lambda (pDom d) (pIdent i) (pExp e)
+  Lambda_ i d e -> Lambda (pDom d) (pIdent i) (pExp e)
   App_ e1 e2 -> App (pExp e1) (pExp e2)
 -- -- Extended \-calculus expressions
   Let_ i e1 e2 -> Let (pIdent i) (pExp e1) (pExp e2)
-  Letrec_ d i e1 e2 -> Letr (pDom d) (pIdent i) (pExp e1) (pExp e2)
+  Letrec_ i d e1 e2 -> Letr (pDom d) (pIdent i) (pExp e1) (pExp e2)
   If_ e1 e2 e3 -> If (pExp e1) (pExp e2) (pExp e3)
   Update_ e1 e2 e3 -> Update (pExp e1) (pExp e2) (pExp e3)
 -- -- String expressions

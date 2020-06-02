@@ -1,24 +1,22 @@
-domain Values := [
+domain Values = [
   vconst[Fcon] +
   vpair[Values * Values] +
   cloj[Symbol * Fexp * Env] +
   rcloj[Symbol * Symbol * Fexp * Env]
 ];
 
-domain Env := Symbol -> Values;
+domain Env = Symbol -> Values;
 
-let freshEnv := \ Symbol: x . _/Values\_;
-
-let apply := \ Fcon : f. \ Values : x.
+let apply = \f : Fcon. \x : Values.
   vconst[
     if x is vpair then
-      let x' := x >> vpair in
-      let x1' := (<) x' in
+      let x' = x >> vpair in
+      let x1' = (<) x' in
       if !(x1' is vconst) then _/Fcon\_
-      else let x1 := x1' >> vconst in
-      let x2' := (>) x' in
+      else let x1 = x1' >> vconst in
+      let x2' = (>) x' in
       if !(x2' is vconst) then _/Fcon\_
-      else let x2 := x2' >> vconst in
+      else let x2 = x2' >> vconst in
       if f is plus
       then number[x1 >> number + x2 >> number]
       else if f is minus
@@ -33,7 +31,7 @@ let apply := \ Fcon : f. \ Values : x.
           else _/Fcon\_
       else _/Fcon\_
     else if x is vconst
-    then let x' := x >> vconst in
+    then let x' = x >> vconst in
       if x' is bconst
       then if f is not
         then bconst[!(x' >> bconst)]
@@ -46,7 +44,7 @@ let apply := \ Fcon : f. \ Values : x.
     else _/Fcon\_
   ];
   
-syntax Fexp := var of Symbol
+syntax Fexp = var of Symbol
   | const of Fcon
   | pair of Fexp * Fexp
   | app of Fexp * Fexp
@@ -55,11 +53,11 @@ syntax Fexp := var of Symbol
   | letnr of Symbol * Fexp * Fexp
   | letr of Symbol * Fexp * Fexp;
 
-syntax Fcon := number of Int
+syntax Fcon = number of Int
   | bconst of Bool
   | plus | times | minus | equal | not | is0;
 
-system Env |- Fexp ==> Values : Fexp :=
+system Fexp : Env |- Fexp ==> Values =
   [ VAR ]: env |- var[x] ==> env(x);
   
   [ CONST ]: env |- const[c] ==> vconst[c];
@@ -80,7 +78,7 @@ system Env |- Fexp ==> Values : Fexp :=
   [ APP ]: env |- app[e1, e2] ==> v \\
     env |- e1 ==> rcloj[f, x, e, env'],
     env |- e2 ==> v',
-    let rclojure := rcloj[f, x, e, env'],
+    let rclojure = rcloj[f, x, e, env'],
     [x -> v'][f -> rclojure]env' |- e ==> v;
 
   [ IF ]: env |- iff[b, e1, e2] ==> v \\
@@ -101,6 +99,8 @@ system Env |- Fexp ==> Values : Fexp :=
     env |- e1 ==> cloj[x, e, env'],
     [f -> rcloj[f, x, e, env']]env |- e2 ==> v;
 end
+
+let freshEnv = \x : Symbol. _/Values\_;
 
 evaluate [`y` -> vconst[number[5 % 2]]]freshEnv |- app[
   fn[`x`,
