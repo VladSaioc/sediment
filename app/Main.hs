@@ -22,7 +22,7 @@ main = do
   case staticResults of
     Bad msg -> putStr (fileName ++ ":" ++ msg)
     Ok _ -> do
-      putStr (fileName ++ ": Static analysis successful.")
+      putStr (fileName ++ ": Static analysis successful.\n")
       let results =execute ast
       let
         evalLog log = \case
