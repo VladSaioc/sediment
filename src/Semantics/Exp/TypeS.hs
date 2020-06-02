@@ -107,7 +107,7 @@ expT de tt env = let
     in this e >>= \d' -> Ok (FuncDom d d')
   App e1 e2 -> rootDs [this e1, this e2] >>= \case
     [FuncDom d2' d1, d2] -> if deq de d2' d2 then Ok d1
-      else Bad ("Incompatible types: supplied expression with type " ++ show d2 ++ " as input to function with type " ++ show d1 ++ ".")
+      else Bad ("Incompatible types: supplied expression with type " ++ show d2 ++ " as input to function with type " ++ show (FuncDom d2' d1) ++ ".")
     [d1, d2] -> Bad ("Incompatible types: non-lambda-expression used as a function. Found domain " ++ show d1 ++ " instead.")
   -- Extended \-calculus
   Let x e1 e2 -> this e1 >>= \d -> let
@@ -131,7 +131,7 @@ expT de tt env = let
           _ -> False
         in if not (isBasic d1) then Bad ("Incompatible types: domain expression " ++ show d1 ++ " is not a basic domain, or basic domain alias.")
         else Ok (FuncDom d1' d2')
-      else Bad ("Incompatible types: invalid function update. Expected a function with input " ++ show d1' ++ " and output " ++ show d2' ++ ". Found " ++ show d1 ++ " -> " ++ show d2 ++ " instead.")
+      else Bad ("Incompatible types: invalid function update. Expected a function with type " ++ show (FuncDom d1' d2') ++ ". Found " ++ show (FuncDom d1 d2) ++ " instead.")
     [_, _, d] -> Bad ("Incompatible types: invalid function update. Expected a function domain. Found " ++ show d ++ " instead.")
   -- Operations on pairs
   Pair e1 e2 -> rootDs [this e1, this e2] >>= \[d1, d2] -> Ok (ProdDom d1 d2)
