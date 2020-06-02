@@ -11,11 +11,12 @@ import Semantics.Dom.General
 import Semantics.Exp.General
 
 getConst :: Const -> Err Dom
-getConst (Bot _) = Bad "Invalid pattern: disallowed usage of the bottom element in patterns."
-getConst (Int _) = Ok IntDom
-getConst (Str _) = Ok StrDom
-getConst (Sym _) = Ok SymDom
-getConst (BConst _) = Ok BoolDom
+getConst = \case
+  Bot _ -> Bad "Invalid pattern: disallowed usage of the bottom element in patterns."
+  Int _ -> Ok IntDom
+  Str _ -> Ok StrDom
+  Sym _ -> Ok SymDom
+  BConst _ -> Ok BoolDom
 
 confT :: DomEnv -> TagTable -> TEnv -> Con -> Dom -> Err TEnv
 confT de tt env = let

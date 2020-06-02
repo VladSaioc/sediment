@@ -12,7 +12,7 @@ data Df = DomDf String Dom
   | DataRecDf Dom String Exp
   deriving (Eq, Ord, Show, Read)
 
-data Ev = Ev Exp Exp String
+data Ev = Ev Exp Exp String | ExpEv Exp
   deriving (Eq, Ord, Show, Read)
 
 data Dom = IntDom | BoolDom | StrDom | SymDom | EDom

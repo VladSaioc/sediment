@@ -40,12 +40,12 @@ unionAliasCheck de = let
   in Prelude.foldl forEach (Ok ())
 
 domDeclCheck :: DomEnv -> Spec -> Err ()
-domDeclCheck de (Spec dfs _) = case results (Prelude.map (ddc de) dfs) of
+domDeclCheck de (Spec dfs evs) = case results (Prelude.map (ddcdf de) dfs ++ Prelude.map (ddcev de) evs) of
   Bad msg -> Bad msg
   Ok _ -> Ok ()
 
-ddc :: DomEnv -> Df -> Err ()
-ddc de = \case
+ddcdf :: DomEnv -> Df -> Err ()
+ddcdf de = \case
   DomDf _ d -> ddcd de d
   DataDf _ e -> ddce de e
   DataRecDf d _ e -> results [ddcd de d, ddce de e] >> Ok ()
@@ -106,3 +106,8 @@ ddcp de = \case
   LetPr _ e -> ddce de e
   LetrPr d _ e -> results [ddcd de d, ddce de e] >> Ok ()
   TrPr e1 e2 _ _ -> results [ddce de e1, ddce de e2] >> Ok()
+
+ddcev :: DomEnv -> Ev -> Err ()
+ddcev de = \case
+  Ev e1 e2 _ -> results [ddce de e1, ddce de e2] >> Ok ()
+  ExpEv e -> ddce de e

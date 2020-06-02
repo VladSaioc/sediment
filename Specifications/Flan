@@ -9,9 +9,7 @@ domain Env := Symbol -> Values;
 
 let freshEnv := \ Symbol: x . _/Values\_;
 
-let apply := \ Fcon * Values : fx.
-  let f := (<) fx in
-  let x := (>) fx in
+let apply := \ Fcon : f. \ Values : x.
   vconst[
     if x is vpair then
       let x' := x >> vpair in
@@ -75,7 +73,7 @@ system Env |- Fexp ==> Values : Fexp :=
     env |- e2 ==> v',
     [x -> v']env' |- e ==> v;
   
-  [ APP ]: env |- app[e1, e2] ==> apply (c, v2) \\
+  [ APP ]: env |- app[e1, e2] ==> apply(c)(v2) \\
     env |- e1 ==> vconst[c],
     env |- e2 ==> v2;
 
@@ -85,7 +83,7 @@ system Env |- Fexp ==> Values : Fexp :=
     let rclojure := rcloj[f, x, e, env'],
     [x -> v'][f -> rclojure]env' |- e ==> v;
 
-  [ IF ]: env |- iff[(b, e1, e2)] ==> v \\
+  [ IF ]: env |- iff[b, e1, e2] ==> v \\
     env |- b ==> vconst[bconst[true]],
     env |- e1 ==> v;
   
@@ -93,14 +91,14 @@ system Env |- Fexp ==> Values : Fexp :=
     env |- b ==> vconst[bconst[false]],
     env |- e2 ==> v;
   
-  [ FN ]: env |- fn[(x, e)] ==> cloj[x, e, env];
+  [ FN ]: env |- fn[x, e] ==> cloj[x, e, env];
   
   [ LET ]: env |- letnr[x, e1, e2] ==> v \\
     env |- e1 ==> v',
     [x -> v']env |- e2 ==> v;
   
-  [ LETREC ]: env |- letr[(f, e1, e2)] ==> v \\
-    env |- e1 ==> cloj[(x, e, env')],
+  [ LETREC ]: env |- letr[f, e1, e2] ==> v \\
+    env |- e1 ==> cloj[x, e, env'],
     [f -> rcloj[f, x, e, env']]env |- e2 ==> v;
 end
 

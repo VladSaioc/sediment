@@ -69,9 +69,11 @@ Data_. Def_ ::= "let" Ident ":=" Exp_1 ";";
 DataRec_. Def_ ::= "letrec" Dom_ ":" Ident ":=" Exp_1 ";";
 
 -- -- Expressions
-coercions Exp_ 12;
+coercions Exp_ 13;
 separator nonempty Exp_1 ",";
+-- -- -- Pair formation
 Pair_. Exp_ ::= Exp_1 "," [Exp_1];
+
 -- -- -- Lambda-calculus elements
 Lambda_. Exp_1 ::= "\\" Dom_ ":" Ident "." Exp_1;
 
@@ -96,25 +98,27 @@ LessEqThan_. Exp_7 ::= Exp_8 "<=" Exp_8;
 GreaterThan_. Exp_7 ::= Exp_8 ">" Exp_8;
 GreaterEqThan_. Exp_7 ::= Exp_8 ">=" Exp_8;
 
--- -- -- Pairs and tuples
-Head_. Exp_8 ::= "(<)" Exp_9;
-Tail_. Exp_8 ::= "(>)" Exp_9;
-Project_. Exp_8 ::= Exp_9 ">>" Ident;
+-- -- -- Tag operations
+Project_. Exp_8 ::= Exp_8 ">>" Ident;
 Inject_. Exp_8 ::= Ident "[" Exp_ "]";
-IsTag_. Exp_8 ::= Exp_9 "is" Ident;
+IsTag_. Exp_8 ::= Exp_8 "is" Ident;
 
 -- -- -- Unary expressions
 Inverse_. Exp_9 ::= "-" Exp_9;
 Neg_. Exp_9 ::= "!" Exp_9;
 
+-- -- -- Tuple extraction
+Head_. Exp_10 ::= "(<)" Exp_10;
+Tail_. Exp_10 ::= "(>)" Exp_10;
+
 -- -- -- Function application
-App_. Exp_10 ::= Exp_10 "(" Exp_ ")";
-Update_. Exp_11 ::= "[" Exp_ "->" Exp_ "]" Exp_11;
+App_. Exp_11 ::= Exp_11 "(" Exp_ ")";
+Update_. Exp_12 ::= "[" Exp_ "->" Exp_ "]" Exp_12;
 
 -- -- -- Variables and constants
-Var_. Exp_12 ::= Ident;
-ConstE_. Exp_12 ::= Const_;
-BareTag_. Exp_12 ::= Ident "[]";
+Var_. Exp_13 ::= Ident;
+ConstE_. Exp_13 ::= Const_;
+BareTag_. Exp_13 ::= Ident "[]";
 Bot_. Const_ ::= "_/" Dom_ "\\_";
 Int_. Const_ ::= Integer;
 Str_. Const_ ::= String;
@@ -124,6 +128,7 @@ BFalse_. Const_ ::= "false";
 
 -- Evaluations
 terminator Eval_ ";";
+ExpEval_. Eval_ ::= "evaluate" Exp_;
 BEEval_. Eval_ ::= "evaluate" Exp_ "|-" Exp_ "in" Ident;
 NBEEval_. Eval_ ::= "evaluate" Exp_ "in" Ident;
 

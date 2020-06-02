@@ -1,7 +1,5 @@
 domain State := Symbol -> Int;
 
-let freshState := \Symbol : x  ._/Int\_;
-
 syntax Aexp := add of Aexp * Aexp
   | mul of Aexp * Aexp
   | sub of Aexp * Aexp
@@ -27,15 +25,15 @@ system State |- Aexp ==> Int : Aexp :=
   
   [ CONST ]: s |- aconst[n] ==> n;
 
-  [ ADD ]: s |- add[(a1, a2)] ==> v1 + v2 \\
+  [ ADD ]: s |- add[a1, a2] ==> v1 + v2 \\
     s |- a1 ==> v1,
     s |- a2 ==> v2;
 
-  [ MUL ]: s |- mul[(a1, a2)] ==> v1 * v2 \\
+  [ MUL ]: s |- mul[a1, a2] ==> v1 * v2 \\
     s |- a1 ==> v1,
     s |- a2 ==> v2;
     
-  [ SUB ]: s |- sub[(a1, a2)] ==> v1 - v2 \\
+  [ SUB ]: s |- sub[a1, a2] ==> v1 - v2 \\
     s |- a1 ==> v1,
     s |- a2 ==> v2;
 
@@ -91,6 +89,8 @@ system Stm * State ==> State : Stm :=
   [ WHILE ]: while[b, S], s ==> s \\
     s |- b =Bexp=> false;
 end
+
+let freshState := \Symbol : x  ._/Int\_;
 
 evaluate freshState |- add[aconst[4], aconst[5]] in Aexp;
 evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;
