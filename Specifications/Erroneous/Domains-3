@@ -1,1 +1,1 @@
-domain d5 := d5;
+domain d5 = d5;

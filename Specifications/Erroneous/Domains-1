@@ -1,1 +1,1 @@
-domain d1 := symbol -> d1;
+domain d1 = Symbol -> d1;
