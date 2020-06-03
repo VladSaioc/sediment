@@ -4,6 +4,8 @@
 ignored
 sketches
 
+dist
+
 # Generated front-end
 **/AbsSediment.hs
 **/DocSediment.txt
