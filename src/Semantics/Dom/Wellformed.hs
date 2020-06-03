@@ -2,6 +2,7 @@ module Semantics.Dom.Wellformed (wellformed) where
 
 import Data.Map
 import Data.Set
+import Data.Maybe
 
 import Syntax.Ast
 import Syntax.ErrM
@@ -29,11 +30,14 @@ wellformed' de x p = \case
       let Just d' = Data.Map.lookup x' de
       case d' of
         UnionDom{} -> Ok p
-        _ -> let Just px = Data.Map.lookup x p
+        _ -> let
+            px = Data.Maybe.fromMaybe Data.Set.empty (Data.Map.lookup x p)
           in if Data.Set.member x' px then
             Bad ("Disallowed non-union circular references: domain variables " ++ x' ++ " and " ++ x ++ " create a circular reference.")
           else let
-            Just px' = Data.Map.lookup x' p
-            p' = Data.Map.insert x' (px `Data.Set.union` px') p
+            px' = Data.Maybe.fromMaybe Data.Set.empty (Data.Map.lookup x' p)
+            p' = let
+                pnew = px `Data.Set.union` (px' `Data.Set.union` Data.Set.singleton x)
+              in Data.Map.insert x' pnew p
           in wellformed' de x' p' d'
   _ -> Ok p  
