@@ -55,7 +55,7 @@ wellordered' de ts d = case d of
       _ -> wellordered' de ts d'
 
 wellordered'' :: DomEnv -> VisitedTags -> String -> [(String, Dom)] -> Err ()
-wellordered'' de ts x [] = Bad ("Unions must be well-ordered: no well-ordered branch found for union " ++ x ++ ".")
+wellordered'' de ts x [] = Bad ("Unions must be well-ordered: no well-ordered branch found for " ++ x ++ ".")
 wellordered'' de ts x ((t, d) : tds) = if not (Data.Set.member t ts) then
     let
       r = wellordered' de (Data.Set.insert t ts) d
