@@ -37,7 +37,7 @@ system Fexp : Env |- Fexp ==> Values =
   [[ APP ]]: env |- app[e1, e2] ==> v \\
     env |- e1 ==> vconst[c],
     env |- e2 ==> v',
-    c, v' =apply=> v;
+    (c, v') =apply=> v;
 
   [[ APP ]]: env |- app[e1, e2] ==> v \\
     env |- e1 ==> rcloj[f, x, e, env'],
@@ -65,34 +65,34 @@ system Fexp : Env |- Fexp ==> Values =
 end
 
 system apply : Fcon * Values ==> Values =
-  [[ PLUS ]]: plus[], vpair[
+  [[ PLUS ]]: (plus[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[number[v1 + v2]];
+    ]) ==> vconst[number[v1 + v2]];
 
-  [[ MINUS ]]: minus[], vpair[
+  [[ MINUS ]]: (minus[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[number[v1 - v2]];
+    ]) ==> vconst[number[v1 - v2]];
 
-  [[ TIMES ]]: times[], vpair[
+  [[ TIMES ]]: (times[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[number[v1 * v2]];
+    ]) ==> vconst[number[v1 * v2]];
 
-  [[ EQUAL ]]: equal[], vpair[
+  [[ EQUAL ]]: (equal[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[bconst[v1 == v2]];
+    ]) ==> vconst[bconst[v1 == v2]];
 
-  [[ EQUAL ]]: equal[], vpair[
+  [[ EQUAL ]]: (equal[], vpair[
       vconst[bconst[v1]],
       vconst[bconst[v2]]
-    ] ==> vconst[bconst[v1 == v2]];
+    ]) ==> vconst[bconst[v1 == v2]];
   
-  [[ NOT ]]: not[], vconst[bconst[b]]
+  [[ NOT ]]: (not[], vconst[bconst[b]])
     ==> vconst[bconst[!b]];
 
-  [[ IS-ZERO ]]: is0[], vconst[number[n]]
+  [[ IS-ZERO ]]: (is0[], vconst[number[n]])
     ==> vconst[bconst[n == 0]];
 end

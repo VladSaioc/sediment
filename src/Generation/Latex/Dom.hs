@@ -27,5 +27,5 @@ synTex = let
     newl = "&|\\ "
   in \case
     [] -> newl ++ "\n"
-    [(t, d)] -> newl ++"\\sv{" ++ t ++ "}\\ " ++ domTex d ++ "\\\\\n"
+    [(t, d)] -> newl ++"\\sv{" ++ t ++ "}\\ " ++ domTex d ++ "\n"
     ((t, d) : ts) -> newl ++ "\\sv{" ++ t ++ "}\\ " ++ domTex d ++ "\\\\\n" ++ synTex ts
