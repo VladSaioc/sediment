@@ -2,6 +2,7 @@ comment "//" ;
 comment "/*" "*/" ;
 
 token Symbol '`' ((letter | ["$_"]) (letter | digit | ["$_\'"])*) '`';
+token Label {"[["} ((letter | digit | [" $-\'_"]) (letter | digit | [" $-\'_"])*) {"]]"};
 
 -- Entry point
 Spec_. Specification_ ::= [Def_] [Eval_];
@@ -42,19 +43,19 @@ BETDom_. TDom_ ::= Dom_ "|-" Dom_ "==>" Dom_;
 NBETDom_. TDom_ ::= Dom_ "==>" Dom_;
 -- -- -- Rules
 terminator nonempty Rule_ ";";
-BEAxiom_. Rule_ ::= "[" Ident "]:" Config_ "|-" Config_ "==>" Exp_;
-NBEAxiom_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_;
-BERule_. Rule_ ::= "[" Ident "]:"  Config_ "|-" Config_ "==>" Exp_ "\\\\" [Premise_];
-NBERule_. Rule_ ::= "[" Ident "]:" Config_ "==>" Exp_ "\\\\" [Premise_];
+BEAxiom_. Rule_ ::= Label ":" Config_ "|-" Config_1 "==>" Exp_1;
+NBEAxiom_. Rule_ ::= Label ":" Config_1 "==>" Exp_1;
+BERule_. Rule_ ::= Label ":"  Config_ "|-" Config_1 "==>" Exp_1 "\\\\" [Premise_];
+NBERule_. Rule_ ::= Label ":" Config_1 "==>" Exp_1 "\\\\" [Premise_];
 -- -- -- Premises
 separator nonempty Premise_ ",";
 IfPremise_. Premise_ ::= "if" Exp_1;
 LetPremise_. Premise_ ::= "let" Ident "=" Exp_1;
 LetrecPremise_. Premise_ ::= "letrec" Ident ":" Dom_ "=" Exp_1;
-BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "==>" Config_1;
-BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_ "=" Ident "=>" Config_1;
-NBETrInternalPremise_. Premise_ ::=  Exp_ "==>" Config_1;
-NBETrExternalPremise_. Premise_ ::=  Exp_ "=" Ident "=>" Config_1;
+BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "==>" Config_1;
+BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "=" Ident "=>" Config_1;
+NBETrInternalPremise_. Premise_ ::=  Exp_1 "==>" Config_1;
+NBETrExternalPremise_. Premise_ ::=  Exp_1 "=" Ident "=>" Config_1;
 -- -- -- Configurations
 coercions Config_ 1;
 separator nonempty Config_1 ",";
@@ -69,7 +70,7 @@ Data_. Def_ ::= "let" Ident "=" Exp_1 ";";
 DataRec_. Def_ ::= "letrec" Ident ":" Dom_ "=" Exp_1 ";";
 
 -- -- Expressions
-coercions Exp_ 13;
+coercions Exp_ 14;
 separator nonempty Exp_1 ",";
 -- -- -- Pair formation
 Pair_. Exp_ ::= Exp_1 "," [Exp_1];
@@ -93,32 +94,32 @@ Or_. Exp_5 ::= Exp_5 "|" Exp_6;
 And_. Exp_6 ::= Exp_6 "&" Exp_7;
 Equal_. Exp_7 ::= Exp_8 "==" Exp_8;
 NotEqual_. Exp_7 ::= Exp_8 "!=" Exp_8;
-LessThan_. Exp_7 ::= Exp_8 "<" Exp_8;
-LessEqThan_. Exp_7 ::= Exp_8 "<=" Exp_8;
-GreaterThan_. Exp_7 ::= Exp_8 ">" Exp_8;
-GreaterEqThan_. Exp_7 ::= Exp_8 ">=" Exp_8;
+LessThan_. Exp_8 ::= Exp_9 "<" Exp_9;
+LessEqThan_. Exp_8 ::= Exp_9 "<=" Exp_9;
+GreaterThan_. Exp_8 ::= Exp_9 ">" Exp_9;
+GreaterEqThan_. Exp_8 ::= Exp_9 ">=" Exp_9;
 
 -- -- -- Tag operations
-Project_. Exp_8 ::= Exp_8 ">>" Ident;
-Inject_. Exp_8 ::= Ident "[" Exp_ "]";
-IsTag_. Exp_8 ::= Exp_8 "is" Ident;
+Project_. Exp_9 ::= Exp_9 ">>" Ident;
+IsTag_. Exp_9 ::= Exp_9 "is" Ident;
 
 -- -- -- Unary expressions
-Inverse_. Exp_9 ::= "-" Exp_9;
-Neg_. Exp_9 ::= "!" Exp_9;
+Inverse_. Exp_10 ::= "-" Exp_10;
+Neg_. Exp_10 ::= "!" Exp_10;
 
 -- -- -- Tuple extraction
-Head_. Exp_10 ::= "(<)" Exp_10;
-Tail_. Exp_10 ::= "(>)" Exp_10;
+Head_. Exp_11 ::= "(<)" Exp_11;
+Tail_. Exp_11 ::= "(>)" Exp_11;
 
 -- -- -- Function application
-App_. Exp_11 ::= Exp_11 "(" Exp_ ")";
-Update_. Exp_12 ::= "[" Exp_ "->" Exp_ "]" Exp_12;
+App_. Exp_12 ::= Exp_12 "(" Exp_ ")";
+Update_. Exp_13 ::= "[" Exp_ "->" Exp_ "]" Exp_13;
 
 -- -- -- Variables and constants
-Var_. Exp_13 ::= Ident;
-ConstE_. Exp_13 ::= Const_;
-BareTag_. Exp_13 ::= Ident "[]";
+Inject_. Exp_14 ::= Ident "[" Exp_ "]";
+Var_. Exp_14 ::= Ident;
+ConstE_. Exp_14 ::= Const_;
+BareTag_. Exp_14 ::= Ident "[]";
 Bot_. Const_ ::= "_/" Dom_ "\\_";
 Int_. Const_ ::= Integer;
 Str_. Const_ ::= String;

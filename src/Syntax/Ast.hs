@@ -17,30 +17,24 @@ data Ev = Ev Exp Exp String | ExpEv Exp
 
 data Dom = IntDom | BoolDom | StrDom | SymDom | EDom
   | VarDom String | FuncDom Dom Dom | ProdDom Dom Dom
-  | UnionDom [(String, Dom)]
+  | UnionDom [(String, Dom)] Bool
   deriving (Eq, Ord, Read)
 
 data TDom = TDom Dom Dom Dom
   deriving (Eq, Ord, Show, Read)
 
-data Exp = Var String -- Variables & constants
-  | EExp
-  | ConstE Const
+data Exp = Pair Exp Exp -- Pairs
   | Lambda Dom String Exp -- Basic \-calculus expressions
-  | App Exp Exp
   | Let String Exp Exp -- Extended \-calculus expressions
   | Letr Dom String Exp Exp
   | If Exp Exp Exp
-  | Update Exp Exp Exp
   | Concat Exp Exp -- String expressions
-  | Inverse Exp -- Arithmetic expressions
-  | Plus Exp Exp
+  | Plus Exp Exp -- Arithmetic expressions
   | Minus Exp Exp
   | Prod Exp Exp
   | Div Exp Exp
   | Mod Exp Exp
-  | Neg Exp -- Boolean expressions
-  | Or Exp Exp
+  | Or Exp Exp -- Boolean expressions
   | And Exp Exp
   | Equal Exp Exp -- Relational expressions
   | NotEqual Exp Exp
@@ -48,12 +42,18 @@ data Exp = Var String -- Variables & constants
   | LessEqThan Exp Exp
   | GreaterThan Exp Exp
   | GreaterEqThan Exp Exp
-  | Pair Exp Exp -- Pair and tag operations
-  | Head Exp
-  | Tail Exp
-  | Project Exp String
   | Inject String Exp
   | IsTag Exp String
+  | Inverse Exp -- Unary operators
+  | Neg Exp 
+  | Project Exp String -- Tags
+  | Head Exp
+  | Tail Exp
+  | App Exp Exp
+  | Update Exp Exp Exp
+  | Var String -- Variables & constants
+  | ConstE Const
+  | EExp
   | Closure Env Exp
   deriving (Eq, Ord, Read)
 
@@ -83,7 +83,7 @@ data Con = ECon
 
 instance Show Dom where
   show = \case
-    EDom -> ""
+    EDom -> "()"
     VarDom x -> x
     IntDom -> "Integer"
     BoolDom -> "Boolean"
@@ -91,7 +91,8 @@ instance Show Dom where
     StrDom -> "String"
     FuncDom d1 d2 -> show d1 ++ " -> " ++ show d2
     ProdDom d1 d2 -> show d1 ++ " * " ++ show d2
-    UnionDom us -> "[" ++ intercalate " + " (Data.List.map (\(t,d) -> t ++ "<" ++ show d ++ ">") us) ++ "]"
+    UnionDom us False -> "[" ++ intercalate " + " (Data.List.map (\(t,d) -> t ++ "[" ++ show d ++ "]") us) ++ "]"
+    UnionDom us True -> "<" ++ intercalate " | " (Data.List.map (\(t,d) -> t ++ " of " ++ show d) us) ++ ">"
   
 instance Show Const where
   show = \case

@@ -81,53 +81,11 @@ system Stm : Stm * State ==> State =
     s |- b =Bexp=> false,
     (S2, s) ==> s';
     
-  [[ WHILE ]]: while[b, S], s ==> s' \\
+  [[ WHILE ]]: (while[b, S], s) ==> s' \\
     s |- b =Bexp=> true,
     (S, s) ==> s'',
     (while[b, S], s'') ==> s';
     
-  [[ WHILE ]]: while[b, S], s ==> s \\
+  [[ WHILE ]]: (while[b, S], s) ==> s \\
     s |- b =Bexp=> false;
 end
-
-let freshState = \x : Symbol . _/Int\_;
-
-evaluate freshState |- add[aconst[4], aconst[5]] in Aexp;
-evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;
-evaluate ass[`x`, aconst[5]], freshState in Stm;
-// evaluate comp[
-//      ass[`x`, aconst[6]],
-//      ass[`y`, mul[
-//          var[`x`],
-//          add[aconst[4], aconst[2]]
-//        ]
-//      ]
-//    ],
-//    freshState
-//    in Stm;
-evaluate comp[
- // skip[],
-  ass[`x`, aconst[5]],
-  while[
-    not[eq[
-      var[`x`],
-      aconst[5]
-    ]],
-    ass[`x`, add[var[`x`], aconst[1]]]
-  ]
- ]
-, freshState in Stm;
-evaluate comp[
- // skip[],
-  ass[`x`, aconst[5]],
-  while[
-    not[eq[
-      var[`x`],
-      aconst[5]
-    ]],
-    ass[`x`, add[var[`x`], aconst[1]]]
-  ]
- ]
-, freshState in Stm;
-
-evaluate "abd" ++ "efc";

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bd9f8cf282f581fa8e59935da158da81d8311f6a5254510632fc6081f1fd9b6d
+-- hash: 87b28b0cc03f2da5f79e4b6cfe4516eacfe0e2ee5970a65dcd2db1a79d47e0f5
 
 name:           Sediment
 version:        0.1.0.0
@@ -32,7 +32,13 @@ library
       Semantics.StaticAnalysis
       Semantics.Execute
       Semantics.Dom.Verify
+      Generation.Latex
   other-modules:
+      Generation.Latex.Conf
+      Generation.Latex.Df
+      Generation.Latex.Dom
+      Generation.Latex.Exp
+      Generation.Latex.TSys
       Semantics.Conf.Eval
       Semantics.Conf.TypeS
       Semantics.Dom.Bind
@@ -69,7 +75,10 @@ library
       array
     , base >=4.7 && <5
     , containers
+    , directory
     , pretty-simple
+    , split
+    , text
   default-language: Haskell2010
 
 executable Sediment-exe
@@ -85,7 +94,10 @@ executable Sediment-exe
     , array
     , base >=4.7 && <5
     , containers
+    , directory
     , pretty-simple
+    , split
+    , text
   default-language: Haskell2010
 
 test-suite Sediment-test
@@ -102,5 +114,8 @@ test-suite Sediment-test
     , array
     , base >=4.7 && <5
     , containers
+    , directory
     , pretty-simple
+    , split
+    , text
   default-language: Haskell2010

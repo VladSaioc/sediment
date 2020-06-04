@@ -7,6 +7,14 @@ import Syntax.Ast
 
 pIdent :: Ident -> String
 pIdent (Ident s) = s
+pLabel :: Label -> String
+pLabel (Label l) = let
+    label = drop 2 (take (length l - 2) l)
+    trimFirst l = if head l == ' ' then trimFirst (drop 1 l)
+        else l
+    trimLast l = if l!!(length l - 1) == ' ' then trimLast (take (length l - 1) l)
+        else l
+  in trimFirst (trimLast label)
 pSymbol :: Symbol -> Const
 pSymbol (Symbol s) = Sym (drop 1 (take (length s - 1) s))
 
@@ -28,7 +36,7 @@ getAst = polishAst . getRawAst
 pDef :: Def_ -> Df
 pDef = \case
   DomDef_ i de -> DomDf (pIdent i) (pDomDefExp de)
-  SyntaxDef_ i frs -> DomDf (pIdent i) (UnionDom (map pFormRule frs))
+  SyntaxDef_ i frs -> DomDf (pIdent i) (UnionDom (map pFormRule frs) True)
   TSystem_ i td rs -> TSysDf (pTDom td) (pIdent i) (map pRule rs)
   Data_ i e -> DataDf (pIdent i) (pExp e)
   DataRec_ i d e -> DataRecDf (pDom d) (pIdent i) (pExp e)
@@ -36,7 +44,7 @@ pDef = \case
 -- Domain definition polish
 pDomDefExp :: DomDefExp_ -> Dom
 pDomDefExp = \case
-  DefUnion_ (UnionDom_ ubs) -> UnionDom (map pUnionBranch ubs)
+  DefUnion_ (UnionDom_ ubs) -> UnionDom (map pUnionBranch ubs) False
   DefNonUnion_ d -> pDom d
 
 -- -- Union branch polish
@@ -72,10 +80,10 @@ pTDom = \case
 -- -- Rule polish
 pRule :: Rule_ -> Rule
 pRule = \case
-  BEAxiom_ i c1 c2 e -> Rule (pIdent i) (pConfig c1) (pConfig c2) (pExp e) []
-  NBEAxiom_ i c e -> Rule (pIdent i) ECon (pConfig c) (pExp e) []
-  BERule_ i c1 c2 e ps -> Rule (pIdent i) (pConfig c1) (pConfig c2) (pExp e) (map pPremise ps)
-  NBERule_ i c e ps -> Rule (pIdent i) ECon (pConfig c) (pExp e) (map pPremise ps)
+  BEAxiom_ i c1 c2 e -> Rule (pLabel i) (pConfig c1) (pConfig c2) (pExp e) []
+  NBEAxiom_ i c e -> Rule (pLabel i) ECon (pConfig c) (pExp e) []
+  BERule_ i c1 c2 e ps -> Rule (pLabel i) (pConfig c1) (pConfig c2) (pExp e) (map pPremise ps)
+  NBERule_ i c e ps -> Rule (pLabel i) ECon (pConfig c) (pExp e) (map pPremise ps)
 
 -- -- Premise polish
 pPremise :: Premise_ -> Pr

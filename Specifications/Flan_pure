@@ -7,43 +7,6 @@ domain Values = [
 
 domain Env = Symbol -> Values;
 
-let apply = \f : Fcon. \x : Values.
-  vconst[
-    if x is vpair then
-      let x' = x >> vpair in
-      let x1' = (<) x' in
-      if !(x1' is vconst) then _/Fcon\_
-      else let x1 = x1' >> vconst in
-      let x2' = (>) x' in
-      if !(x2' is vconst) then _/Fcon\_
-      else let x2 = x2' >> vconst in
-      if f is plus
-      then number[x1 >> number + x2 >> number]
-      else if f is minus
-      then number[x1 >> number - x2 >> number]
-      else if f is times
-      then number[x1 >> number * x2 >> number]
-      else if f is equal
-      then if x1 is number & x2 is number
-        then bconst[x1 >> number == x2 >> number]
-        else if x1 is bconst & x2 is bconst
-          then bconst[x1 >> bconst == x2 >> bconst]
-          else _/Fcon\_
-      else _/Fcon\_
-    else if x is vconst
-    then let x' = x >> vconst in
-      if x' is bconst
-      then if f is not
-        then bconst[!(x' >> bconst)]
-        else _/Fcon\_
-      else if x' is number
-      then if f is is0
-        then bconst[x' >> number == 0]
-        else _/Fcon\_
-      else _/Fcon\_
-    else _/Fcon\_
-  ];
-
 syntax Fexp = var of Symbol
   | const of Fcon
   | pair of Fexp * Fexp
@@ -133,19 +96,3 @@ system apply : Fcon * Values ==> Values =
   [[ IS-ZERO ]]: is0[], vconst[number[n]]
     ==> vconst[bconst[n == 0]];
 end
-
-let freshEnv = \x : Symbol. _/Values\_;
-let x = \x : Bool . if x then 5 else 6;
-
-evaluate [`y` -> vconst[number[5 % 2]]]freshEnv |- app[
-  fn[`x`,
-    app[
-      const[plus[]],
-      pair[
-        var[`x`],
-        const[number[5]]
-      ]
-    ]
-  ],
-  var[`y`]
-] in Fexp;

@@ -24,6 +24,9 @@ dependencies:
 - array
 - pretty-simple
 - containers
+- text
+- directory
+- split
 
 library:
   source-dirs:
@@ -37,6 +40,8 @@ library:
   - Semantics.Execute
   ## Domains-related
   - Semantics.Dom.Verify
+  # Generation
+  - Generation.Latex
 
 executables:
   Sediment-exe:

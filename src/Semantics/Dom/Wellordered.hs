@@ -51,7 +51,7 @@ wellordered' de ts d = case d of
       Just d' = Data.Map.lookup x de
     in
       case d' of
-      UnionDom tds -> wellordered'' de ts x tds
+      UnionDom tds _ -> wellordered'' de ts x tds
       _ -> wellordered' de ts d'
 
 wellordered'' :: DomEnv -> VisitedTags -> String -> [(String, Dom)] -> Err ()

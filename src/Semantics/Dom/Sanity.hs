@@ -19,15 +19,18 @@ uniqueTags de = Prelude.foldl (uniqueTags' de) (Ok Data.Set.empty)
 
 uniqueTags' :: DomEnv -> Err (Set String) -> String -> Err (Set String)
 uniqueTags' de (Ok s) x = let
-    Just (UnionDom tds) = Data.Map.lookup x de
+    Just (UnionDom tds stx) = Data.Map.lookup x de
     ts = Data.Set.fromList (Prelude.map fst tds)
-  in if Data.Set.size ts /= length tds then Bad ("Duplicate tags: domain " ++ x ++ " uses the same tag for multiple definitions.")
+  in if Data.Set.size ts /= length tds then Bad (if stx
+      then "Duplicate syntax constructors: abstract syntax definition " ++ x ++ " uses the same constructor for multiple formation rules."
+      else "Duplicate tags: domain " ++ x ++ " uses the same tag for multiple definitions.")
     else if not (disjoint ts s) then
       let
         duplicates = Data.Set.toList (Data.Set.intersection ts s)
         listOfTags = intercalate ", " duplicates
       in
-        Bad ("The following tags in domain " ++ x ++ " are duplicated from other domains: " ++ listOfTags)
+        Bad (if stx then "The following constructors in abstract syntax " ++ x ++ " are found as tags or constructors in other domain or abstract syntax definitions: " ++ listOfTags
+          else "The following tags in union " ++ x ++ " are found as tags or constructors in other domain or abstract syntax definitions: " ++ listOfTags)
     else Ok (ts `Data.Set.union` s)
 uniqueTags' _ err _ = err
 
@@ -60,7 +63,7 @@ ddcd de = \case
   VarDom x -> case Data.Map.lookup x de of
     Nothing -> Bad ("Undeclared variable: domain variable " ++ x ++ " not in the scope of the specification")
     Just _ -> Ok ()
-  UnionDom ds -> Prelude.foldl (\r (_,d) -> r >> ddcd de d >> Ok ()) (Ok ()) ds
+  UnionDom ds _ -> Prelude.foldl (\r (_,d) -> r >> ddcd de d >> Ok ()) (Ok ()) ds
   FuncDom d1 d2 -> results [ddcd de d1, ddcd de d2] >> Ok ()
   ProdDom d1 d2 -> results [ddcd de d1, ddcd de d2] >> Ok ()
   _ -> Ok ()
