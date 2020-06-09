@@ -45,12 +45,13 @@ prT' de tt tenv (Ok env) = let
     BoolDom -> Ok env
     d -> Bad ("Incompatible conditional statment: expected to find `bool`. Found " ++ show d ++ " instead.")
   LetPr x e -> expT de tt env e >>= \d -> Ok (Data.Map.insert x d env)
-  LetrPr d x e -> case d of
+  LetrPr d x x' e -> case rootDomain de d of
     FuncDom d1 d2 -> let
-        env' = Data.Map.insert x d env
-      in expT de tt env' e >>= \d' -> if deq de d d' then Ok env'
-          else Bad ("Incompatible types: recursive variable " ++ x ++ " declared with domain " ++ show d ++ " but found type " ++ show d' ++ " instead.")
-    _ -> Bad ("Incompatible letrec definition: expected a function dmain. Found " ++ show d ++ " instead.")
+        env'' = Data.Map.insert x d env
+        env' = Data.Map.insert x' d1 env''
+      in expT de tt env' e >>= \d' -> if deq de d2 d' then Ok env'
+          else Bad ("Incompatible types: recursive variable " ++ x ++ " has with output domain " ++ show d2 ++ " but found " ++ show d' ++ ".")
+    _ -> Bad ("Invalid letrec definition: expected a function dmain. Found " ++ show d ++ " instead.")
   TrPr e1 e2 x c1 -> case Data.Map.lookup x tenv of
     Nothing -> Bad ("Undeclared variable: could find transition system " ++ x ++ " in the scope of the specification.")
     Just (TDom d1 d2 d3) -> rootDs [expT de tt env e1, expT de tt env e2] >>= \[d1', d2'] -> if deq de d1 d1' then

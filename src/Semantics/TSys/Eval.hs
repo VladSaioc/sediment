@@ -37,7 +37,7 @@ prEval' tenv (Ok env) = \case
     VBool True -> Ok env
     VBool False -> Bad "Side condition is false"
   LetPr x e -> expEval env e >>= \v -> Ok (Data.Map.insert x v env)
-  LetrPr _ x e -> expEval env e >>= \(Cloj env' x' e') -> Ok (Data.Map.insert x (RCloj env' x x' e') env)
+  LetrPr _ x x' e -> Ok (Data.Map.insert x (RCloj env x x' e) env)
   TrPr e1 e2 x c -> results [expEval env e1, expEval env e2] >>= \[ve, v] -> do
     let Just tsys = Data.Map.lookup x tenv
     let tenv' = Data.Map.insert thisTSys tsys tenv

@@ -113,10 +113,13 @@ expT de tt env = let
   Let x e1 e2 -> this e1 >>= \d -> let
       env' = Data.Map.insert x d env
     in expT de tt env' e2
-  Letr d x e1 e2 -> let
-    env'' = Data.Map.insert x d env
-    in results [expT de tt env'' e1, expT de tt env'' e2] >>= \[d1, d2] -> if deq de d d1 then Ok d2
-      else Bad ("Incompatible letrec definition: recursive variable " ++ x ++ " declared with domain " ++ show d ++ " but found type " ++ show d1 ++ " instead.")
+  Letr d x x' e1 e2 -> case rootD d of
+    Ok (FuncDom d1' d2') -> let
+        env' = Data.Map.insert x d env
+        env'' = Data.Map.insert x' d1' env'
+      in results [expT de tt env'' e1, expT de tt env'' e2] >>= \[d1, d2] -> if deq de d2' d1 then Ok d2
+        else Bad ("Incompatible letrec definition: recursive function " ++ x ++ " declared with output in domain " ++ show d2' ++ " but found " ++ show d1 ++ " .")
+    _ -> Bad ("Invalid letrec definition: expected recursive data to be expressed as a function type, but was instead was declared with domain " ++ show d ++ ".")
   If e1 e2 e3 -> rootDs [expT de tt env e1, expT de tt env e2, expT de tt env e3] >>= \case
     [BoolDom, d2, d3] -> if deq de d2 d3 then Ok d2
       else Bad ("Incompatible conditional branches: if statement branches are of domains " ++ show d2 ++ " and " ++ show d3 ++ ". Expected the same type.")

@@ -59,8 +59,8 @@ expTex e' = case e' of
   ConstE c -> constTex c
   Lambda d x e -> " \\lambda " ++ expTex (Var x) ++ " \\in " ++ domTex d ++ " .\\\\ " ++ putParens e' e
   App e1 e2 -> putParens e' e1 ++ "(" ++ expTex e2 ++ ")"
-  Let x e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ expTex (Var x) ++ " := " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
-  Letr d x e1 e2 -> "\\begin{array}{l} \n\\sv{let}\\ " ++ expTex (Var x) ++ " \\in " ++ show d  ++ " := " ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
+  Let x e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ expTex (Var x) ++ " = " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
+  Letr d x1 x2 e1 e2 -> "\\begin{array}{l} \n\\sv{let*}\\ " ++ expTex (Var x1) ++ " \\in " ++ show d  ++ " = \\lambda " ++ expTex (Var x2) ++ "." ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
   If e1 e2 e3 -> " \\begin{cases}\n" ++ expTex e2 ++ " & \\textrm{if } " ++ expTex e1 ++ "\\\\\n" ++ expTex e3 ++ " & \\textrm{otherwise }\n\\end{cases}"
   Update e1 e2 e3 -> "[" ++ expTex e1 ++ " \\mapsto " ++ expTex e2 ++ "]" ++ putParens e' e3
   Concat e1 e2 -> putParens e' e1 ++ " \\| " ++ expTex e2

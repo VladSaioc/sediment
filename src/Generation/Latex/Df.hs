@@ -34,8 +34,8 @@ printDataDfs dfs = let
   else ""
 
 printDataDf = \case
-  DataDf x e -> x ++ " & := \\begin{array}{ll}\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
-  DataRecDf d x e -> x ++ " \\in " ++ domTex d ++ " & := \\begin{array}{ll}\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
+  DataDf x e -> expTex (Var x) ++ " & = \\begin{array}{ll}\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
+  DataRecDf d x x' e -> expTex (Var x) ++ " \\in " ++ domTex d ++ " & = " ++  "\\begin{array}{ll}\n \\lambda " ++ expTex (Var x') ++ " .\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
   _ -> ""
 
 printTSysDfs :: [Df] -> String

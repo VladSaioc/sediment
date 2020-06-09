@@ -81,16 +81,22 @@ system Stm : Stm * State ==> State =
     s |- b =Bexp=> false,
     (S2, s) ==> s';
     
-  [[ WHILE ]]: while[b, S], s ==> s' \\
+  [[ WHILE ]]: (while[b, S], s) ==> s' \\
     s |- b =Bexp=> true,
     (S, s) ==> s'',
     (while[b, S], s'') ==> s';
     
-  [[ WHILE ]]: while[b, S], s ==> s \\
+  [[ WHILE ]]: (while[b, S], s) ==> s \\
     s |- b =Bexp=> false;
 end
 
 let freshState = \x : Symbol . _/Int\_;
+
+domain toFail = Int -> Int;
+
+letrec fail : String -> String -> String = \y . y("4");
+
+evaluate fail(\x: String . "abc");
 
 evaluate freshState |- add[aconst[4], aconst[5]] in Aexp;
 evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;

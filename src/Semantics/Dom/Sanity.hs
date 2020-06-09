@@ -51,7 +51,7 @@ ddcdf :: DomEnv -> Df -> Err ()
 ddcdf de = \case
   DomDf _ d -> ddcd de d
   DataDf _ e -> ddce de e
-  DataRecDf d _ e -> results [ddcd de d, ddce de e] >> Ok ()
+  DataRecDf d _ _ e -> results [ddcd de d, ddce de e] >> Ok ()
   TSysDf (TDom d1 d2 d3) _ rs -> results ([
       ddcd de d1,
       ddcd de d2,
@@ -73,7 +73,7 @@ ddce de = \case
   Lambda d _ e -> results [ddcd de d, ddce de e] >> Ok ()
   App e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
   Let _ e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
-  Letr d _ e1 e2 -> results [ddcd de d, ddce de e1, ddce de e2] >> Ok ()
+  Letr d _ _ e1 e2 -> results [ddcd de d, ddce de e1, ddce de e2] >> Ok ()
   If e1 e2 e3 -> results [ddce de e1, ddce de e2, ddce de e3] >> Ok ()
   Update e1 e2 e3 -> results [ddce de e1, ddce de e2, ddce de e3] >> Ok ()
   Concat e1 e2 -> results [ddce de e1, ddce de e2] >> Ok ()
@@ -107,7 +107,7 @@ ddcp :: DomEnv -> Pr -> Err ()
 ddcp de = \case
   IfPr e -> ddce de e
   LetPr _ e -> ddce de e
-  LetrPr d _ e -> results [ddcd de d, ddce de e] >> Ok ()
+  LetrPr d _ _ e -> results [ddcd de d, ddce de e] >> Ok ()
   TrPr e1 e2 _ _ -> results [ddce de e1, ddce de e2] >> Ok()
 
 ddcev :: DomEnv -> Ev -> Err ()

@@ -61,9 +61,9 @@ sidesTex = \case
 
 sideTex = \case
   IfPr e -> "\\textrm{if } " ++ expTex e
-  LetPr x e -> "\\textrm{where } " ++ x ++ " = " ++ expTex e
-  LetrPr d x e -> "\\textrm{where } " ++ x ++ " \\in " ++ domTex d ++ "\\\\\n"
-    ++ "\\textrm{and } " ++ x ++ " = " ++ expTex e
+  LetPr x e -> "\\textrm{where } " ++ expTex (Var x) ++ " = " ++ expTex e
+  LetrPr d x1 x2 e -> "\\textrm{where } " ++ expTex (Var x1) ++ " \\in " ++ domTex d ++ "\\\\\n"
+    ++ "\\textrm{and } " ++ expTex (Var x1) ++ " = \\lambda " ++ expTex (Var x2) ++ " . " ++ expTex e
   TrPr e1 e2 x c -> if x /= "/" then let
         binding = case e1 of
           EExp -> ""

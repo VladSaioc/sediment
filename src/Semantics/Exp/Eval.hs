@@ -34,10 +34,10 @@ expEval env = let
   Prod e1 e2 -> results [this e1, this e2] >>=
     \[VInt v1, VInt v2] -> Ok (VInt (v1 * v2))
   Div e1 e2 -> results [this e1, this e2] >>= \case
-    [VInt v1, VInt 0] -> Bad "Attempted to divide by 0.";
+    [VInt v1, VInt 0] -> Bad "Arithmetic error: Attempted to divide by 0.";
     [VInt v1, VInt v2] -> Ok (VInt (v1 `div` v2))
   Mod e1 e2 -> results [this e1, this e2] >>= \case
-    [VInt v1, VInt 0] -> Bad "Attempted to divide by 0.";
+    [VInt v1, VInt 0] -> Bad "Arithmetic error: Attempted modulo 0.";
     [VInt v1, VInt v2] -> Ok (VInt (v1 `mod` v2))
   Inverse e -> this e >>= \(VInt v) -> Ok (VInt (-v))
   -- Boolean expressions
@@ -74,10 +74,9 @@ expEval env = let
   Let x e1 e2 -> this e1 >>=
     \v -> let env' = Data.Map.insert x v env
       in expEval env' e2
-  Letr _ x e1 e2 -> this e1 >>=
-    \(Cloj env' x' e') -> let
-      env'' = Data.Map.insert x (RCloj env' x x' e') env
-    in expEval env'' e2
+  Letr _ x x' e1 e2 -> let
+      env' = Data.Map.insert x (RCloj env x x' e1) env
+    in expEval env' e2
   If e1 e2 e3 -> this e1 >>= \case
     VBool True -> this e2
     VBool False -> this e3
