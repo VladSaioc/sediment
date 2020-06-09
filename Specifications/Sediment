@@ -1,0 +1,70 @@
+syntax Dfs := eDfs
+  | Dfs of Df * Dfs;
+
+syntax Df := Slet of Symbol * e
+  | Sletrec of D * Symbol * e
+  | D of Symbol * D
+  | S of Symbol * Syn
+  | T of D * D * D * Symbol * T;
+
+syntax Evs := eEvs
+  | Evs of Ev * Evs;
+
+syntax Ev := eval of e * e * Symbol;
+
+syntax Sp := Spec of Dfs * Evs;
+
+syntax B := int | bool | str | sym | eB;
+
+syntax D := B of B | xD of Symbol
+  | FD of D * D | PD of D * D
+  | U of U;
+
+syntax U := eU
+  | Ut of Symbol * D * TDs;
+
+syntax S := eS
+  | S of Symbol * D * S;
+
+domain DE := Symbol -> D;
+
+// Domain bottom function
+letrec DE -> D -> D : Dbot = \DE de.\D : d.
+  if d is xD then Dbot(de)(de(d))
+  else d;
+
+
+// Well-formedness algorithm
+domain Parents = Symbol -> Symbols;
+let parentsLookup =
+domain Symbols = [
+  noSymbols +
+  Symbols[Symbol * Symbols]
+];
+
+syntax DE |- D * Symbols * Symbol ==> Symbols : WF :=
+  [CONST]: de |- B[d], p, x ==> p;
+
+  [UNION_VAR]: de |- xD[x], p, x' ==> x \\
+    if de(x) is U;
+  
+  [FUNCTION]: de |- FD[d1, d2], p, x ==> p' \\
+    de |- d1, p, x ==> p'',
+    de |- d2, p'', x ==> p';
+  
+  [PRODUCT]: de |- PD[d1, d2], p, x ==> p' \\
+    de |- d1, p, x ==> p'',
+    de |- d2, p'', x ==> p';
+  
+  [VAR]: de |- xD[x1], p, x2 ==> p' \\
+    if ! (de(x1) is U),
+    if 
+    de |- 
+end
+
+let Ext := \Symbol * D * D : i.
+  let t := (<) i
+  in let D' := (>)(<) i
+  in let D := (>)(>) i
+  in if D is U 
+  else 

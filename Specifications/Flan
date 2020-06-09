@@ -7,42 +7,43 @@ domain Values = [
 
 domain Env = Symbol -> Values;
 
-let apply = \f : Fcon. \x : Values.
-  vconst[
-    if x is vpair then
-      let x' = x >> vpair in
-      let x1' = (<) x' in
-      if !(x1' is vconst) then _/Fcon\_
-      else let x1 = x1' >> vconst in
-      let x2' = (>) x' in
-      if !(x2' is vconst) then _/Fcon\_
-      else let x2 = x2' >> vconst in
-      if f is plus
-      then number[x1 >> number + x2 >> number]
-      else if f is minus
-      then number[x1 >> number - x2 >> number]
-      else if f is times
-      then number[x1 >> number * x2 >> number]
-      else if f is equal
-      then if x1 is number & x2 is number
-        then bconst[x1 >> number == x2 >> number]
-        else if x1 is bconst & x2 is bconst
-          then bconst[x1 >> bconst == x2 >> bconst]
-          else _/Fcon\_
+let applyPair = \f: Fcon . \x' : Values * Values .
+  let x1' = (<) x' in
+  if !(x1' is vconst) then _/Fcon\_
+  else let x1 = x1' >> vconst in
+  let x2' = (>) x' in
+  if !(x2' is vconst) then _/Fcon\_
+  else let x2 = x2' >> vconst in
+  if f is plus
+  then number[x1 >> number + x2 >> number]
+  else if f is minus
+  then number[x1 >> number - x2 >> number]
+  else if f is times
+  then number[x1 >> number * x2 >> number]
+  else if f is equal
+  then if x1 is number & x2 is number
+    then bconst[x1 >> number == x2 >> number]
+    else if x1 is bconst & x2 is bconst
+      then bconst[x1 >> bconst == x2 >> bconst]
       else _/Fcon\_
-    else if x is vconst
-    then let x' = x >> vconst in
-      if x' is bconst
-      then if f is not
-        then bconst[!(x' >> bconst)]
-        else _/Fcon\_
-      else if x' is number
-      then if f is is0
-        then bconst[x' >> number == 0]
-        else _/Fcon\_
-      else _/Fcon\_
+  else _/Fcon\_;
+
+let applyConst = \f: Fcon . \x' : Fcon . 
+  if x' is bconst
+  then if f is not
+    then bconst[!(x' >> bconst)]
     else _/Fcon\_
-  ];
+  else if x' is number
+  then if f is is0
+    then bconst[x' >> number == 0]
+    else _/Fcon\_
+  else _/Fcon\_;
+
+let apply = \f : Fcon. \x : Values . vconst[
+  if x is vpair then applyPair(f)(x >> vpair)
+  else if x is vconst then applyConst(f)(x >> vconst)
+  else _/Fcon\_
+];
 
 syntax Fexp = var of Symbol
   | const of Fcon
@@ -74,7 +75,7 @@ system Fexp : Env |- Fexp ==> Values =
   [[ APP ]]: env |- app[e1, e2] ==> v \\
     env |- e1 ==> vconst[c],
     env |- e2 ==> v',
-    c, v' =apply=> v;
+    (c, v') =apply=> v;
 
   [[ APP ]]: env |- app[e1, e2] ==> v \\
     env |- e1 ==> rcloj[f, x, e, env'],
@@ -102,37 +103,39 @@ system Fexp : Env |- Fexp ==> Values =
 end
 
 system apply : Fcon * Values ==> Values =
-  [[ PLUS ]]: plus[], vpair[
+  [[ PLUS ]]: (plus[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[number[v1 + v2]];
+    ]) ==> vconst[number[v1 + v2]];
 
-  [[ MINUS ]]: minus[], vpair[
+  [[ MINUS ]]: (minus[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[number[v1 - v2]];
+    ]) ==> vconst[number[v1 - v2]];
 
-  [[ TIMES ]]: times[], vpair[
+  [[ TIMES ]]: (times[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[number[v1 * v2]];
+    ]) ==> vconst[number[v1 * v2]];
 
-  [[ EQUAL ]]: equal[], vpair[
+  [[ EQUAL ]]: (equal[], vpair[
       vconst[number[v1]],
       vconst[number[v2]]
-    ] ==> vconst[bconst[v1 == v2]];
+    ]) ==> vconst[bconst[v1 == v2]];
 
-  [[ EQUAL ]]: equal[], vpair[
+  [[ EQUAL ]]: (equal[], vpair[
       vconst[bconst[v1]],
       vconst[bconst[v2]]
-    ] ==> vconst[bconst[v1 == v2]];
+    ]) ==> vconst[bconst[v1 == v2]];
   
-  [[ NOT ]]: not[], vconst[bconst[b]]
+  [[ NOT ]]: (not[], vconst[bconst[b]])
     ==> vconst[bconst[!b]];
 
-  [[ IS-ZERO ]]: is0[], vconst[number[n]]
+  [[ IS-ZERO ]]: (is0[], vconst[number[n]])
     ==> vconst[bconst[n == 0]];
 end
+
+let break = _/Int\_;
 
 let freshEnv = \x : Symbol. _/Values\_;
 let x = \x : Bool . if x then 5 else 6;

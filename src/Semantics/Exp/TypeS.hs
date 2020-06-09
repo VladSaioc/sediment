@@ -155,7 +155,7 @@ expT de tt env = let
         else Bad ("Invalid tag projection: mismatched expression type for projecting on " ++ t ++ ". Expected " ++ x ++ ". Found " ++ x' ++ " instead.")
       d -> Bad ("Invalid tag projection: expected union domain " ++ x ++ ". Found " ++ show d ++ " instead.")
   IsTag e t -> case Data.Map.lookup t tt of
-    Nothing -> Bad ("Invalid tag projection: unrecognized tag " ++ t ++ ".")
+    Nothing -> Bad ("Invalid tag check: unrecognized tag " ++ t ++ ".")
     Just (x, _) -> this e >>= \case
       VarDom x' -> if x == x' then Ok BoolDom
         else Bad ("Invalid tag check: expected union domain " ++ x ++ " when checking for tag " ++ t ++ ". Found " ++ x' ++ " instead.")

@@ -18,22 +18,19 @@ putParens :: Exp -> Exp -> String
 putParens e1 e2 = let
     parensEnc e = " ( " ++ expTex e ++ " ) "
   in case (e1, e2) of
-    (Lambda{}, Let{}) -> expTex e2
-    (Lambda{}, Letr{}) -> expTex e2
-    (Lambda{}, If{}) -> expTex e2
+    (Pair{}, Pair{}) -> parensEnc e2
+    (_, Let{}) -> expTex e2
+    (_, Letr{}) -> expTex e2
+    (_, If{}) -> expTex e2
     (Let{}, Lambda{}) -> expTex e2
-    (Let{}, Letr{}) -> expTex e2
-    (Let{}, If{}) -> expTex e2
     (If{}, Lambda{}) -> expTex e2
-    (If{}, Let{}) -> expTex e2
-    (If{}, Letr{}) -> expTex e2
+    (Plus{}, Plus{}) -> expTex e2
     (Plus{}, Minus{}) -> expTex e2
     (Minus{}, Plus{}) -> expTex e2
-    (Prod{}, Div{}) -> expTex e2
+    (Minus{}, Minus{}) -> expTex e2
+    (Prod{}, Prod{}) -> expTex e2
+    (_, Div{}) -> expTex e2
     (Prod{}, Mod{}) -> expTex e2
-    (Div{}, Prod{}) -> expTex e2
-    (Div{}, Mod{}) -> expTex e2
-    (Mod{}, Div{}) -> expTex e2
     (Mod{}, Prod{}) -> expTex e2
     (Head{}, Tail{}) -> expTex e2
     (Tail{}, Head{}) -> expTex e2
@@ -60,7 +57,7 @@ expTex e' = case e' of
     else x
   EExp -> " \\epsilon "
   ConstE c -> constTex c
-  Lambda d x e -> " \\lambda " ++ expTex (Var x) ++ " \\in " ++ domTex d ++ " . " ++ putParens e' e
+  Lambda d x e -> " \\lambda " ++ expTex (Var x) ++ " \\in " ++ domTex d ++ " .\\\\ " ++ putParens e' e
   App e1 e2 -> putParens e' e1 ++ "(" ++ expTex e2 ++ ")"
   Let x e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ expTex (Var x) ++ " := " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
   Letr d x e1 e2 -> "\\begin{array}{l} \n\\sv{let}\\ " ++ expTex (Var x) ++ " \\in " ++ show d  ++ " := " ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
@@ -82,9 +79,9 @@ expTex e' = case e' of
   GreaterThan e1 e2 -> putParens e' e1 ++ " > " ++ putParens e' e2
   LessEqThan e1 e2 -> putParens e' e1 ++ " \\leq " ++ putParens e' e2
   GreaterEqThan e1 e2 -> putParens e' e1 ++ " \\geq " ++ putParens e' e2
-  Pair e1 e2 -> expTex e1 ++ " , " ++ expTex e2
+  Pair e1 e2 -> putParens e' e1 ++ " , " ++ expTex e2
   Head e -> " \\sv{head}( " ++ expTex e ++ " )"
   Tail e -> " \\sv{tail}( " ++ expTex e ++ " )"
   Project e t -> " \\prod_\\sv{" ++ t ++ "} " ++ putParens e' e
   Inject t e -> " \\sv{" ++ t ++ "} [ " ++ expTex e ++ " ] "
-  IsTag e t -> putParens e' e ++ " \\ \\sv{is}\\ " ++ t
+  IsTag e t -> putParens e' e ++ " \\ \\sv{is}\\ " ++ " \\sv{" ++ t ++ "}"
