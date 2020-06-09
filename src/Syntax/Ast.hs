@@ -9,7 +9,7 @@ data Spec = Spec [Df] [Ev] | SpecError String
 data Df = DomDf String Dom
   | TSysDf TDom String [Rule]
   | DataDf String Exp
-  | DataRecDf Dom String Exp
+  | DataRecDf Dom String String Exp
   deriving (Eq, Ord, Show, Read)
 
 data Ev = Ev Exp Exp String | ExpEv Exp
@@ -26,7 +26,7 @@ data TDom = TDom Dom Dom Dom
 data Exp = Pair Exp Exp -- Pairs
   | Lambda Dom String Exp -- Basic \-calculus expressions
   | Let String Exp Exp -- Extended \-calculus expressions
-  | Letr Dom String Exp Exp
+  | Letr Dom String String Exp Exp
   | If Exp Exp Exp
   | Concat Exp Exp -- String expressions
   | Plus Exp Exp -- Arithmetic expressions
@@ -70,7 +70,7 @@ data Rule = Rule String Con Con Exp [Pr]
 
 data Pr = IfPr Exp
   | LetPr String Exp
-  | LetrPr Dom String Exp
+  | LetrPr Dom String String Exp
   | TrPr Exp Exp String Con
   deriving (Eq, Ord, Show, Read)
 
@@ -111,7 +111,7 @@ instance Show Exp where
     Lambda _ x e -> "\\" ++ x ++ "." ++ show e
     App e1 e2 -> "(" ++ show e1 ++ ")" ++ "(" ++ show e2 ++ ")"
     Let x e1 e2 -> "let " ++ x ++ " := " ++ show e1 ++ " in " ++ show e2
-    Letr _ x e1 e2 -> "letrec" ++ x ++ " := " ++ show e1 ++ " in " ++ show e2
+    Letr _ x1 x2 e1 e2 -> "letrec" ++ x1 ++ " := " ++ x2 ++ "." ++ show e1 ++ " in " ++ show e2
     If e1 e2 e3 -> "if " ++ show e1 ++ " then " ++ show e2 ++ " else " ++ show e3
     Update e1 e2 e3 -> "[" ++ show e1 ++ " -> " ++ show e3 ++ "]" ++ "(" ++ show e3 ++ ")"
     Concat e1 e2 -> show e1 ++ " ++ " ++ show e2
