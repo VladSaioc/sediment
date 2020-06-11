@@ -13,4 +13,4 @@ To build and run this project:
 - - To parse a specification in a file: run `Sediment-exe <file-path> <latex>`; `<file-path>` is the relative path to your specification; optionally, type in `<latex>` if you want to generate a .tex file from the specification.
 - - To run the REPL run `Sediment-exe`. The REPL is a simple, state-less one.
 
-- The standalone executable is found in `./.stack-work/dist/<hash>/build/Sediment-exe/Sediment-exe.exe`
+- Running `init.sh` should expose a globally installed executable. However, if that does not work, the standalone executable can also be found in `./.stack-work/dist/<hash>/build/Sediment-exe/Sediment-exe.exe`.
