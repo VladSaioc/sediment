@@ -7,7 +7,7 @@ To build and run this project:
 
 - Go to https://bnfc.digitalgrammars.com/download/, get the appropriate BNFC for your OS and install it. BNFC is a language front-end generator, creating several Haskell modules and auxiliary files. These include a module for auto-generated Abstract Syntax, a `.x` file for Lexer generation, and `.y` for Parser generation.
 
-- With the terminal location at the root of the project, run `./init.sh`.
+- Run `./init.sh`, located in the root of the project.
   - The following packages will be installed globally:
     - `alex`, to execute the `.x`.
     - `happy`, to execute the `.y`.
