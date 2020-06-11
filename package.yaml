@@ -4,7 +4,7 @@ github:              "githubuser/Sediment"
 license:             BSD3
 author:              "Georgian-Vlad Saioc"
 maintainer:          "gsaioc18@student.aau.dk"
-copyright:           "2020 Author name here"
+copyright:           "2020 Georgian-Vlad Saioc, Aalborg University"
 
 extra-source-files:
 - README.md

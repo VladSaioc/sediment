@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 87b28b0cc03f2da5f79e4b6cfe4516eacfe0e2ee5970a65dcd2db1a79d47e0f5
+-- hash: d35e529e941dde764ef67d9a0c3b824a1a66b5f993495671aa9291086d9db5e5
 
 name:           Sediment
 version:        0.1.0.0
@@ -13,7 +13,7 @@ homepage:       https://github.com/githubuser/Sediment#readme
 bug-reports:    https://github.com/githubuser/Sediment/issues
 author:         Georgian-Vlad Saioc
 maintainer:     gsaioc18@student.aau.dk
-copyright:      2020 Author name here
+copyright:      2020 Georgian-Vlad Saioc, Aalborg University
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple

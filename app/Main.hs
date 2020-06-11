@@ -25,25 +25,35 @@ includes v (x:xs) = (v == x) || includes v xs
 
 main :: IO ()
 main = do
-  (fileName : opts) <- getArgs
-  source <- readFile fileName
-  let ast = getAst source
-  let staticResults = verifyDomains ast >>= \(de, tt) -> staticAnalysis de tt ast
-  case staticResults of
-    Bad msg -> putStr (fileName ++ ": " ++ msg ++ "\n")
-    Ok _ -> do
-      putStr (fileName ++ ": Static analysis successful.\n")
-      let results = execute ast
-      let
-        evalLog log = \case
-          Bad msg -> log ++ "\n" ++ msg
-          Ok result -> log ++ "\n" ++ result
-      let resultLogs = foldl evalLog "" results
-      putStr resultLogs
-      distExists <- doesDirectoryExist _DIST
-      unless distExists $ createDirectory _DIST 
-      when (includes "latex" opts) $ do
-        let _LATEX_FILE = last (splitOn "/" fileName) ++ ".tex"
-        putStr "Generating Latex:\n"
-        writeFile (_DIST ++ "/" ++ _LATEX_FILE) (generateLatex ast)
-        putStr "Latex generated"
+  args <- getArgs
+  let workflow (file : opts) source = let ast = getAst source
+        in let staticResults = verifyDomains ast >>= \(de, tt) -> staticAnalysis de tt ast
+        in case staticResults of
+        Bad msg -> putStr (file ++ ": " ++ msg ++ "\n")
+        Ok _ -> do
+          putStr (file ++ ": Static analysis successful.\n")
+          let results = execute ast
+          let
+            evalLog log = \case
+              Bad msg -> log ++ "\n" ++ msg
+              Ok result -> log ++ "\n" ++ result
+          let resultLogs = foldl evalLog "" results
+          putStr resultLogs
+          distExists <- doesDirectoryExist _DIST
+          unless distExists $ createDirectory _DIST 
+          when (includes "latex" opts) $ do
+            let _LATEX_FILE = last (splitOn "/" file) ++ ".tex"
+            putStr "Generating Latex:\n"
+            writeFile (_DIST ++ "/" ++ _LATEX_FILE) (generateLatex ast)
+            putStr "Latex generated"
+  case args of
+    (fileName : opts) -> do
+      source <- readFile fileName
+      workflow (fileName : opts) source
+    _ -> let
+        takeInput = do
+          source <- getLine
+          when (source /= "exit") $ do
+            workflow [">REPL"] source
+            takeInput
+      in takeInput
