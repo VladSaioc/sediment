@@ -3,9 +3,9 @@
 A syntax-directed metalanguage through which one can type-check and debug the semantics of source programs.
 To build and run this project:
 
-- Go to https://docs.haskellstack.org/en/stable/README/ and get the appropriate Stack for your OS.
+- Go to https://docs.haskellstack.org/en/stable/README/, get the appropriate Stack for your OS and install it.
 
-- Go to https://bnfc.digitalgrammars.com/download/ and get the appropriate BNFC installer for your OS.
+- Go to https://bnfc.digitalgrammars.com/download/, get the appropriate BNFC for your OS and install it.
 
 - With the terminal location at the root of the project, run `./init.sh`.
 
