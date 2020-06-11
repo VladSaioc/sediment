@@ -35,17 +35,18 @@ main = do
           let results = execute ast
           let
             evalLog log = \case
-              Bad msg -> log ++ "\n" ++ msg
+              Bad msg -> log ++ "\n" ++ msg ++ "\n"
               Ok result -> log ++ "\n" ++ result
           let resultLogs = foldl evalLog "" results
           putStr resultLogs
-          distExists <- doesDirectoryExist _DIST
-          unless distExists $ createDirectory _DIST 
-          when (includes "latex" opts) $ do
-            let _LATEX_FILE = last (splitOn "/" file) ++ ".tex"
-            putStr "Generating Latex:\n"
-            writeFile (_DIST ++ "/" ++ _LATEX_FILE) (generateLatex ast)
-            putStr "Latex generated"
+          unless (null opts) $ do 
+            distExists <- doesDirectoryExist _DIST
+            unless distExists $ createDirectory _DIST 
+            when (includes "latex" opts) $ do
+              let _LATEX_FILE = last (splitOn "/" file) ++ ".tex"
+              putStr "Generating Latex...\n"
+              writeFile (_DIST ++ "/" ++ _LATEX_FILE) (generateLatex ast)
+              putStr "Latex generated"
   case args of
     (fileName : opts) -> do
       source <- readFile fileName

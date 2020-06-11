@@ -10,7 +10,7 @@ To build and run this project:
 - With the terminal location at the root of the project, run `./init.sh`.
 
 - To run Sediment from within the project:
-- - To parse a specification in a file: run `Sediment-exe <file-path> <latex>`; `<file-path>` is the relative path to your specification; optionally, type in `<latex>` if you want to generate a .tex file from the specification.
+- - To parse a specification in a file: run `Sediment-exe <file-path> <latex>`; `<file-path>` is the relative path to your specification; optionally, type in `<latex>` if you want to generate a .tex file from the specification. The generated file will be found in `./dist/*` in the current terminal location `Sediment-exe`.
 - - To run the REPL run `Sediment-exe`. The REPL is a simple, state-less one.
 
 - Running `init.sh` should expose a globally installed executable. However, if that does not work, the standalone executable can also be found at `./.stack-work/dist/<hash>/build/Sediment-exe/Sediment-exe.exe`.
