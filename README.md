@@ -16,6 +16,6 @@ To build and run this project:
 - To run Sediment:
   - Run `Sediment-exe <file-path> <latex>`; `<file-path>` is the relative path to your specification; optionally, type in `<latex>` if you want to generate a `.tex` file from the specification. The generated file will be found in `./dist/*`, generated at the location `Sediment-exe` was run from.
   - Run `Sediment-exe` without any arguments for the interactive interpreter.
-  - Alternatively, the project can be run from the local installation through `stack exec Sediment-exe`, giving or omitting arguments as in the ones above.
+  - Alternatively, the project can be run from the local installation through `stack exec Sediment-exe`, giving or omitting arguments as above.
 
 - Running `init.sh` should expose a globally installed executable. However, if that does not work, the standalone executable can also be found at `./.stack-work/dist/<hash>/build/Sediment-exe/Sediment-exe.exe`.
