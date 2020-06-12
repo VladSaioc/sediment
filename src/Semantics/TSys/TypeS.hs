@@ -43,7 +43,7 @@ prT' de tt tenv (Ok env) = let
   in \case
   IfPr e -> expT de tt env e >>= \case
     BoolDom -> Ok env
-    d -> Bad ("Incompatible conditional statment: expected to find `bool`. Found " ++ show d ++ " instead.")
+    d -> Bad ("Incompatible conditional statment: expected to find Boolean. Found " ++ show d ++ " instead.")
   LetPr x e -> expT de tt env e >>= \d -> Ok (Data.Map.insert x d env)
   LetrPr d x x' e -> case rootDomain de d of
     FuncDom d1 d2 -> let

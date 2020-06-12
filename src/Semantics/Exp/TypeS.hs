@@ -123,7 +123,7 @@ expT de tt env = let
   If e1 e2 e3 -> rootDs [expT de tt env e1, expT de tt env e2, expT de tt env e3] >>= \case
     [BoolDom, d2, d3] -> if deq de d2 d3 then Ok d2
       else Bad ("Incompatible conditional branches: if statement branches are of domains " ++ show d2 ++ " and " ++ show d3 ++ ". Expected the same type.")
-    (d : _) -> Bad ("Incompatible conditional statement: expected to find `bool`, found " ++ show d ++ " instead.")
+    (d : _) -> Bad ("Incompatible conditional statement: expected to find Boolean, found " ++ show d ++ " instead.")
   Update e1 e2 e3 -> rootDs [this e1, this e2, this e3] >>= \case
     [d1, d2, FuncDom d1' d2'] -> if deq de (FuncDom d1 d2) (FuncDom d1' d2') then let
         isBasic = \case
