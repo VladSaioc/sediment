@@ -135,8 +135,6 @@ system apply : Fcon * Values ==> Values =
     ==> vconst[bconst[n == 0]];
 end
 
-let break = _/Int\_;
-
 let freshEnv = \x : Symbol. _/Values\_;
 let x = \x : Bool . if x then 5 else 6;
 
