@@ -12,16 +12,21 @@ import Semantics.Dom.General
 
 bindDom :: Spec -> Err (DomEnv, [String], [String])
 bindDom = \case
-  Spec dfs _ -> Ok (Prelude.foldl bindDom' (empty, [], []) dfs)
+  Spec dfs _ -> Prelude.foldl bindDom' (Ok (empty, [], [])) dfs
   SpecError msg -> Bad msg
 
-bindDom' :: (DomEnv, [String], [String]) -> Df -> (DomEnv, [String], [String])
-bindDom' (de, x1s, x2s) = \case
-  DomDf i (UnionDom ds stx) -> (insert i (UnionDom ds stx) de, x1s, i : x2s)
-  DomDf i d -> (insert i d de, i : x1s, x2s)
-  DataDf{} -> (de, x1s, x2s)
-  DataRecDf{} -> (de, x1s, x2s)
-  TSysDf{} -> (de, x1s, x2s)
+bindDom' :: Err (DomEnv, [String], [String]) -> Df -> Err (DomEnv, [String], [String])
+bindDom' = \case
+  Ok (de, x1s, x2s) -> \case
+    DomDf x (UnionDom ds stx) -> case Data.Map.lookup x de of
+      Nothing -> Ok (insert x (UnionDom ds stx) de, x1s, x : x2s)
+      _ -> if stx then Bad ("Name conflict: abstract syntax " ++ x ++ " shares a name with another abstract syntax or a domain.")
+        else Bad ("Name conflict: domain " ++ x ++ " shares a name with another domain or an abstract syntax.")
+    DomDf x d -> case Data.Map.lookup x de of
+      Nothing -> Ok (insert x d de, x : x1s, x2s)
+      _ -> Bad ("Name conflict: domain " ++ x ++ " shares a name with another domain or an abstract syntax.")
+    _ -> Ok (de, x1s, x2s)
+  Bad msg -> \_ -> Bad msg
 
 makeTagTable :: DomEnv -> [String] -> TagTable
 makeTagTable de [] = Data.Map.empty

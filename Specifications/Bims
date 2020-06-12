@@ -92,12 +92,6 @@ end
 
 let freshState = \x : Symbol . _/Int\_;
 
-domain toFail = Int -> Int;
-
-letrec fail : String -> String -> String = \y . y("4");
-
-evaluate fail(\x: String . "abc");
-
 evaluate freshState |- add[aconst[4], aconst[5]] in Aexp;
 evaluate [`x` -> 1]freshState |- var[`x`] in Aexp;
 evaluate ass[`x`, aconst[5]], freshState in Stm;
