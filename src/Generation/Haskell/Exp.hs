@@ -6,18 +6,13 @@ import Semantics.Exp.General
 import Semantics.General
 
 import Generation.Haskell.General
+import Generation.Haskell.Conf
 
-constHas = \case
-  Bot _ -> "()"
-  Int i -> show i
-  Str s -> s
-  Sym y -> y
-  BConst b -> show b
 
 expHas = \case
   Pair e1 e2 -> "(" ++ expHas e1 ++ ", " ++ expHas e2 ++ ")"
   Lambda _ x e -> "(Updatable (\\" ++ varHas x ++ " -> " ++ expHas e ++ ") Data.Map.empty)"
-  Let x e1 e2 -> "(let " ++ varHas x ++ " = " ++ expHas e1 ++ " in " ++ expHas e2 ++ ")"
+  Let c e1 e2 -> "(let " ++ conHas c ++ " = " ++ expHas e1 ++ " in " ++ expHas e2 ++ ")"
   Letr _ x1 x2 e1 e2 -> "(let " ++ varHas x1 ++ " = Updatable (\\" ++ varHas x2 ++ " -> " ++ expHas e1  ++ ") Data.Map.empty" ++ " in " ++ expHas e2 ++ " )"
   If e1 e2 e3 -> "(if " ++ expHas e1 ++ " then " ++ expHas e2 ++ " else " ++ expHas e3 ++ ")"
   Concat e1 e2 -> "(" ++ expHas e1 ++ ") ++ (" ++ expHas e2 ++ ")"

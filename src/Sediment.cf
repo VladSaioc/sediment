@@ -50,7 +50,7 @@ NBERule_. Rule_ ::= Label ":" Config_1 "==>" Exp_1 "\\\\" [Premise_];
 -- -- -- Premises
 separator nonempty Premise_ ",";
 IfPremise_. Premise_ ::= "if" Exp_1;
-LetPremise_. Premise_ ::= "let" Ident "=" Exp_1;
+LetPremise_. Premise_ ::= "let" Config_ "=" Exp_1;
 LetrecPremise_. Premise_ ::= "letrec" Ident ":" Dom_ "=" "\\" Ident "." Exp_1;
 BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "==>" Config_1;
 BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "=" Ident "=>" Config_1;
@@ -66,7 +66,7 @@ VarConfig_. Config_1 ::= Ident;
 ConstConfig_. Config_1 ::= Const_;
 
 -- -- Data definitions
-Data_. Def_ ::= "let" Ident "=" Exp_1 ";";
+Data_. Def_ ::= "let" Config_ "=" Exp_1 ";";
 DataRec_. Def_ ::= "letrec" Ident ":" Dom_ "=" "\\" Ident "." Exp_1 ";";
 
 -- -- Expressions
@@ -79,7 +79,7 @@ Pair_. Exp_ ::= Exp_1 "," [Exp_1];
 Lambda_. Exp_1 ::= "\\" Ident ":" Dom_ "." Exp_1;
 
 -- -- -- Extended functional expressions
-Let_. Exp_1 ::= "let" Ident "=" Exp_1 "in" Exp_1;
+Let_. Exp_1 ::= "let" Config_ "=" Exp_1 "in" Exp_1;
 Letrec_. Exp_1 ::= "letrec" Ident ":" Dom_ "=" "\\" Ident "." Exp_1 "in" Exp_1;
 If_. Exp_1 ::= "if" Exp_1 "then" Exp_1 "else" Exp_1;
 

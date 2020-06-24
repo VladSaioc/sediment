@@ -38,7 +38,7 @@ pDef = \case
   DomDef_ i de -> DomDf (pIdent i) (pDomDefExp de)
   SyntaxDef_ i frs -> DomDf (pIdent i) (UnionDom (map pFormRule frs) True)
   TSystem_ i td rs -> TSysDf (pTDom td) (pIdent i) (map pRule rs)
-  Data_ i e -> DataDf (pIdent i) (pExp e)
+  Data_ c e -> DataDf (pConfig c) (pExp e)
   DataRec_ i1 d i2 e -> DataRecDf (pDom d) (pIdent i1) (pIdent i2) (pExp e)
 
 -- Domain definition polish
@@ -89,7 +89,7 @@ pRule = \case
 pPremise :: Premise_ -> Pr
 pPremise = \case
   IfPremise_ e -> IfPr (pExp e)
-  LetPremise_ i e -> LetPr (pIdent i) (pExp e)
+  LetPremise_ c e -> LetPr (pConfig c) (pExp e)
   LetrecPremise_ i1 d i2 e -> LetrPr (pDom d) (pIdent i1) (pIdent i2) (pExp e)
   BETrInternalPremise_ e1 e2 c -> TrPr (pExp e1) (pExp e2) "/"  (pConfig c)
   BETrExternalPremise_ e1 e2 i c -> TrPr (pExp e1) (pExp e2) (pIdent i)  (pConfig c)
@@ -117,7 +117,7 @@ pExp = \case
   Lambda_ i d e -> Lambda (pDom d) (pIdent i) (pExp e)
   App_ e1 e2 -> App (pExp e1) (pExp e2)
 -- -- Extended \-calculus expressions
-  Let_ i e1 e2 -> Let (pIdent i) (pExp e1) (pExp e2)
+  Let_ c e1 e2 -> Let (pConfig c) (pExp e1) (pExp e2)
   Letrec_ i1 d i2 e1 e2 -> Letr (pDom d) (pIdent i1) (pIdent i2) (pExp e1) (pExp e2)
   If_ e1 e2 e3 -> If (pExp e1) (pExp e2) (pExp e3)
   Update_ e1 e2 e3 -> Update (pExp e1) (pExp e2) (pExp e3)

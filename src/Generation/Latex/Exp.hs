@@ -2,17 +2,10 @@ module Generation.Latex.Exp where
 
 import Syntax.Ast
 
-import Data.Char (isDigit)
 import Generation.Latex.Dom
 
-constTex :: Const -> String
-constTex = \case
-  Bot d -> " \\bot_{ " ++ domTex d ++ " } "
-  Int i -> show i
-  Str s -> " \\textrm{\" " ++ s ++ "\" } "
-  Sym y -> " \\sv{ " ++ y ++ " } "
-  BConst True -> "\\ltrue"
-  BConst False -> "\\lfalse"
+import Generation.Latex.General
+import Generation.Latex.Conf
 
 putParens :: Exp -> Exp -> String
 putParens e1 e2 = let
@@ -39,28 +32,13 @@ putParens e1 e2 = let
 
 expTex :: Exp -> String
 expTex e' = case e' of
-  Var x -> let
-      getTicks = \case
-        [] -> []
-        c:cs -> if c == '\'' then c : getTicks cs
-          else []
-      ticks = getTicks (reverse x)
-      left = take (length x - length ticks) x
-    in if isDigit (last left) then
-      let
-        getSubscript [] = ""
-        getSubscript (c:cs) = if isDigit c then getSubscript cs ++ [c]
-          else ""
-        subscript = getSubscript (reverse left)
-        x' = take (length left - length subscript) left
-      in x' ++ "_{" ++ subscript ++ "}" ++ ticks
-    else x
+  Var x -> varTex x
   EExp -> " \\epsilon "
   ConstE c -> constTex c
-  Lambda d x e -> " \\lambda " ++ expTex (Var x) ++ " \\in " ++ domTex d ++ " .\\\\ " ++ putParens e' e
+  Lambda d x e -> " \\lambda " ++ varTex x ++ " \\in " ++ domTex d ++ " .\\\\ " ++ putParens e' e
   App e1 e2 -> putParens e' e1 ++ "(" ++ expTex e2 ++ ")"
-  Let x e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ expTex (Var x) ++ " = " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
-  Letr d x1 x2 e1 e2 -> "\\begin{array}{l} \n\\sv{let*}\\ " ++ expTex (Var x1) ++ " \\in " ++ show d  ++ " = \\lambda " ++ expTex (Var x2) ++ "." ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
+  Let c e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ conTex c ++ " = " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
+  Letr d x1 x2 e1 e2 -> "\\begin{array}{l} \n\\sv{let*}\\ " ++ varTex x1 ++ " \\in " ++ show d  ++ " = \\lambda " ++ varTex x2 ++ "." ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
   If e1 e2 e3 -> " \\begin{cases}\n" ++ expTex e2 ++ " & \\textrm{if } " ++ expTex e1 ++ "\\\\\n" ++ expTex e3 ++ " & \\textrm{otherwise }\n\\end{cases}"
   Update e1 e2 e3 -> "[" ++ expTex e1 ++ " \\mapsto " ++ expTex e2 ++ "]" ++ putParens e' e3
   Concat e1 e2 -> putParens e' e1 ++ " \\| " ++ expTex e2

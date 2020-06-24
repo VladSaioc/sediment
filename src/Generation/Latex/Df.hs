@@ -2,8 +2,10 @@ module Generation.Latex.Df where
 
 import Syntax.Ast
 
+import Generation.Latex.General
 import Generation.Latex.Dom
 import Generation.Latex.Exp
+import Generation.Latex.Conf
 import Generation.Latex.TSys
 
 printDomDfs :: [Df] -> String
@@ -34,8 +36,8 @@ printDataDfs dfs = let
   else ""
 
 printDataDf = \case
-  DataDf x e -> expTex (Var x) ++ " & = \\begin{array}{ll}\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
-  DataRecDf d x x' e -> expTex (Var x) ++ " \\in " ++ domTex d ++ " & = " ++  "\\begin{array}{ll}\n \\lambda " ++ expTex (Var x') ++ " .\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
+  DataDf c e -> conTex c ++ " & = \\begin{array}{ll}\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
+  DataRecDf d x x' e -> varTex x ++ " \\in " ++ domTex d ++ " & = " ++  "\\begin{array}{ll}\n \\lambda " ++ varTex x' ++ " .\n" ++ expTex e ++ "\n\\end{array}\\\\\\\\\n"
   _ -> ""
 
 printTSysDfs :: [Df] -> String

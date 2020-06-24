@@ -19,7 +19,7 @@ prsHas ts res i = let
     [] -> i ++ "  " ++ expHas res
     (pr : prs) -> case pr of
       IfPr e -> i ++ "case (" ++ expHas e ++ ") of\n" ++ iplus ++ "True -> do\n" ++ prsHas ts res iplusplus prs
-      LetPr x e-> i ++ "let " ++ varHas x ++ " = " ++ expHas e ++ "\n" ++ prsHas ts res i prs
+      LetPr c e-> i ++ "let " ++ conHas c ++ " = " ++ expHas e ++ "\n" ++ prsHas ts res i prs
       LetrPr _ x1 x2 e -> i ++ "let " ++ varHas x1 ++ " = Updatable (\\" ++ varHas x2 ++ " -> " ++ expHas e ++ ") Data.Map.empty\n" ++ prsHas ts res i prs
       TrPr e1 e2 ts' c -> let
           input = case e1 of

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cc55c71b604743855fd80091ae9f0a57e18ca0e0c6a249cf90b3738f9e9ce539
+-- hash: d9f23e88e45ab731237984354b7076c0c03e69778dce9570fddec41971251c03
 
 name:           Sediment
 version:        0.1.0.0
@@ -45,6 +45,7 @@ library
       Generation.Latex.Df
       Generation.Latex.Dom
       Generation.Latex.Exp
+      Generation.Latex.General
       Generation.Latex.TSys
       Semantics.Conf.Eval
       Semantics.Conf.TypeS

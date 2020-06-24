@@ -10,6 +10,7 @@ import Semantics.General
 import Semantics.Dom.General
 import Semantics.Dom.Equivalence
 import Semantics.Exp.General
+import Semantics.Conf.TypeS
 
 getConst :: Const -> Dom
 getConst (Bot d) = d
@@ -110,9 +111,7 @@ expT de tt env = let
       else Bad ("Incompatible types: supplied expression with type " ++ show d2 ++ " as input to function with type " ++ show (FuncDom d2' d1) ++ ".")
     [d1, d2] -> Bad ("Incompatible types: non-lambda-expression used as a function. Found domain " ++ show d1 ++ " instead.")
   -- Extended \-calculus
-  Let x e1 e2 -> this e1 >>= \d -> let
-      env' = Data.Map.insert x d env
-    in expT de tt env' e2
+  Let c e1 e2 -> this e1 >>= confT de tt env c >>= \env' -> expT de tt env' e2
   Letr d x x' e1 e2 -> case rootD d of
     Ok (FuncDom d1' d2') -> let
         env' = Data.Map.insert x d env

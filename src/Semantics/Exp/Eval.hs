@@ -8,6 +8,8 @@ import Syntax.ErrM
 import Semantics.General
 import Semantics.Exp.General
 
+import Semantics.Conf.Eval
+
 getConst :: Const -> Err Value
 getConst = \case
   Bot _ -> Bad "Undefined: tried to evaluate undefined value."
@@ -71,9 +73,8 @@ expEval env = let
       env'' = Data.Map.insert x' v env'''
       in expEval env'' e'
 -- Extended \-calculus
-  Let x e1 e2 -> this e1 >>=
-    \v -> let env' = Data.Map.insert x v env
-      in expEval env' e2
+  Let c e1 e2 -> this e1 >>= confEval env c >>=
+    \env' -> expEval env' e2
   Letr _ x x' e1 e2 -> let
       env' = Data.Map.insert x (RCloj env x x' e1) env
     in expEval env' e2

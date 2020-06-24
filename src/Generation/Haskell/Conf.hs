@@ -3,7 +3,6 @@ module Generation.Haskell.Conf where
 import Syntax.Ast
 
 import Generation.Haskell.General
-import Generation.Haskell.Exp
 
 conHas = \case
   ECon -> ""

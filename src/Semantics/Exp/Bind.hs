@@ -13,6 +13,9 @@ import Semantics.General
 import Semantics.Dom.General
 import Semantics.Dom.Equivalence
 
+import Semantics.Conf.Eval
+import Semantics.Conf.TypeS
+
 import Semantics.Exp.Eval
 import Semantics.Exp.General
 import Semantics.Exp.TypeS
@@ -23,7 +26,7 @@ bindDataT de tt = Prelude.foldl (bindDataT' de tt) (Ok Data.Map.empty)
 bindDataT' :: DomEnv -> TagTable -> Err TEnv -> Df -> Err TEnv
 bindDataT' de tt (Bad msg) = \_ -> Bad msg
 bindDataT' de tt (Ok env) = \case
-  DataDf x e -> expT de tt env e >>= \d -> Ok (Data.Map.insert x d env)
+  DataDf c e -> expT de tt env e >>= confT de tt env c
   DataRecDf d x x' e -> case rootDomain de d of
     FuncDom d1 d2 -> do
       let env'' = Data.Map.insert x d env
@@ -40,9 +43,7 @@ bindData = Prelude.foldl bindData' (Ok Data.Map.empty)
 bindData' :: Err Env -> Df -> Err Env
 bindData' (Bad msg) = \_ -> Bad msg
 bindData' (Ok env) = \case
-  DataDf x e -> do
-    v <- expEval env e
-    Ok (Data.Map.insert x v env)
+  DataDf c e -> expEval env e >>= confEval env c
   DataRecDf _ x x' e -> let
       env' = Data.Map.insert x (RCloj env x x' e) env
     in Ok env'

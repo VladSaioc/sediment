@@ -7,6 +7,7 @@ import Syntax.Ast
 import Generation.Haskell.General
 import Generation.Haskell.Dom
 import Generation.Haskell.Exp
+import Generation.Haskell.Conf
 import Generation.Haskell.TSys
 
 prologueDom = "module Specification.Dom where\n\n"
@@ -45,6 +46,6 @@ printDataDfs dfs = prologueData ++ intercalate "\n\n" (map printDataDf dfs)
 
 printDataDf :: Df -> String
 printDataDf = \case
-  DataDf x e -> varHas x ++ " = " ++ expHas e
+  DataDf c e -> conHas c ++ " = " ++ expHas e
   DataRecDf _ x1 x2 e -> varHas x1 ++ " = Updatable (\\" ++ varHas x2 ++ " -> " ++ expHas e ++ ") Data.Map.empty"
   _ -> ""
