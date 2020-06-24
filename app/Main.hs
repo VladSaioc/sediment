@@ -17,6 +17,7 @@ import Semantics.StaticAnalysis
 import Semantics.Execute
 
 import Generation.Latex
+import Generation.Haskell
 
 _DIST = "dist"
 
@@ -41,12 +42,38 @@ main = do
           putStr resultLogs
           unless (null opts) $ do 
             distExists <- doesDirectoryExist _DIST
-            unless distExists $ createDirectory _DIST 
+            unless distExists $ createDirectory _DIST
+            let specName = last (splitOn "/" file)
             when (includes "latex" opts) $ do
-              let _LATEX_FILE = last (splitOn "/" file) ++ ".tex"
-              putStr "Generating Latex...\n"
+              let _LATEX_FILE = specName ++ ".tex"
+              putStr "\nGenerating Latex...\n"
               writeFile (_DIST ++ "/" ++ _LATEX_FILE) (generateLatex ast)
-              putStr "Latex generated"
+              putStr "Latex generated\n\n"
+            when (includes "haskell" opts) $ do
+              specDirExists <- doesDirectoryExist (_DIST ++ "/" ++ specName)
+              unless specDirExists $ createDirectory (_DIST ++ "/" ++ specName)
+
+              let _HASKELL_DIR = _DIST ++ "/" ++ specName ++ "/Haskell"
+              haskellDirExists <- doesDirectoryExist _HASKELL_DIR
+              unless haskellDirExists $ createDirectory _HASKELL_DIR
+              
+              let _TOOLING_DIR = _HASKELL_DIR ++ "/Tooling"
+              toolingDirExists <- doesDirectoryExist _TOOLING_DIR
+              unless toolingDirExists $ createDirectory _TOOLING_DIR
+              
+              let _INNER_SPEC_DIR = _HASKELL_DIR ++ "/Specification"
+              innerSpecDirExists <- doesDirectoryExist _INNER_SPEC_DIR
+              unless innerSpecDirExists $ createDirectory _INNER_SPEC_DIR
+
+              putStr "Genetaring Haskell interpreter...\n"
+
+              let (updatable, doms, tsys, dats) = generateHaskell ast
+              writeFile (_TOOLING_DIR ++ "/Updatable.hs") updatable
+              writeFile (_INNER_SPEC_DIR ++ "/Dom.hs") doms
+              writeFile (_INNER_SPEC_DIR ++ "/Systems.hs") tsys
+              writeFile (_INNER_SPEC_DIR ++ "/Data.hs") dats
+
+              putStr "Haskell interpreter generated successfully"
   case args of
     (fileName : opts) -> do
       source <- readFile fileName
