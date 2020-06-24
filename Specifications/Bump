@@ -1,9 +1,12 @@
 domain Proc = Symbol;
 domain Var = Symbol;
+domain Loc = Int;
 
 domain EnvV = Symbol -> Loc;
 
-domain EnvP = Symbol -> Stm * Var * EnvV * EnvP;
+domain PCloj = [epsPCloj + PCloj[Stm * Var * EnvV * EnvP]];
+
+domain EnvP = Proc -> PCloj;
 
 domain Sto = Loc -> Int;
 
@@ -121,14 +124,31 @@ system Stm : EnvV * EnvP |- Stm * Sto ==> Sto =
     envV' |- (dp, envP) =Dp=> envP',
     envV', envP' |- (S, sto'') ==> sto';
   
-  [[ CALL ]]: envV, envP |- (call[p], sto) ==> sto' \\
-    let S = envP(p),
-    envV, envP |- (S, sto) ==> sto';
+  [[ CALL ]]: envV, envP |- (call[p, y], sto) ==> sto' \\
+    let cloj = envP(p) >> PCloj,
+    let S = (<) cloj,
+    let x = (<)(>) cloj,
+    let envV' = (<)(>)(>) cloj,
+    let envP' = (>)(>)(>) cloj,
+    let l = envV(y),
+    let l' = envV(`next`),
+    [`next` -> l'][x -> l]envV', envP' |- (S, sto) ==> sto';
+  
+  [[ CALL-REC ]]: envV, envP |- (call[p, y], sto) ==> sto' \\
+    let cloj = envP(p) >> PCloj,
+    let S = (<) cloj,
+    let x = (<)(>) cloj,
+    let envV' = (<)(>)(>) cloj,
+    let envP' = (>)(>)(>) cloj,
+    let l = envV(y),
+    let l' = envV(`next`),
+    let envP'' = [p -> PCloj[S, x, envV', envP']]envP',
+    [`next` -> l'][x -> l]envV', envP'' |- (S, sto) ==> sto';
 end
 
 system Dp : EnvV |- Dp * EnvP ==> EnvP =
   [[ PROC-DECL ]]: envV |- (proc[p, x, S, dp], envP) ==> envP' \\
-    envV |- (dp, [p -> S, x, envV, envP]envP) ==> envP';
+    envV |- (dp, [p -> PCloj[S, x, envV, envP]]envP) ==> envP';
 
   [[ EMPTY ]]: envV |- (epsDp[], envP) ==> envP;
 end
