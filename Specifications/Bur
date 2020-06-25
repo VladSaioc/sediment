@@ -1,6 +1,6 @@
 domain Loc = Int;
 
-domain Rname = Symbol;
+domain Rnames = Symbol;
 
 domain Var = Symbol;
 
@@ -16,18 +16,18 @@ domain Sto = Loc -> Int;
 
 domain RCloj = [Rund + RCloj[EnvV * EnvP * EnvR]];
 
-domain EnvR = Rname -> RCloj;
+domain EnvR = Rnames -> RCloj;
 
 domain PCloj = [Pund + PCloj[Stm * EnvV * EnvP * EnvR]];
 
 domain EnvP = Pname -> PCloj;
 
-syntax P = pname of Pname | pchain of Rname * P;
+syntax P = pname of Pname | pchain of Rnames * P;
 
-syntax X = var of Var | vchain of Rname * X;
+syntax Gvar = var of Var | vchain of Rnames * Gvar;
 
 syntax Aexp = aconst of Int
-  | avar of X
+  | avar of Gvar
   | add of Aexp * Aexp
   | mul of Aexp * Aexp
   | sub of Aexp * Aexp
@@ -40,24 +40,24 @@ syntax Bexp = eq of Aexp * Aexp
   | bparens of Bexp
   | bconst of Bool;
 
-syntax Stm = ass of X * Aexp
+syntax Stm = ass of Gvar * Aexp
   | skip
   | comp of Stm * Stm
   | ifs of Bexp * Stm * Stm
   | while of Bexp * Stm
-  | block of Dv * Dp * Dr * Stm
+  | block of DecV * DecP * DecR * Stm
   | call of P;
 
-syntax Dv = dvar of Var * Aexp * Dv
+syntax DecV = dvar of Var * Aexp * DecV
   | epsDv;
 
-syntax Dp = proc of Pname * Stm * Dp
+syntax DecP = proc of Pname * Stm * DecP
   | epsDp;
 
-syntax Dr = record of Rname * Dv * Dp * Dr * Dr
+syntax DecR = record of Rnames * DecV * DecP * DecR * DecR
   | epsDr;
 
-system X : EnvR * EnvV |- X ==> Loc =
+system Gvar : EnvR * EnvV |- Gvar ==> Loc =
   [[ VAR ]]: envR, envV |- var[x] ==> envV(x);
 
   [[ VAR-CHAIN ]]: envR, envV |- vchain[r, X] ==> l\\
@@ -75,7 +75,7 @@ end
 
 system Aexp : EnvR * EnvV * Sto |- Aexp ==> Int =
   [[ VAR ]]: envR, envV, sto |- avar[X] ==> sto(l) \\
-    envR, envV |- X =X=> l;
+    envR, envV |- X =Gvar=> l;
 
   [[ NUM ]]: envR, envV, sto |- aconst[n] ==> n;
 
@@ -117,17 +117,17 @@ system Bexp : EnvR * EnvV * Sto |- Bexp ==> Bool =
     envR, envV, sto |- b2 ==> v2;
 end
 
-system Dv : EnvR |- Dv * EnvV * Sto ==> EnvV * Sto =
-  [[ VAR-DECL ]]: envR |- (dvar[x, a, Dv], envV, sto) ==> (envV', sto') \\
+system DecV : EnvR |- DecV * EnvV * Sto ==> EnvV * Sto =
+  [[ VAR-DECL ]]: envR |- (dvar[x, a, DecV], envV, sto) ==> (envV', sto') \\
     envR, envV, sto |- a =Aexp=> v,
     let l = envV(`next`),
     let envV'' = [`next` -> new(l)][x -> l]envV,
-    envR |- (Dv, envV'', [l -> v]sto) ==> (envV', sto');
+    envR |- (DecV, envV'', [l -> v]sto) ==> (envV', sto');
   
   [[ EMPTY ]]: envR |- (epsDv[], envV, sto) ==> (envV, sto);
 end
 
-system Dp : EnvV * EnvR |- Dp * EnvP ==> EnvP =
+system DecP : EnvV * EnvR |- DecP * EnvP ==> EnvP =
   [[ PROC-DECL ]]: envV, envR |- (proc[p, S, Dp], envP) ==> envP' \\
     let envP'' = [p -> PCloj[S, envV, envP, envR]]envP,
     envV, envR |- (Dp, envP'') ==> envP';
@@ -135,10 +135,10 @@ system Dp : EnvV * EnvR |- Dp * EnvP ==> EnvP =
   [[ PROC-EMPTY ]]: envV, envR |- (epsDp[], envP) ==> envP;
 end
 
-system Dr : Dr * EnvR * EnvV * Sto ==> EnvR * EnvV * Sto =
+system DecR : DecR * EnvR * EnvV * Sto ==> EnvR * EnvV * Sto =
   [[ RECORD ]]: (record[r, Dv, Dp, Dr', Dr], envR, envV, sto) ==> (envR'', envV''', sto') \\
-    envR |- (Dv, envV, sto) =Dv=> (envV', sto''),
-    envV', envR |- (Dp, newEnvP) =Dp=> envP',
+    envR |- (Dv, envV, sto) =DecV=> (envV', sto''),
+    envV', envR |- (Dp, newEnvP) =DecP=> envP',
     (Dr', envR, envV', sto'') ==> (envR', envV'', sto'''),
     (Dr, [r -> RCloj[envV'', envP', envR']]envR, envV'', sto''') ==> (envR'', envV''', sto');
 
@@ -148,7 +148,7 @@ end
 system Stm : EnvR * EnvV * EnvP |- Stm * Sto ==> Sto =
   [[ ASS ]]: envR, envV, envP |- (ass[X, a], sto) ==> [l -> v]sto \\
     envR, envV, sto |- a =Aexp=> v,
-    envR, envV |- X =X=> l;
+    envR, envV |- X =Gvar=> l;
   
   [[ SKIP ]]: envR, envV, envP |- (skip[], sto) ==> sto;
 
@@ -173,9 +173,9 @@ system Stm : EnvR * EnvV * EnvP |- Stm * Sto ==> Sto =
     envR, envV, sto |- b =Bexp=> false;
   
   [[ BLOCK ]]: envR, envV, envP |- (block[Dv, Dp, Dr, S], sto) ==> sto' \\
-    envR |- (Dv, envV, sto) =Dv=> (envV', sto''),
-    (Dr, envR, envV', sto'') =Dr=> (envR', envV'', sto'''),
-    envV'', envR |- (Dp, envP) =Dp=> envP',
+    envR |- (Dv, envV, sto) =DecV=> (envV', sto''),
+    (Dr, envR, envV', sto'') =DecR=> (envR', envV'', sto'''),
+    envV'', envR |- (Dp, envP) =DecP=> envP',
     envR', envV'', envP' |- (S, sto''') ==> sto';
   
   [[ CALL ]]: envR, envV, envP |- (call[P], sto) ==> sto' \\
