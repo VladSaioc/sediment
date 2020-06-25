@@ -37,11 +37,16 @@ syntax Dp = proc of Symbol * Stm * Dp
   | epsDp;
 
 system Aexp : EnvV * Sto |- Aexp ==> Int =
-  [[ PLUS ]]: envV, sto |- mul[a1, a2] ==> v1 + v2 \\
+  [[ NUM ]]: envV, sto |- aconst[n] ==> n;
+
+  [[ VAR ]]: envV, sto |- avar[x] ==> sto(l) \\
+    let l = envV(x);
+
+  [[ ADD ]]: envV, sto |- add[a1, a2] ==> v1 + v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
-  [[ MINUS ]]: envV, sto |- sub[a1, a2] ==> v1 - v2 \\
+  [[ SUB ]]: envV, sto |- sub[a1, a2] ==> v1 - v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
@@ -51,11 +56,6 @@ system Aexp : EnvV * Sto |- Aexp ==> Int =
   
   [[ PARENS ]]: envV, sto |- aparens[a] ==> v \\
     envV, sto |- a ==> v;
-  
-  [[ NUM ]]: envV, sto |- aconst[n] ==> n;
-
-  [[ VAR ]]: envV, sto |- avar[x] ==> sto(l) \\
-    let l = envV(x);
 end
 
 system Bexp : EnvV * Sto |- Bexp ==> Bool =

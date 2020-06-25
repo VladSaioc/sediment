@@ -28,6 +28,7 @@ expHas = \case
   LessEqThan e1 e2 -> "(" ++ expHas e1 ++ ") <= (" ++ expHas e2 ++ ")"
   GreaterThan e1 e2 -> "(" ++ expHas e1 ++ ") > (" ++ expHas e2 ++ ")"
   GreaterEqThan e1 e2 -> "(" ++ expHas e1 ++ ") >= (" ++ expHas e2 ++ ")"
+  Inject t EExp -> "(" ++ tagHas t ++ ")"
   Inject t e -> "(" ++ tagHas t ++ " (" ++ expHas e ++ "))"
   IsTag e t -> "(case " ++ expHas e ++ " of " ++ tagHas t ++ "{} -> True; _ -> False)"
   Inverse e -> "-(" ++ expHas e ++ ")"

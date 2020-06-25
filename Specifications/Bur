@@ -79,11 +79,11 @@ system Aexp : EnvR * EnvV * Sto |- Aexp ==> Int =
 
   [[ NUM ]]: envR, envV, sto |- aconst[n] ==> n;
 
-  [[ PLUS ]]: envR, envV, sto |- mul[a1, a2] ==> v1 + v2 \\
+  [[ ADD ]]: envR, envV, sto |- add[a1, a2] ==> v1 + v2 \\
     envR, envV, sto |- a1 ==> v1,
     envR, envV, sto |- a2 ==> v2;
   
-  [[ MINUS ]]: envR, envV, sto |- sub[a1, a2] ==> v1 - v2 \\
+  [[ SUB ]]: envR, envV, sto |- sub[a1, a2] ==> v1 - v2 \\
     envR, envV, sto |- a1 ==> v1,
     envR, envV, sto |- a2 ==> v2;
   

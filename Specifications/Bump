@@ -41,11 +41,11 @@ syntax Dp = proc of Proc * Var * Stm * Dp
   | epsDp;
 
 system Aexp : EnvV * Sto |- Aexp ==> Int =
-  [[ PLUS ]]: envV, sto |- mul[a1, a2] ==> v1 + v2 \\
+  [[ ADD ]]: envV, sto |- add[a1, a2] ==> v1 + v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
-  [[ MINUS ]]: envV, sto |- sub[a1, a2] ==> v1 - v2 \\
+  [[ SUB ]]: envV, sto |- sub[a1, a2] ==> v1 - v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
