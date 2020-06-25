@@ -30,7 +30,7 @@ ruleTex (Rule l c1 c2 e prs) =
     conditions = let
         sides = sidesTex prs
       in if sides == "" then " & "
-        else " & \\begin{array}{ll}\n"
+        else "\\\\ & \\begin{array}{ll}\n"
           ++ sides
           ++ "\\end{array}\n"
   in "\\namedRule{" ++ l ++ "}{\n"

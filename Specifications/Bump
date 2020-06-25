@@ -2,9 +2,11 @@ domain Proc = Symbol;
 domain Var = Symbol;
 domain Loc = Int;
 
+let new = \l : Loc . l + 1;
+
 domain EnvV = Symbol -> Loc;
 
-domain PCloj = [epsPCloj + PCloj[Stm * Var * EnvV * EnvP]];
+domain PCloj = [Pund + PCloj[Stm * Var * EnvV * EnvP]];
 
 domain EnvP = Proc -> PCloj;
 
@@ -32,7 +34,7 @@ syntax Stm = ass of Var * Aexp
   | begin of Dv * Dp * Stm
   | call of Proc * Var;
 
-syntax Dv = dvar of Symbol * Aexp * Dv
+syntax Dv = dvar of Var * Aexp * Dv
   | epsDv;
 
 syntax Dp = proc of Proc * Var * Stm * Dp
@@ -86,7 +88,7 @@ system Dv : Dv * EnvV * Sto ==> EnvV * Sto =
   [[ VAR-DECL ]]: (dvar[x, a, dv], envV, sto) ==> (envV', sto') \\
     envV, sto |- a =Aexp=> v,
     let l = envV(`next`),
-    let envV'' = [`next` -> l + 1][x -> l]envV,
+    let envV'' = [`next` -> new(l)][x -> l]envV,
     (dv, envV'', [l -> v]sto) ==> (envV', sto');
 
   [[ EMPTY ]]: (epsDv[], envV, sto) ==> (envV, sto);

@@ -2,6 +2,8 @@ domain Loc = Int;
 
 domain EnvV = Symbol -> Loc;
 
+let new = \l : Loc . l + 1;
+
 domain EnvP = Symbol -> Stm;
 
 domain Sto = Loc -> Int;
@@ -82,7 +84,7 @@ system Dv : Dv * EnvV * Sto ==> EnvV * Sto =
   [[ VAR-DECL ]]: (dvar[x, a, dv], envV, sto) ==> (envV', sto') \\
     envV, sto |- a =Aexp=> v,
     let l = envV(`next`),
-    let envV'' = [`next` -> l + 1][x -> l]envV,
+    let envV'' = [`next` -> new(l)][x -> l]envV,
     (dv, envV'', [l -> v]sto) ==> (envV', sto');
 
   [[ EMPTY ]]: (epsDv[], envV, sto) ==> (envV, sto);
@@ -99,11 +101,11 @@ system Stm : EnvV * EnvP |- Stm * Sto ==> Sto =
     envV, envP |- (S1, sto) ==> sto'',
     envV, envP |- (S2, sto'') ==> sto';
 
-  [[ IF ]]: envV, envP |- (ifs[b, S1, S2], sto) ==> sto' \\
+  [[ IF-TRUE ]]: envV, envP |- (ifs[b, S1, S2], sto) ==> sto' \\
     envV, sto |- b =Bexp=> true,
     envV, envP |- (S1, sto) ==> sto';
 
-  [[ IF ]]: envV, envP |- (ifs[b, S1, S2], sto) ==> sto' \\
+  [[ IF-FALSE ]]: envV, envP |- (ifs[b, S1, S2], sto) ==> sto' \\
     envV, sto |- b =Bexp=> false,
     envV, envP |- (S2, sto) ==> sto';
   
