@@ -13,7 +13,7 @@ domHas = \case
   SymDom -> " String "
   EDom -> ""
   VarDom x -> varDomHas x
-  FuncDom d1 d2 -> "(" ++ domHas d1 ++ " -> " ++ domHas d2 ++ ")"
+  FuncDom d1 d2 -> "(Updatable " ++ domHas d1 ++ " " ++ domHas d2 ++ ")"
   ProdDom d1 d2 -> "(" ++ domHas d1 ++ " , " ++ domHas d2 ++ ")"
   UnionDom ds _ -> intercalate " | " (map unHas ds)
 

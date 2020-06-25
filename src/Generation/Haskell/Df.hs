@@ -11,6 +11,7 @@ import Generation.Haskell.Conf
 import Generation.Haskell.TSys
 
 prologueDom = "module Specification.Dom where\n\n"
+  ++ "import Tooling.Updatable\n\n"
 
 prologueData = "module Specification.Data where\n\n"
   ++ "import Data.Map\n\n"

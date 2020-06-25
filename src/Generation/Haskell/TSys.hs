@@ -10,17 +10,17 @@ ruleHas ts (Rule _ c1 c2 e prs) = let
   input = case c1 of
     ECon -> conHas c2
     _ -> "(" ++ conHas c1 ++ ", " ++ conHas c2 ++ ")"
-  in input ++ " -> do\n" ++ prsHas ts e "    " prs
+  in input ++ " ->\n" ++ prsHas ts e "    " prs
 
 prsHas ts res i = let
   iplus = i ++ "  "
   iplusplus = iplus ++ "  "
   in \case
-    [] -> i ++ "  " ++ expHas res
+    [] -> i ++ expHas res
     (pr : prs) -> case pr of
-      IfPr e -> i ++ "case (" ++ expHas e ++ ") of\n" ++ iplus ++ "True -> do\n" ++ prsHas ts res iplusplus prs
-      LetPr c e-> i ++ "let " ++ conHas c ++ " = " ++ expHas e ++ "\n" ++ prsHas ts res i prs
-      LetrPr _ x1 x2 e -> i ++ "let " ++ varHas x1 ++ " = Updatable (\\" ++ varHas x2 ++ " -> " ++ expHas e ++ ") Data.Map.empty\n" ++ prsHas ts res i prs
+      IfPr e -> i ++ "case (" ++ expHas e ++ ") of\n" ++ iplus ++ "True ->\n" ++ prsHas ts res iplusplus prs
+      LetPr c e-> i ++ "let " ++ conHas c ++ " = " ++ expHas e ++ " in\n" ++ prsHas ts res i prs
+      LetrPr _ x1 x2 e -> i ++ "let " ++ varHas x1 ++ " = Updatable (\\" ++ varHas x2 ++ " -> " ++ expHas e ++ ") Data.Map.empty  in\n" ++ prsHas ts res i prs
       TrPr e1 e2 ts' c -> let
           input = case e1 of
             EExp -> "(" ++ expHas e2 ++ ")"
