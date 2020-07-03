@@ -22,7 +22,7 @@ domain PCloj = [Pund + PCloj[Stm * EnvV * EnvP * EnvR]];
 
 domain EnvP = Pname -> PCloj;
 
-syntax P = pname of Pname | pchain of Rnames * P;
+syntax Gpnames = pname of Pname | pchain of Rnames * Gpnames;
 
 syntax Gvar = var of Var | vchain of Rnames * Gvar;
 
@@ -46,7 +46,7 @@ syntax Stm = ass of Gvar * Aexp
   | ifs of Bexp * Stm * Stm
   | while of Bexp * Stm
   | block of DecV * DecP * DecR * Stm
-  | call of P;
+  | call of Gpnames;
 
 syntax DecV = dvar of Var * Aexp * DecV
   | epsDv;
@@ -65,7 +65,7 @@ system Gvar : EnvR * EnvV |- Gvar ==> Loc =
     envR', envV' |- X ==> l;
 end
 
-system P : EnvR * EnvP |- P ==> PCloj =
+system Gpnames : EnvR * EnvP |- Gpnames ==> PCloj =
   [[ PROC ]]: envR, envP |- pname[p] ==> envP(p);
   
   [[ PROC-CHAIN ]]: envR, envP |- pchain[r, P] ==> pcloj \\
@@ -179,6 +179,6 @@ system Stm : EnvR * EnvV * EnvP |- Stm * Sto ==> Sto =
     envR', envV'', envP' |- (S, sto''') ==> sto';
   
   [[ CALL ]]: envR, envV, envP |- (call[P], sto) ==> sto' \\
-    envR, envP |- P =P=> PCloj[S, envV', envP', envR'],
+    envR, envP |- P =Gpnames=> PCloj[S, envV', envP', envR'],
     envR', envV', envP' |- (S, sto) ==> sto';
 end
