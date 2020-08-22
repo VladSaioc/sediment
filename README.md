@@ -1,6 +1,6 @@
 # Sediment
 
-A syntax-directed metalanguage interpreter through which one can type-check and debug semantics given as natural semantics specifications.
+A semantics-directed metalanguage interpreter through which one can type-check and debug language semantics given as specifications in a natural semantics.
 To build and run this project:
 
 - Go to https://docs.haskellstack.org/en/stable/README/, get the appropriate Stack for your OS and install it.
