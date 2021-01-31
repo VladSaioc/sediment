@@ -42,6 +42,7 @@ library:
   - Semantics.Dom.Verify
   # Generation
   - Generation.Latex
+  - Generation.Haskell
 
 executables:
   Sediment-exe:

@@ -14,7 +14,7 @@ import Semantics.TSys.General
 import Semantics.TSys.Eval
 
 evalEval :: TSEnv -> Env -> Ev -> Err String
-evalEval tenv env = \case
+evalEval tenv env (EvP pos ev) = case ev of
   Ev e1 e2 x -> do
     ve <- expEval env e1
     v <- expEval env e2

@@ -2,22 +2,41 @@ module Generation.Latex.Exp where
 
 import Syntax.Ast
 
-import Data.Char (isDigit)
 import Generation.Latex.Dom
 
-constTex :: Const -> String
-constTex = \case
-  Bot d -> " \\bot_{ " ++ domTex d ++ " } "
-  Int i -> show i
-  Str s -> " \\textrm{\" " ++ s ++ "\" } "
-  Sym y -> " \\sv{ " ++ y ++ " } "
-  BConst True -> "\\ltrue"
-  BConst False -> "\\lfalse"
+import Generation.Latex.General
+import Generation.Latex.Conf
 
 putParens :: Exp -> Exp -> String
-putParens e1 e2 = let
+putParens e1@(Exp _ e1') e2@(Exp _ e2') = let
     parensEnc e = " ( " ++ expTex e ++ " ) "
-  in case (e1, e2) of
+  in case (e1', e2') of
+    (Equal{}, Var{}) -> expTex e2
+    (Equal{}, ConstE{}) -> expTex e2
+    (Equal{}, Update{}) -> expTex e2
+    (Equal{}, Inject{}) -> expTex e2
+    (NotEqual{}, Var{}) -> expTex e2
+    (NotEqual{}, ConstE{}) -> expTex e2
+    (NotEqual{}, Update{}) -> expTex e2
+    (NotEqual{}, Inject{}) -> expTex e2
+    (LessThan{}, Var{}) -> expTex e2
+    (LessThan{}, ConstE{}) -> expTex e2
+    (LessThan{}, Update{}) -> expTex e2
+    (LessThan{}, Inject{}) -> expTex e2
+    (LessEqThan{}, Var{}) -> expTex e2
+    (LessEqThan{}, ConstE{}) -> expTex e2
+    (LessEqThan{}, Update{}) -> expTex e2
+    (LessEqThan{}, Inject{}) -> expTex e2
+    (GreaterThan{}, Var{}) -> expTex e2
+    (GreaterThan{}, ConstE{}) -> expTex e2
+    (GreaterThan{}, Update{}) -> expTex e2
+    (GreaterThan{}, Inject{}) -> expTex e2
+    (GreaterEqThan{}, Var{}) -> expTex e2
+    (GreaterEqThan{}, ConstE{}) -> expTex e2
+    (GreaterEqThan{}, Update{}) -> expTex e2
+    (GreaterEqThan{}, Inject{}) -> expTex e2
+    (Update{}, Update{}) -> expTex e2
+    (Update{}, Var{}) -> expTex e2
     (Pair{}, Pair{}) -> parensEnc e2
     (_, Let{}) -> expTex e2
     (_, Letr{}) -> expTex e2
@@ -38,31 +57,16 @@ putParens e1 e2 = let
       else expTex e2
 
 expTex :: Exp -> String
-expTex e' = case e' of
-  Var x -> let
-      getTicks = \case
-        [] -> []
-        c:cs -> if c == '\'' then c : getTicks cs
-          else []
-      ticks = getTicks (reverse x)
-      left = take (length x - length ticks) x
-    in if isDigit (last left) then
-      let
-        getSubscript [] = ""
-        getSubscript (c:cs) = if isDigit c then getSubscript cs ++ [c]
-          else ""
-        subscript = getSubscript (reverse left)
-        x' = take (length left - length subscript) left
-      in x' ++ "_{" ++ subscript ++ "}" ++ ticks
-    else x
+expTex e'@(Exp _ e) = case e of
+  Var x -> varTex x
   EExp -> " \\epsilon "
   ConstE c -> constTex c
-  Lambda d x e -> " \\lambda " ++ expTex (Var x) ++ " \\in " ++ domTex d ++ " .\\\\ " ++ putParens e' e
+  Lambda d x e -> " \\lambda " ++ varTex x ++ " \\in " ++ domTex d ++ " .\\\\ " ++ putParens e' e
   App e1 e2 -> putParens e' e1 ++ "(" ++ expTex e2 ++ ")"
-  Let x e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ expTex (Var x) ++ " = " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
-  Letr d x1 x2 e1 e2 -> "\\begin{array}{l} \n\\sv{let*}\\ " ++ expTex (Var x1) ++ " \\in " ++ show d  ++ " = \\lambda " ++ expTex (Var x2) ++ "." ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
+  Let c e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ conTex c ++ " = " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
+  Letr d x1 x2 e1 e2 -> "\\begin{array}{l} \n\\sv{let*}\\ " ++ varTex x1 ++ " \\in " ++ show d  ++ " = \\lambda " ++ varTex x2 ++ "." ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
   If e1 e2 e3 -> " \\begin{cases}\n" ++ expTex e2 ++ " & \\textrm{if } " ++ expTex e1 ++ "\\\\\n" ++ expTex e3 ++ " & \\textrm{otherwise }\n\\end{cases}"
-  Update e1 e2 e3 -> "[" ++ expTex e1 ++ " \\mapsto " ++ expTex e2 ++ "]" ++ putParens e' e3
+  Update e1 e2 e3 -> putParens e' e3 ++ "[" ++ expTex e1 ++ " \\mapsto " ++ expTex e2 ++ "]"
   Concat e1 e2 -> putParens e' e1 ++ " \\| " ++ expTex e2
   Inverse e -> " - " ++ expTex e
   Plus e1 e2 -> putParens e' e1 ++ " + " ++ putParens e' e2
@@ -83,5 +87,5 @@ expTex e' = case e' of
   Head e -> " \\sv{head}( " ++ expTex e ++ " )"
   Tail e -> " \\sv{tail}( " ++ expTex e ++ " )"
   Project e t -> " \\prod_\\sv{" ++ t ++ "} " ++ putParens e' e
-  Inject t e -> " \\sv{" ++ t ++ "} [ " ++ expTex e ++ " ] "
+  Inject t e -> " \\sv{" ++ t ++ "} \\{ " ++ expTex e ++ " \\} "
   IsTag e t -> putParens e' e ++ " \\ \\sv{is}\\ " ++ " \\sv{" ++ t ++ "}"

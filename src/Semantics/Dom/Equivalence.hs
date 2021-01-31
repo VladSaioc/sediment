@@ -7,9 +7,9 @@ import Syntax.Ast
 import Semantics.Dom.General
 
 deq :: DomEnv -> Dom -> Dom -> Bool
-deq de d1 d2 = let
+deq de d1@(Dom _ d1') d2@(Dom _ d2') = let
   this = deq de
-  in case (d1, d2) of
+  in case (d1', d2') of
   (EDom, EDom) -> True
   (IntDom, IntDom) -> True
   (BoolDom, BoolDom) -> True
@@ -20,15 +20,15 @@ deq de d1 d2 = let
   (VarDom x, d) -> let
       Just d' = Data.Map.lookup x de
     in case d' of
-      UnionDom{} -> case d of
+      Dom _ UnionDom{} -> case d of
         VarDom x' -> x == x'
         _ -> False
-      _ -> this d' d
+      _ -> this d' d2
   (d, VarDom x) -> let
       Just d' = Data.Map.lookup x de
     in case d' of
-      UnionDom{} -> case d of
+      Dom _ UnionDom{} -> case d of
         VarDom x' -> x == x'
         _ -> False
-      _ -> this d d'
+      _ -> this d1 d'
   _ -> False

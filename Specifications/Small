@@ -1,0 +1,64 @@
+domain Env = Symbol -> Int;
+
+syntax Stm = decl : Symbol * Exp
+  | exp : Exp
+  | comp : Stm * Stm
+;
+
+syntax Exp = const : Int
+  | var : Symbol
+  | add : Exp * Exp
+  | sub : Exp * Exp
+  | mul : Exp * Exp
+  | div : Exp * Exp
+;
+
+system e : Env |- Exp ==> Int =
+  [[ VAR ]]: s |- var{x} ==> s(x);
+  
+  [[ CONST ]]: s |- const{n} ==> n;
+  
+  [[ ADD ]]: s |- add{e1, e2} ==> v1 + v2 \\
+    s |- e1 ==> v1,
+    s |- e2 ==> v2;
+  
+  [[ SUB ]]: s |- add{e1, e2} ==> v1 + v2 \\
+    s |- e1 ==> v1,
+    s |- e2 ==> v2;
+  
+  [[ MUL ]]: s |- add{e1, e2} ==> v1 + v2 \\
+    s |- e1 ==> v1,
+    s |- e2 ==> v2;
+  
+  [[ DIV ]]: s |- div{e1, e2} ==> v \\
+    s |- e1 ==> v1,
+    s |- e2 ==> v2,
+    if v2 != 0,
+    let v = v1 / v2;
+end
+
+system S : Stm * Env ==> Env =
+  [[ DECL ]]: (decl{x, e}, s) ==> s[x -> v] \\
+    s |- e =e=> v;
+  
+  [[ EXP ]]: (exp{e}, s) ==> s \\
+    s |- e =e=> v;
+  
+  [[ COMP ]]: (comp{S1, S2}, s) ==> s'' \\
+    (S1, s) ==> s',
+    (S2, s') ==> s'';
+end
+
+let empty = \x : Symbol . -|Int|-;
+
+evaluate empty |- add{const{4}, const{5}} in e;
+
+evaluate (comp{
+  decl{
+    `x`,
+    const{5}
+  },
+  exp{
+    var{`x`}
+  }
+}, empty) in S;

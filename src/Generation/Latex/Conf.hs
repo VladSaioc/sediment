@@ -3,11 +3,11 @@ module Generation.Latex.Conf where
 import Data.Char (isDigit)
 
 import Syntax.Ast
-import Generation.Latex.Exp
+import Generation.Latex.General
 
-conTex = \case
+conTex (Con _ c) = case c of
   ConstCon c -> constTex c
   PairCon c1 c2 -> conTex c1 ++ " , " ++ conTex c2
   ECon -> ""
-  VarCon x -> expTex (Var x)
+  VarCon x -> varTex x
   TagCon t c -> "\\sv{" ++ t ++ "} [ " ++ conTex c ++ " ] "

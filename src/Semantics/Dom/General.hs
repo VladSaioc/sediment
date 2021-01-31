@@ -13,14 +13,14 @@ type DomEnv = Map String Dom
 type TagTable = Map String (String, Dom)
 
 isUnion :: DomEnv -> Dom -> Bool
-isUnion de (VarDom x) = case Data.Map.lookup x de of
+isUnion de (Dom _ (VarDom x)) = case Data.Map.lookup x de of
   Just d -> isUnion de d
-isUnion _ UnionDom{} = True
+isUnion _ (Dom _ UnionDom{}) = True
 isUnion _ d = False
 
 rootDomain :: DomEnv -> Dom -> Dom
-rootDomain de (VarDom x) = case Data.Map.lookup x de of
-  Just UnionDom{} -> VarDom x
+rootDomain de (Dom _ (VarDom x)) = case Data.Map.lookup x de of
+  Just (Dom pos UnionDom{}) -> Dom pos (VarDom x)
   Just d -> rootDomain de d
 rootDomain _ d = d
 

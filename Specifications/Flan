@@ -1,98 +1,98 @@
-domain Values = [
-  vconst[Fcon] +
-  vpair[Values * Values] +
-  cloj[Symbol * Fexp * Env] +
-  rcloj[Symbol * Symbol * Fexp * Env]
-];
+domain Values = {
+  vconst : Fcon
+  + vpair : Values * Values
+  + cloj : Symbol * Fexp * Env
+  + rcloj : Symbol * Symbol * Fexp * Env
+};
 
 domain Env = Symbol -> Values;
 
-syntax Fexp = var of Symbol
-  | const of Fcon
-  | pair of Fexp * Fexp
-  | app of Fexp * Fexp
-  | iff of Fexp * Fexp * Fexp
-  | fn of Symbol * Fexp
-  | letnr of Symbol * Fexp * Fexp
-  | letr of Symbol * Fexp * Fexp;
+syntax Fexp = var : Symbol
+  | const : Fcon
+  | pair : Fexp * Fexp
+  | app : Fexp * Fexp
+  | iff : Fexp * Fexp * Fexp
+  | fn : Symbol * Fexp
+  | letnr : Symbol * Fexp * Fexp
+  | letr : Symbol * Fexp * Fexp;
 
-syntax Fcon = number of Int
-  | bconst of Bool
+syntax Fcon = number : Int
+  | bconst : Bool
   | plus | times | minus | equal | not | is0;
 
 system Fexp : Env |- Fexp ==> Values =
-  [[ VAR ]]: env |- var[x] ==> env(x);
+  [[ VAR ]]: env |- var{x} ==> env(x);
   
-  [[ CONST ]]: env |- const[c] ==> vconst[c];
+  [[ CONST ]]: env |- const{c} ==> vconst{c};
   
-  [[ PAIR ]]: env |- pair[e1, e2] ==> vpair[v1, v2] \\
+  [[ PAIR ]]: env |- pair{e1, e2} ==> vpair{v1, v2} \\
     env |- e1 ==> v1,
     env |- e2 ==> v2;
   
-  [[ APP ]]: env |- app[e1, e2] ==> v \\
-    env |- e1 ==> cloj[x, e, env'],
+  [[ APP ]]: env |- app{e1, e2} ==> v \\
+    env |- e1 ==> cloj{x, e, env'},
     env |- e2 ==> v',
-    [x -> v']env' |- e ==> v;
+    env'[x -> v'] |- e ==> v;
   
-  [[ APP ]]: env |- app[e1, e2] ==> v \\
-    env |- e1 ==> vconst[c],
+  [[ APP ]]: env |- app{e1, e2} ==> v \\
+    env |- e1 ==> vconst{c},
     env |- e2 ==> v',
     (c, v') =apply=> v;
 
-  [[ APP ]]: env |- app[e1, e2] ==> v \\
-    env |- e1 ==> rcloj[f, x, e, env'],
+  [[ APP ]]: env |- app{e1, e2} ==> v \\
+    env |- e1 ==> rcloj{f, x, e, env'},
     env |- e2 ==> v',
-    let rclojure = rcloj[f, x, e, env'],
-    [x -> v'][f -> rclojure]env' |- e ==> v;
+    let rclojure = rcloj{f, x, e, env'},
+    env'[f -> rclojure][x -> v'] |- e ==> v;
 
-  [[ IF ]]: env |- iff[b, e1, e2] ==> v \\
-    env |- b ==> vconst[bconst[true]],
+  [[ IF ]]: env |- iff{b, e1, e2} ==> v \\
+    env |- b ==> vconst{bconst{true}},
     env |- e1 ==> v;
   
-  [[ IF ]]: env |- iff[b, e1, e2] ==> v \\
-    env |- b ==> vconst[bconst[false]],
+  [[ IF ]]: env |- iff{b, e1, e2} ==> v \\
+    env |- b ==> vconst{bconst{false}},
     env |- e2 ==> v;
   
-  [[ FN ]]: env |- fn[x, e] ==> cloj[x, e, env];
+  [[ FN ]]: env |- fn{x, e} ==> cloj{x, e, env};
   
-  [[ LET ]]: env |- letnr[x, e1, e2] ==> v \\
+  [[ LET ]]: env |- letnr{x, e1, e2} ==> v \\
     env |- e1 ==> v',
-    [x -> v']env |- e2 ==> v;
+    env[x -> v'] |- e2 ==> v;
   
-  [[ LETREC ]]: env |- letr[f, e1, e2] ==> v \\
-    env |- e1 ==> cloj[x, e, env'],
-    [f -> rcloj[f, x, e, env']]env |- e2 ==> v;
+  [[ LETREC ]]: env |- letr{f, e1, e2} ==> v \\
+    env |- e1 ==> cloj{x, e, env'},
+    env[f -> rcloj{f, x, e, env'}] |- e2 ==> v;
 end
 
 system apply : Fcon * Values ==> Values =
-  [[ PLUS ]]: (plus[], vpair[
-      vconst[number[v1]],
-      vconst[number[v2]]
-    ]) ==> vconst[number[v1 + v2]];
+  [[ PLUS ]]: (plus{}, vpair{
+    vconst{number{v1}},
+    vconst{number{v2}}
+  }) ==> vconst{number{v1 + v2}};
 
-  [[ MINUS ]]: (minus[], vpair[
-      vconst[number[v1]],
-      vconst[number[v2]]
-    ]) ==> vconst[number[v1 - v2]];
+  [[ MINUS ]]: (minus{}, vpair{
+    vconst{number{v1}},
+    vconst{number{v2}}
+  }) ==> vconst{number{v1 - v2}};
 
-  [[ TIMES ]]: (times[], vpair[
-      vconst[number[v1]],
-      vconst[number[v2]]
-    ]) ==> vconst[number[v1 * v2]];
+  [[ TIMES ]]: (times{}, vpair{
+    vconst{number{v1}},
+    vconst{number{v2}}
+  }) ==> vconst{number{v1 * v2}};
 
-  [[ EQUAL ]]: (equal[], vpair[
-      vconst[number[v1]],
-      vconst[number[v2]]
-    ]) ==> vconst[bconst[v1 == v2]];
+  [[ EQUAL ]]: (equal{}, vpair{
+    vconst{number{v1}},
+    vconst{number{v2}}
+  }) ==> vconst{bconst{v1 == v2}};
 
-  [[ EQUAL ]]: (equal[], vpair[
-      vconst[bconst[v1]],
-      vconst[bconst[v2]]
-    ]) ==> vconst[bconst[v1 == v2]];
+  [[ EQUAL ]]: (equal{}, vpair{
+    vconst{bconst{v1}},
+    vconst{bconst{v2}}
+  }) ==> vconst{bconst{v1 == v2}};
   
-  [[ NOT ]]: (not[], vconst[bconst[b]])
-    ==> vconst[bconst[!b]];
+  [[ NOT ]]: (not{}, vconst{bconst{b}})
+    ==> vconst{bconst{!b}};
 
-  [[ IS-ZERO ]]: (is0[], vconst[number[n]])
-    ==> vconst[bconst[n == 0]];
+  [[ IS-ZERO ]]: (is0{}, vconst{number{n}})
+    ==> vconst{bconst{n == 0}};
 end

@@ -6,13 +6,14 @@ import Data.Set
 import Syntax.Ast
 import Syntax.ErrM
 
+import Semantics.General
 import Semantics.Dom.General
 
 type VisitedTags = Set String
 
-wellordered :: DomEnv -> [String] -> Err ()
+wellordered :: DomEnv -> [PosVar] -> Err ()
 wellordered de xs = let
-    results = Prelude.map (\x -> case wellordered' de Data.Set.empty (VarDom x) of
+    results = Prelude.map (\(x, pos) -> case wellordered' de Data.Set.empty (Dom pos (VarDom x)) of
       Bad msg -> Bad msg
       _ -> Ok ()) xs
   in
@@ -23,7 +24,7 @@ wellordered de xs = let
         _ -> Bad msg') (Ok ()) results
 
 wellordered' :: DomEnv -> VisitedTags -> Dom -> Err ()
-wellordered' de ts d = case d of
+wellordered' de ts (Dom pos d) = case d of
   IntDom -> Ok ()
   BoolDom -> Ok ()
   StrDom -> Ok ()
@@ -51,11 +52,11 @@ wellordered' de ts d = case d of
       Just d' = Data.Map.lookup x de
     in
       case d' of
-      UnionDom tds _ -> wellordered'' de ts x tds
+      Dom _ (UnionDom tds _) -> wellordered'' de ts (x, pos) tds
       _ -> wellordered' de ts d'
 
-wellordered'' :: DomEnv -> VisitedTags -> String -> [(String, Dom)] -> Err ()
-wellordered'' de ts x [] = Bad ("Unions must be well-ordered: no well-ordered branch found for " ++ x ++ ".")
+wellordered'' :: DomEnv -> VisitedTags -> PosVar -> [(String, Dom)] -> Err ()
+wellordered'' de ts (x, pos) [] = errMsg pos ("Unions must be well-ordered: no well-ordered branch found for " ++ x ++ ".")
 wellordered'' de ts x ((t, d) : tds) = if not (Data.Set.member t ts) then
     let
       r = wellordered' de (Data.Set.insert t ts) d

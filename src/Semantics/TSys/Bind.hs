@@ -13,7 +13,7 @@ bindTSysT :: [Df] -> TTSEnv
 bindTSysT = Prelude.foldl bindTSysT' Data.Map.empty
 
 bindTSysT' :: TTSEnv -> Df -> TTSEnv
-bindTSysT' env = \case
+bindTSysT' env (Df _ d)= case d of
   (TSysDf td x _) -> Data.Map.insert x td env
   _ -> env
 
@@ -21,6 +21,6 @@ bindTSys :: [Df] -> TSEnv
 bindTSys = Prelude.foldl bindTSys' Data.Map.empty
 
 bindTSys' :: TSEnv -> Df -> TSEnv
-bindTSys' env = \case
+bindTSys' env (Df _ d)= case d of
   TSysDf _ x tsys -> Data.Map.insert x tsys env
   _ -> env
