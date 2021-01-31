@@ -68,7 +68,7 @@ system apply : Fcon * Values ==> Values =
   [[ PLUS ]]: (plus{}, vpair{
     vconst{number{v1}},
     vconst{number{v2}}
-  }) ==> vconst{number{v1 + "a"}};
+  }) ==> vconst{number{v1 + v2}};
 
   [[ MINUS ]]: (minus{}, vpair{
     vconst{number{v1}},

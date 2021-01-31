@@ -11,6 +11,8 @@ putParens :: Exp -> Exp -> String
 putParens e1@(Exp _ e1') e2@(Exp _ e2') = let
     parensEnc e = " ( " ++ expTex e ++ " ) "
   in case (e1', e2') of
+    (Update{}, Update{}) -> expTex e2
+    (Update{}, Var{}) -> expTex e2
     (Pair{}, Pair{}) -> parensEnc e2
     (_, Let{}) -> expTex e2
     (_, Letr{}) -> expTex e2
@@ -40,7 +42,7 @@ expTex e'@(Exp _ e) = case e of
   Let c e1 e2 -> "\\begin{array}{l} \\sv{let}\\ " ++ conTex c ++ " = " ++ putParens e' e1 ++ " \\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
   Letr d x1 x2 e1 e2 -> "\\begin{array}{l} \n\\sv{let*}\\ " ++ varTex x1 ++ " \\in " ++ show d  ++ " = \\lambda " ++ varTex x2 ++ "." ++ putParens e' e1 ++ "\\\\\n\\sv{in}\\ " ++ putParens e' e2 ++ "\n\\end{array}"
   If e1 e2 e3 -> " \\begin{cases}\n" ++ expTex e2 ++ " & \\textrm{if } " ++ expTex e1 ++ "\\\\\n" ++ expTex e3 ++ " & \\textrm{otherwise }\n\\end{cases}"
-  Update e1 e2 e3 -> "[" ++ expTex e1 ++ " \\mapsto " ++ expTex e2 ++ "]" ++ putParens e' e3
+  Update e1 e2 e3 -> putParens e' e3 ++ "[" ++ expTex e1 ++ " \\mapsto " ++ expTex e2 ++ "]"
   Concat e1 e2 -> putParens e' e1 ++ " \\| " ++ expTex e2
   Inverse e -> " - " ++ expTex e
   Plus e1 e2 -> putParens e' e1 ++ " + " ++ putParens e' e2
@@ -61,5 +63,5 @@ expTex e'@(Exp _ e) = case e of
   Head e -> " \\sv{head}( " ++ expTex e ++ " )"
   Tail e -> " \\sv{tail}( " ++ expTex e ++ " )"
   Project e t -> " \\prod_\\sv{" ++ t ++ "} " ++ putParens e' e
-  Inject t e -> " \\sv{" ++ t ++ "} [ " ++ expTex e ++ " ] "
+  Inject t e -> " \\sv{" ++ t ++ "} \\{ " ++ expTex e ++ " \\} "
   IsTag e t -> putParens e' e ++ " \\ \\sv{is}\\ " ++ " \\sv{" ++ t ++ "}"
