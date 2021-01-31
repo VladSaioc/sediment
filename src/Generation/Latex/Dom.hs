@@ -3,7 +3,7 @@ module Generation.Latex.Dom where
 import Syntax.Ast
 
 domTex :: Dom -> String
-domTex = \case
+domTex (Dom _ d)= case d of
   IntDom -> "\\mathbb Z"
   BoolDom -> "\\{ \\ltrue, \\lfalse \\}"
   StrDom -> "\\Sigma^{*}"

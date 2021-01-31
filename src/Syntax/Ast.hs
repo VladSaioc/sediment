@@ -3,27 +3,43 @@ module Syntax.Ast where
 import Data.List
 import Data.Map
 
-data Spec = Spec [Df] [Ev] | SpecError String
-  deriving (Eq, Ord, Show, Read)
+type Pos = (Int, Int)
 
-data Df = DomDf String Dom
+type PosVar = (String, Pos)
+
+data Spec = Spec [Df] [Ev] | SpecError String
+  deriving (Eq, Ord, Read)
+
+data Df = Df Pos DfBase
+  deriving (Eq, Ord, Read)
+
+data DfBase = DomDf String Dom
   | TSysDf TDom String [Rule]
   | DataDf Con Exp
   | DataRecDf Dom String String Exp
-  deriving (Eq, Ord, Show, Read)
+  deriving (Eq, Ord, Read)
 
-data Ev = Ev Exp Exp String | ExpEv Exp
-  deriving (Eq, Ord, Show, Read)
+data Ev = EvP Pos EvBase
+  deriving (Eq, Ord, Read)
 
-data Dom = IntDom | BoolDom | StrDom | SymDom | EDom
+data EvBase = Ev Exp Exp String | ExpEv Exp
+  deriving (Eq, Ord, Read)
+
+data Dom = Dom Pos DomBase
+  deriving (Eq, Ord, Read)
+
+data DomBase = IntDom | BoolDom | StrDom | SymDom | EDom
   | VarDom String | FuncDom Dom Dom | ProdDom Dom Dom
   | UnionDom [(String, Dom)] Bool
-  deriving (Eq, Ord, Read)
+  deriving (Eq, Ord, Show, Read)
 
 data TDom = TDom Dom Dom Dom
   deriving (Eq, Ord, Show, Read)
 
-data Exp = Pair Exp Exp -- Pairs
+data Exp = Exp Pos ExpBase
+  deriving (Eq, Ord, Read)
+
+data ExpBase = Pair Exp Exp -- Pairs
   | Lambda Dom String Exp -- Basic \-calculus expressions
   | Let Con Exp Exp -- Extended \-calculus expressions
   | Letr Dom String String Exp Exp
@@ -55,34 +71,43 @@ data Exp = Pair Exp Exp -- Pairs
   | ConstE Const
   | EExp
   | Closure Env Exp
+  deriving (Eq, Ord, Show, Read)
+
+data Const = Const Pos ConstBase
   deriving (Eq, Ord, Read)
 
-data Const
+data ConstBase
   = Bot Dom
   | Int Integer
   | Str String
   | Sym String
   | BConst Bool
-  deriving (Eq, Ord, Read)
-
-data Rule = Rule String Con Con Exp [Pr]
   deriving (Eq, Ord, Show, Read)
 
-data Pr = IfPr Exp
+data Rule = Rule PosVar Con Con Exp [Pr]
+  deriving (Eq, Ord, Read)
+
+data Pr = Pr Pos PrBase
+  deriving (Eq, Ord, Read)
+
+data PrBase = IfPr Exp
   | LetPr Con Exp
   | LetrPr Dom String String Exp
   | TrPr Exp Exp String Con
   deriving (Eq, Ord, Show, Read)
 
-data Con = ECon
+data Con = Con Pos ConBase
+  deriving (Eq, Ord, Read)
+
+data ConBase = ECon
   | TagCon String Con
   | PairCon Con Con
   | VarCon String
   | ConstCon Const
-  deriving (Eq, Ord, Read)
+  deriving (Eq, Ord, Show, Read)
 
 instance Show Con where
-  show = \case
+  show (Con _ c)= case c of
     ECon -> "_"
     TagCon t c -> t ++ "[" ++ show c ++ "]"
     PairCon c1 c2 -> "(" ++ show c1 ++ ", " ++ show c2 ++ ")"
@@ -90,7 +115,7 @@ instance Show Con where
     ConstCon c -> show c
 
 instance Show Dom where
-  show = \case
+  show (Dom _ d)= case d of
     EDom -> "()"
     VarDom x -> x
     IntDom -> "Integer"
@@ -103,7 +128,7 @@ instance Show Dom where
     UnionDom us True -> "<" ++ intercalate " | " (Data.List.map (\(t,d) -> t ++ " of " ++ show d) us) ++ ">"
   
 instance Show Const where
-  show = \case
+  show (Const _ c)= case c of
     Bot d -> "_|_"
     BConst b -> if b then "tt"
       else "ff"
@@ -112,7 +137,7 @@ instance Show Const where
     Sym y -> "`" ++ y ++ "`"
 
 instance Show Exp where
-  show = \case
+  show (Exp _ e)= case e of
     Var x -> x
     EExp -> "__"
     ConstE c -> show c
@@ -167,5 +192,3 @@ instance Show Value where
     VTagE t v -> t ++ "[" ++ show v ++ "]"
     Cloj env x e -> "{" ++ show env ++ ", " ++ x ++ ", " ++ show e ++ "}"
     RCloj env x x' e -> "{" ++ show env ++ ", " ++ x ++ ", " ++ x' ++ ", " ++ show e ++ "}"
-
-type Pos = (Int, Int)

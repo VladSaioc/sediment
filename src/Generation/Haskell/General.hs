@@ -2,7 +2,7 @@ module Generation.Haskell.General where
 
 import Syntax.Ast
 
-constHas = \case
+constHas (Const _ c) = case c of
   Bot _ -> "()"
   Int i -> show i
   Str s -> "\"" ++ s ++ "\""

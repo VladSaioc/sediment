@@ -1,8 +1,47 @@
 comment "//" ;
 comment "/*" "*/" ;
 
-token Symbol '`' ((letter | ["$_"]) (letter | digit | ["$_\'"])*) '`';
-token Label {"[["} ((letter | digit | [" $-\'_"]) (letter | digit | [" $-\'_"])*) {"]]"};
+position token PosString '"' (char - ["\""])* '"';
+
+position token Symbol '`' ((letter | ["$_"]) (letter | digit | ["$_\'"])*) '`';
+position token Label {"[["} ((letter | digit | [" $-\'_"]) (letter | digit | [" $-\'_"])*) {"]]"};
+
+position token PInt {"Int"};
+position token PBool {"Bool"};
+position token PSymbol {"Symbol"};
+position token PString {"String"};
+position token PArrow {"->"};
+position token PStar {"*"};
+position token PIf {"if"};
+
+position token PBot {"-|"};
+
+position token PConcat {"++"};
+position token PMinus {"-"};
+position token PDiv {"/"};
+position token PMod {"%"};
+
+position token PAnd {"&"};
+position token PEq {"=="};
+position token PNeq {"!="};
+position token PLt {"<"};
+position token PLe {"<="};
+position token PGt {">"};
+position token PGe {">="};
+
+position token PProj {">>"};
+position token PIs {"is"};
+position token PNeg {"!"};
+
+position token PLeft {"(<)"};
+position token PRight {"(>)"};
+
+position token PTrue {"true"};
+position token PFalse {"false"};
+
+position token PIdent letter ((digit|letter|["_'"])*);
+position token PInteger (digit)+;
+
 
 -- Entry point
 Spec_. Specification_ ::= [Def_] [Eval_];
@@ -12,32 +51,32 @@ Spec_. Specification_ ::= [Def_] [Eval_];
 (:). [Def_] ::= Def_ [Def_] ;
 
 -- -- Domain definitions
-DomDef_. Def_ ::= "domain" Ident "=" DomDefExp_ ";";
+DomDef_. Def_ ::= "domain" PIdent "=" DomDefExp_ ";";
 -- -- -- Union domains
 DefUnion_. DomDefExp_ ::= Union_;
 separator nonempty UnionBranch_"+";
-UnionDom_. Union_ ::= "[" [UnionBranch_] "]";
-TagDom_. UnionBranch_ ::= Ident "[" Dom_ "]";
-Tag_. UnionBranch_ ::= Ident;
+UnionDom_. Union_ ::= "{" [UnionBranch_] "}";
+TagDom_. UnionBranch_ ::= PIdent ":" Dom_;
+Tag_. UnionBranch_ ::= PIdent;
 -- -- -- Non-union domains
 coercions Dom_ 2;
 DefNonUnion_. DomDefExp_ ::= Dom_;
-FuncDom_. Dom_ ::= Dom_1 "->" Dom_;
-ProdDom_. Dom_1 ::= Dom_2 "*" Dom_1;
-VarDom_. Dom_2 ::= Ident;
-IntDom_. Dom_2 ::= "Int";
-BoolDom_. Dom_2 ::= "Bool";
-SymDom_. Dom_2 ::= "Symbol";
-StrDom_. Dom_2 ::= "String";
+FuncDom_. Dom_ ::= Dom_1 PArrow Dom_;
+ProdDom_. Dom_1 ::= Dom_2 PStar Dom_1;
+VarDom_. Dom_2 ::= PIdent;
+IntDom_. Dom_2 ::= PInt;
+BoolDom_. Dom_2 ::= PBool;
+SymDom_. Dom_2 ::= PSymbol;
+StrDom_. Dom_2 ::= PString;
 
 -- -- Syntax definitions
-SyntaxDef_. Def_ ::= "syntax" Ident "=" [FormRule_] ";";
+SyntaxDef_. Def_ ::= "syntax" PIdent "=" [FormRule_] ";";
 separator nonempty FormRule_ "|";
-Term_. FormRule_ ::= Ident "of" Dom_;
-BareTerm_. FormRule_ ::= Ident;
+Term_. FormRule_ ::= PIdent ":" Dom_;
+BareTerm_. FormRule_ ::= PIdent;
 
 -- -- Transition systems
-TSystem_. Def_ ::= "system" Ident ":" TDom_ "=" [Rule_] "end";
+TSystem_. Def_ ::= "system" PIdent ":" TDom_ "=" [Rule_] "end";
 -- -- -- Transition system domains
 BETDom_. TDom_ ::= Dom_ "|-" Dom_ "==>" Dom_;
 NBETDom_. TDom_ ::= Dom_ "==>" Dom_;
@@ -49,25 +88,25 @@ BERule_. Rule_ ::= Label ":"  Config_ "|-" Config_1 "==>" Exp_1 "\\\\" [Premise_
 NBERule_. Rule_ ::= Label ":" Config_1 "==>" Exp_1 "\\\\" [Premise_];
 -- -- -- Premises
 separator nonempty Premise_ ",";
-IfPremise_. Premise_ ::= "if" Exp_1;
+IfPremise_. Premise_ ::= PIf Exp_1;
 LetPremise_. Premise_ ::= "let" Config_ "=" Exp_1;
-LetrecPremise_. Premise_ ::= "letrec" Ident ":" Dom_ "=" "\\" Ident "." Exp_1;
+LetrecPremise_. Premise_ ::= "letrec" PIdent ":" Dom_ "=" "\\" PIdent "." Exp_1;
 BETrInternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "==>" Config_1;
-BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "=" Ident "=>" Config_1;
+BETrExternalPremise_. Premise_ ::=  Exp_ "|-" Exp_1 "=" PIdent "=>" Config_1;
 NBETrInternalPremise_. Premise_ ::=  Exp_1 "==>" Config_1;
-NBETrExternalPremise_. Premise_ ::=  Exp_1 "=" Ident "=>" Config_1;
+NBETrExternalPremise_. Premise_ ::=  Exp_1 "=" PIdent "=>" Config_1;
 -- -- -- Configurations
 coercions Config_ 1;
 separator nonempty Config_1 ",";
 PairConfig_. Config_ ::= Config_1 "," [Config_1];
-TagConfig_. Config_1 ::= Ident "[" Config_ "]";
-BareTagConfig_. Config_1 ::= Ident "[]";
-VarConfig_. Config_1 ::= Ident;
+TagConfig_. Config_1 ::= PIdent "{" Config_ "}";
+BareTagConfig_. Config_1 ::= PIdent "{}";
+VarConfig_. Config_1 ::= PIdent;
 ConstConfig_. Config_1 ::= Const_;
 
 -- -- Data definitions
 Data_. Def_ ::= "let" Config_ "=" Exp_1 ";";
-DataRec_. Def_ ::= "letrec" Ident ":" Dom_ "=" "\\" Ident "." Exp_1 ";";
+DataRec_. Def_ ::= "letrec" PIdent ":" Dom_ "=" "\\" PIdent "." Exp_1 ";";
 
 -- -- Expressions
 coercions Exp_ 14;
@@ -76,61 +115,61 @@ separator nonempty Exp_1 ",";
 Pair_. Exp_ ::= Exp_1 "," [Exp_1];
 
 -- -- -- Lambda-calculus elements
-Lambda_. Exp_1 ::= "\\" Ident ":" Dom_ "." Exp_1;
+Lambda_. Exp_1 ::= "\\" PIdent ":" Dom_ "." Exp_1;
 
 -- -- -- Extended functional expressions
 Let_. Exp_1 ::= "let" Config_ "=" Exp_1 "in" Exp_1;
-Letrec_. Exp_1 ::= "letrec" Ident ":" Dom_ "=" "\\" Ident "." Exp_1 "in" Exp_1;
-If_. Exp_1 ::= "if" Exp_1 "then" Exp_1 "else" Exp_1;
+Letrec_. Exp_1 ::= "letrec" PIdent ":" Dom_ "=" "\\" PIdent "." Exp_1 "in" Exp_1;
+If_. Exp_1 ::= PIf Exp_1 "then" Exp_1 "else" Exp_1;
 
 -- -- -- Infix expressions
-Concat_. Exp_2 ::= Exp_2 "++" Exp_3;
+Concat_. Exp_2 ::= Exp_2 PConcat Exp_3;
 Plus_. Exp_3 ::= Exp_3 "+" Exp_4;
-Minus_. Exp_3 ::= Exp_3 "-" Exp_4;
-Prod_. Exp_4 ::= Exp_4 "*" Exp_5;
-Div_. Exp_4 ::= Exp_4 "/" Exp_5;
-Mod_. Exp_4 ::= Exp_4 "%" Exp_5;
+Minus_. Exp_3 ::= Exp_3 PMinus Exp_4;
+Prod_. Exp_4 ::= Exp_4 PStar Exp_5;
+Div_. Exp_4 ::= Exp_4 PDiv Exp_5;
+Mod_. Exp_4 ::= Exp_4 PMod Exp_5;
 Or_. Exp_5 ::= Exp_5 "|" Exp_6;
-And_. Exp_6 ::= Exp_6 "&" Exp_7;
-Equal_. Exp_7 ::= Exp_8 "==" Exp_8;
-NotEqual_. Exp_7 ::= Exp_8 "!=" Exp_8;
-LessThan_. Exp_8 ::= Exp_9 "<" Exp_9;
-LessEqThan_. Exp_8 ::= Exp_9 "<=" Exp_9;
-GreaterThan_. Exp_8 ::= Exp_9 ">" Exp_9;
-GreaterEqThan_. Exp_8 ::= Exp_9 ">=" Exp_9;
+And_. Exp_6 ::= Exp_6 PAnd Exp_7;
+Equal_. Exp_7 ::= Exp_8 PEq Exp_8;
+NotEqual_. Exp_7 ::= Exp_8 PNeq Exp_8;
+LessThan_. Exp_8 ::= Exp_9 PLt Exp_9;
+LessEqThan_. Exp_8 ::= Exp_9 PLe Exp_9;
+GreaterThan_. Exp_8 ::= Exp_9 PGt Exp_9;
+GreaterEqThan_. Exp_8 ::= Exp_9 PGe Exp_9;
 
 -- -- -- Tag operations
-Project_. Exp_9 ::= Exp_9 ">>" Ident;
-IsTag_. Exp_9 ::= Exp_9 "is" Ident;
+Project_. Exp_9 ::= Exp_9 PProj PIdent;
+IsTag_. Exp_9 ::= Exp_9 PIs PIdent;
 
 -- -- -- Unary expressions
-Inverse_. Exp_10 ::= "-" Exp_10;
-Neg_. Exp_10 ::= "!" Exp_10;
+Inverse_. Exp_10 ::= PMinus Exp_10;
+Neg_. Exp_10 ::= PNeg Exp_10;
 
 -- -- -- Tuple extraction
-Head_. Exp_11 ::= "(<)" Exp_11;
-Tail_. Exp_11 ::= "(>)" Exp_11;
+Head_. Exp_11 ::= PLeft Exp_11;
+Tail_. Exp_11 ::= PRight Exp_11;
 
 -- -- -- Function application
 App_. Exp_12 ::= Exp_12 "(" Exp_ ")";
-Update_. Exp_13 ::= "[" Exp_ "->" Exp_ "]" Exp_13;
+Update_. Exp_13 ::= Exp_13 "[" Exp_ PArrow Exp_ "]" ;
 
 -- -- -- Variables and constants
-Inject_. Exp_14 ::= Ident "[" Exp_ "]";
-Var_. Exp_14 ::= Ident;
+Inject_. Exp_14 ::= PIdent "{" Exp_ "}";
+Var_. Exp_14 ::= PIdent;
 ConstE_. Exp_14 ::= Const_;
-BareTag_. Exp_14 ::= Ident "[]";
-Bot_. Const_ ::= "_/" Dom_ "\\_";
-Int_. Const_ ::= Integer;
-Str_. Const_ ::= String;
+BareTag_. Exp_14 ::= PIdent "{}";
+Bot_. Const_ ::= PBot Dom_ "|-";
+Int_. Const_ ::= PInteger;
+Str_. Const_ ::= PosString;
 Sym_. Const_ ::= Symbol;
-BTrue_. Const_ ::= "true";
-BFalse_. Const_ ::= "false";
+BTrue_. Const_ ::= PTrue;
+BFalse_. Const_ ::= PFalse;
 
 -- Evaluations
 terminator Eval_ ";";
 ExpEval_. Eval_ ::= "evaluate" Exp_;
-BEEval_. Eval_ ::= "evaluate" Exp_ "|-" Exp_ "in" Ident;
-NBEEval_. Eval_ ::= "evaluate" Exp_ "in" Ident;
+BEEval_. Eval_ ::= "evaluate" Exp_ "|-" Exp_ "in" PIdent;
+NBEEval_. Eval_ ::= "evaluate" Exp_ "in" PIdent;
 
 entrypoints Specification_;

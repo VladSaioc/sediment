@@ -5,7 +5,7 @@ import Data.Char (isDigit)
 import Syntax.Ast
 import Generation.Latex.General
 
-conTex = \case
+conTex (Con _ c) = case c of
   ConstCon c -> constTex c
   PairCon c1 c2 -> conTex c1 ++ " , " ++ conTex c2
   ECon -> ""

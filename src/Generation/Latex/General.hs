@@ -24,7 +24,7 @@ varTex x = let
   else x
 
 constTex :: Const -> String
-constTex = \case
+constTex (Const _ c)= case c of
   Bot d -> " \\bot_{ " ++ domTex d ++ " } "
   Int i -> show i
   Str s -> " \\textrm{\" " ++ s ++ "\" } "

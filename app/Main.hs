@@ -30,7 +30,7 @@ main = do
   let workflow (file : opts) source = let ast = getAst source
         in let staticResults = verifyDomains ast >>= \(de, tt) -> staticAnalysis de tt ast
         in case staticResults of
-        Bad msg -> putStr (file ++ ": " ++ msg ++ "\n")
+        Bad msg -> putStr (file ++ ":" ++ msg ++ "\n")
         Ok _ -> do
           putStr (file ++ ": Static analysis successful.\n")
           let results = execute ast

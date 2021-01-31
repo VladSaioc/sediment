@@ -28,7 +28,7 @@ tcdf :: DomEnv -> TagTable -> TTSEnv -> TEnv -> [Df] -> [Err [()]]
 tcdf de tt tenv env = Prelude.map (tcdf' de tt tenv env)
 
 tcdf' :: DomEnv -> TagTable -> TTSEnv -> TEnv -> Df -> Err [()]
-tcdf' de tt tenv env = \case
+tcdf' de tt tenv env (Df pos df) = case df of
   TSysDf td _ rs -> let
       tenv' = Data.Map.insert thisTSys td tenv
     in tsysT de tt tenv' env rs

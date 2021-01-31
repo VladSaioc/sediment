@@ -6,8 +6,8 @@ import Generation.Haskell.General
 import Generation.Haskell.Exp
 import Generation.Haskell.Conf
 
-ruleHas ts (Rule _ c1 c2 e prs) = let
-  input = case c1 of
+ruleHas ts (Rule _ c1@(Con _ c1') c2 e prs) = let
+  input = case c1' of
     ECon -> conHas c2
     _ -> "(" ++ conHas c1 ++ ", " ++ conHas c2 ++ ")"
   in input ++ " ->\n" ++ prsHas ts e "    " prs
@@ -17,12 +17,12 @@ prsHas ts res i = let
   iplusplus = iplus ++ "  "
   in \case
     [] -> i ++ expHas res
-    (pr : prs) -> case pr of
+    (Pr _ pr : prs) -> case pr of
       IfPr e -> i ++ "case (" ++ expHas e ++ ") of\n" ++ iplus ++ "True ->\n" ++ prsHas ts res iplusplus prs
       LetPr c e-> i ++ "let " ++ conHas c ++ " = " ++ expHas e ++ "\n" ++ iplus ++ "in\n" ++ prsHas ts res iplusplus prs
       LetrPr _ x1 x2 e -> i ++ "let " ++ varHas x1 ++ " = Updatable (\\" ++ varHas x2 ++ " -> " ++ expHas e ++ ") Data.Map.empty\n" ++ iplus ++ "in\n" ++ prsHas ts res iplusplus prs
-      TrPr e1 e2 ts' c -> let
-          input = case e1 of
+      TrPr e1@(Exp _ e1') e2 ts' c -> let
+          input = case e1' of
             EExp -> "(" ++ expHas e2 ++ ")"
             _ -> " (" ++ expHas e1 ++ ", " ++ expHas e2 ++ ")"
         in case ts' of

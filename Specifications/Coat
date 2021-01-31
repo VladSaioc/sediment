@@ -1,0 +1,77 @@
+domain Num = Int;
+
+domain Var = Symbol;
+
+syntax EVar = evar of Oexp * Var;
+
+syntax Aexp = aconst of Num
+  | avar of EVar
+  | add of Aexp * Aexp
+  | mul of Aexp * Aexp
+  | aparens of Aexp;
+
+syntax Bexp = eq of Aexp * Aexp
+  | leq of Aexp * Aexp
+  | not of Bexp
+  | and of Bexp
+  | bparens of Bexp;
+
+domain Mnames = Symbol;
+
+syntax EMnames = emname of Oexp * Mnames;
+
+domain Onames = Symbol;
+
+syntax Oseq = epsO | obj of Cnames * Oseq;
+
+syntax Oexp = obje of Oseq | new of Cnames * Oseq;
+
+domain Cnames = Symbol;
+
+syntax DecV = dvar of Symbol * DecV | epsDv;
+
+syntax DecM = dmethod of Symbol * Stm * DecM | epsDm;
+
+syntax DecO = dobj of Onames * Oseq * DecO | epsDo;
+
+syntax DecC = class of Cnames * DecV * DecM * DecO * DecC | epsDc;
+
+syntax Stm = ass of EVar * Aexp
+  | skip
+  | comp of Stm * Stm
+  | ifs of Bexp * Stm * Stm
+  | while of Bexp * Stm
+  | call of EMnames
+  | oass of Onames * Oexp;
+
+syntax Prog = prog of DecV * DecC * DecO * Stm;
+
+domain Loc = Int;
+
+domain EnvV = Var -> Loc;
+
+domain MCloj = [Mund + MCloj[Stm * EnvV * EnvM * EnvO]];
+
+domain EnvM = Mnames -> MCloj;
+
+domain EnvO = Onames -> Loc;
+
+domain StoVals = [num[Num]
+  + loc[Loc]
+  + stoEnv[EnvV * Cnames * EnvO]];
+
+domain Sto = Loc -> StoVals;
+
+domain Lib = Cnames -> (DecV * DecM * DecO * EnvV * EnvM * EnvO);
+
+system DecC : EnvV * EnvM * EnvO |- DecC * Lib ==> Lib =
+  [[ NONE ]]: envV, envM, envO |- (epsDc, lib) ==> lib;
+
+  [[ CLASS ]]: envV, envM, envO |- (class[c, Dv, Dm, Do, Dc], lib) ==> lib' \\
+    let lib'' = [c -> Dv, Dm, Do, envV, envM, envO]lib,
+    envV, envM, envO |- (Dc, lib'') ==> lib';
+end
+
+system DecV : EnvV * EnvM * EnvO |- DecV *
+
+system Aexp : EnvV * EnvM * EnvO * Lib |- Aexp

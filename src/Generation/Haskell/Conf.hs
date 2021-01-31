@@ -4,7 +4,7 @@ import Syntax.Ast
 
 import Generation.Haskell.General
 
-conHas = \case
+conHas (Con _ c)= case c of
   ECon -> ""
   TagCon t c -> "(" ++ tagHas t ++ " " ++ conHas c ++ ")"
   PairCon c1 c2 -> "(" ++ conHas c1 ++ ", " ++ conHas c2 ++ ")"

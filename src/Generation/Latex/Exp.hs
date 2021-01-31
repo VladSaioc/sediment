@@ -8,9 +8,9 @@ import Generation.Latex.General
 import Generation.Latex.Conf
 
 putParens :: Exp -> Exp -> String
-putParens e1 e2 = let
+putParens e1@(Exp _ e1') e2@(Exp _ e2') = let
     parensEnc e = " ( " ++ expTex e ++ " ) "
-  in case (e1, e2) of
+  in case (e1', e2') of
     (Pair{}, Pair{}) -> parensEnc e2
     (_, Let{}) -> expTex e2
     (_, Letr{}) -> expTex e2
@@ -31,7 +31,7 @@ putParens e1 e2 = let
       else expTex e2
 
 expTex :: Exp -> String
-expTex e' = case e' of
+expTex e'@(Exp _ e) = case e of
   Var x -> varTex x
   EExp -> " \\epsilon "
   ConstE c -> constTex c

@@ -6,7 +6,7 @@ import Syntax.Ast
 
 import Generation.Haskell.General
 
-domHas = \case
+domHas (Dom _ d) = case d of
   IntDom -> " Integer "
   BoolDom -> " Bool "
   StrDom -> " String "
