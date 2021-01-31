@@ -27,7 +27,7 @@ constTex :: Const -> String
 constTex (Const _ c)= case c of
   Bot d -> " \\bot_{ " ++ domTex d ++ " } "
   Int i -> show i
-  Str s -> " \\textrm{\" " ++ s ++ "\" } "
+  Str s -> " \\textrm{" ++ s ++ "} "
   Sym y -> " \\sv{ " ++ y ++ " } "
   BConst True -> "\\ltrue"
   BConst False -> "\\lfalse"

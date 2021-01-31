@@ -11,6 +11,30 @@ putParens :: Exp -> Exp -> String
 putParens e1@(Exp _ e1') e2@(Exp _ e2') = let
     parensEnc e = " ( " ++ expTex e ++ " ) "
   in case (e1', e2') of
+    (Equal{}, Var{}) -> expTex e2
+    (Equal{}, ConstE{}) -> expTex e2
+    (Equal{}, Update{}) -> expTex e2
+    (Equal{}, Inject{}) -> expTex e2
+    (NotEqual{}, Var{}) -> expTex e2
+    (NotEqual{}, ConstE{}) -> expTex e2
+    (NotEqual{}, Update{}) -> expTex e2
+    (NotEqual{}, Inject{}) -> expTex e2
+    (LessThan{}, Var{}) -> expTex e2
+    (LessThan{}, ConstE{}) -> expTex e2
+    (LessThan{}, Update{}) -> expTex e2
+    (LessThan{}, Inject{}) -> expTex e2
+    (LessEqThan{}, Var{}) -> expTex e2
+    (LessEqThan{}, ConstE{}) -> expTex e2
+    (LessEqThan{}, Update{}) -> expTex e2
+    (LessEqThan{}, Inject{}) -> expTex e2
+    (GreaterThan{}, Var{}) -> expTex e2
+    (GreaterThan{}, ConstE{}) -> expTex e2
+    (GreaterThan{}, Update{}) -> expTex e2
+    (GreaterThan{}, Inject{}) -> expTex e2
+    (GreaterEqThan{}, Var{}) -> expTex e2
+    (GreaterEqThan{}, ConstE{}) -> expTex e2
+    (GreaterEqThan{}, Update{}) -> expTex e2
+    (GreaterEqThan{}, Inject{}) -> expTex e2
     (Update{}, Update{}) -> expTex e2
     (Update{}, Var{}) -> expTex e2
     (Pair{}, Pair{}) -> parensEnc e2

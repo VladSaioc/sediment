@@ -1,7 +1,7 @@
 comment "//" ;
 comment "/*" "*/" ;
 
-position token PosString '"' (char - ["\""])* '"';
+position token PosString '"' ((char - ["\""]) | {"\\\""})* '"';
 
 position token Symbol '`' ((letter | ["$_"]) (letter | digit | ["$_\'"])*) '`';
 position token Label {"[["} ((letter | digit | [" $-\'_"]) (letter | digit | [" $-\'_"])*) {"]]"};
