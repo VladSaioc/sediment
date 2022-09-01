@@ -1,3 +1,12 @@
-domain d1 = [t1 [d1]];
-domain d2 = [t2 [Int] + t3 [d3]];
-domain d3 = [t4 + t5 + t6[d1 * d1]];
+domain d1 = {
+  t1 : d1
+};
+domain d2 = {
+    t2 : Int
+  + t3 : d3
+};
+domain d3 = {
+    t4
+  + t5
+  + t6 : d1 * d1
+};

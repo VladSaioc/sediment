@@ -1,2 +1,4 @@
-domain d1 = [t1 [Int]];
+domain d1 = {
+  t1 : Int
+};
 domain d2 = d1;
