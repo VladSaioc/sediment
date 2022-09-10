@@ -44,10 +44,10 @@ expEval env (Exp pos e) = let
   Inverse e -> this e >>= \(VInt v) -> Ok (VInt (-v))
   -- Boolean expressions
   Neg e -> this e >>= \(VBool v) -> Ok (VBool (not v))
-  Or e1 e2 -> results [this e1, this e2] >>=
-    \[VBool v1, VBool v2] -> Ok (VBool (v1 || v2))
-  And e1 e2 -> results [this e1, this e2] >>=
-    \[VBool v1, VBool v2] -> Ok (VBool (v1 && v2))
+  Or e1 e2 -> this e1 >>= \(VBool v1) ->
+    if v1 then Ok (VBool True) else this e2
+  And e1 e2 -> this e1 >>= \(VBool v1) ->
+    if v1 then this e2 else Ok (VBool False)
 -- Relational expressions
   Equal e1 e2 -> results [this e1, this e2] >>=
     \[v1, v2] -> Ok (VBool (v1 == v2))
