@@ -2,6 +2,7 @@ comment "//" ;
 comment "/*" "*/" ;
 
 position token PosString '"' ((char - ["\""]) | {"\\\""})* '"';
+position token PConstructor '\'' (char - ["\'_"]) (char - [" \'"])* '\'';
 
 position token Symbol '`' ((letter | ["$_"]) (letter | digit | ["$_\'"])*) '`';
 position token Label {"[["} ((letter | digit | [" $-\'_"]) (letter | digit | [" $-\'_"])*) {"]]"};
@@ -41,7 +42,7 @@ position token PFalse {"false"};
 
 position token PIdent letter ((digit|letter|["_'"])*);
 position token PInteger (digit)+;
-
+position token PHole {"_"};
 
 -- Entry point
 Spec_. Specification_ ::= [Def_] [Eval_];
@@ -57,7 +58,7 @@ DefUnion_. DomDefExp_ ::= Union_;
 separator nonempty UnionBranch_"+";
 UnionDom_. Union_ ::= "{" [UnionBranch_] "}";
 TagDom_. UnionBranch_ ::= PIdent ":" Dom_;
-Tag_. UnionBranch_ ::= PIdent;
+BareTagDom_. UnionBranch_ ::= PIdent;
 -- -- -- Non-union domains
 coercions Dom_ 2;
 DefNonUnion_. DomDefExp_ ::= Dom_;
@@ -72,8 +73,11 @@ StrDom_. Dom_2 ::= PString;
 -- -- Syntax definitions
 SyntaxDef_. Def_ ::= "syntax" PIdent "=" [FormRule_] ";";
 separator nonempty FormRule_ "|";
-Term_. FormRule_ ::= PIdent ":" Dom_;
-BareTerm_. FormRule_ ::= PIdent;
+FormRuleAtoms_. FormRule_ ::= [FormRuleAtom_];
+[]. [FormRuleAtom_] ::= ;
+(:). [FormRuleAtom_] ::= FormRuleAtom_ [FormRuleAtom_];
+FormRuleDom_. FormRuleAtom_ ::= Dom_;
+FormRuleCons_. FormRuleAtom_ ::= PConstructor;
 
 -- -- Transition systems
 TSystem_. Def_ ::= "system" PIdent ":" TDom_ "=" [Rule_] "end";
@@ -99,10 +103,16 @@ NBETrExternalPremise_. Premise_ ::=  Exp_1 "=" PIdent "=>" Config_1;
 coercions Config_ 1;
 separator nonempty Config_1 ",";
 PairConfig_. Config_ ::= Config_1 "," [Config_1];
-TagConfig_. Config_1 ::= PIdent "{" Config_ "}";
+TagConfig_. Config_1 ::= PIdent "{|" Config_ "|}";
 BareTagConfig_. Config_1 ::= PIdent "{}";
 VarConfig_. Config_1 ::= PIdent;
 ConstConfig_. Config_1 ::= Const_;
+-- -- -- -- Syntax configurations
+SyntaxConfigTerm_. Config_1 ::= "{" [SyntaxConfigAtom_] "}";
+[]. [SyntaxConfigAtom_] ::= ;
+(:). [SyntaxConfigAtom_] ::= SyntaxConfigAtom_ [SyntaxConfigAtom_];
+SyntaxConfigCons_. SyntaxConfigAtom_ ::= PConstructor;
+SyntaxConfig_. SyntaxConfigAtom_ ::= Config_1;
 
 -- -- Data definitions
 Data_. Def_ ::= "let" Config_ "=" Exp_1 ";";
@@ -139,8 +149,16 @@ GreaterThan_. Exp_8 ::= Exp_9 PGt Exp_9;
 GreaterEqThan_. Exp_8 ::= Exp_9 PGe Exp_9;
 
 -- -- -- Tag operations
-Project_. Exp_9 ::= Exp_9 PProj PIdent;
-IsTag_. Exp_9 ::= Exp_9 PIs PIdent;
+Project_. Exp_9 ::= Exp_9 PProj Tag_;
+IsTag_. Exp_9 ::= Exp_9 PIs Tag_;
+
+-- -- -- Tags
+TagIdent_. Tag_ ::= PIdent;
+TagSyntax_. Tag_ ::= "{" [SyntaxTagAtom_] "}";
+[]. [SyntaxTagAtom_] ::= ;
+(:). [SyntaxTagAtom_] ::= SyntaxTagAtom_ [SyntaxTagAtom_];
+SyntaxTagCons_. SyntaxTagAtom_ ::= PConstructor;
+SyntaxTagHole_. SyntaxTagAtom_ ::= PHole;
 
 -- -- -- Unary expressions
 Inverse_. Exp_10 ::= PMinus Exp_10;
@@ -151,11 +169,18 @@ Head_. Exp_11 ::= PLeft Exp_11;
 Tail_. Exp_11 ::= PRight Exp_11;
 
 -- -- -- Function application
-App_. Exp_12 ::= Exp_12 "(" Exp_ ")";
+App_. Exp_12 ::= Exp_12 Exp_14;
 Update_. Exp_13 ::= Exp_13 "[" Exp_ PArrow Exp_ "]" ;
 
+-- -- -- Syntax constructors
+SyntaxExpTerm_. Exp_14 ::= "{" [SyntaxExpAtom_] "}";
+[]. [SyntaxExpAtom_] ::= ;
+(:). [SyntaxExpAtom_] ::= SyntaxExpAtom_ [SyntaxExpAtom_] ;
+SyntaxExpCons_.  SyntaxExpAtom_ ::= PConstructor;
+SyntaxExp_.  SyntaxExpAtom_ ::= Exp_14;
+
 -- -- -- Variables and constants
-Inject_. Exp_14 ::= PIdent "{" Exp_ "}";
+Inject_. Exp_14 ::= PIdent "{|" Exp_ "|}";
 Var_. Exp_14 ::= PIdent;
 ConstE_. Exp_14 ::= Const_;
 BareTag_. Exp_14 ::= PIdent "{}";

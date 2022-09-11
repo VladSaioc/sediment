@@ -108,7 +108,7 @@ data ConBase = ECon
 
 instance Show Con where
   show (Con _ c)= case c of
-    ECon -> "_"
+    ECon -> ""
     TagCon t c -> t ++ "[" ++ show c ++ "]"
     PairCon c1 c2 -> "(" ++ show c1 ++ ", " ++ show c2 ++ ")"
     VarCon x -> x
@@ -167,7 +167,7 @@ instance Show Exp where
     Head e -> "(<) " ++ show e
     Tail e -> "(>) " ++ show e
     Project e t -> show e ++ " >> " ++ t
-    Inject t e -> t ++ "[" ++ show e ++ "]"
+    Inject t e -> t ++ "{ " ++ show e ++ " }"
     IsTag e t -> show e ++ " is " ++ t
     Closure env e -> "((" ++ show env ++ "," ++ show e ++ "))"
     

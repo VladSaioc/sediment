@@ -22,7 +22,8 @@ uniqueTags' de (Ok s) (x, pos) = let
     Just (Dom _ (UnionDom tds stx)) = Data.Map.lookup x de
     ts = Data.Set.fromList (Prelude.map fst tds)
   in if Data.Set.size ts /= length tds then errMsg pos (if stx
-      then "Duplicate syntax constructors: abstract syntax definition " ++ x ++ " uses the same constructor for multiple formation rules."
+      then "Duplicate syntax constructors: abstract syntax definition " ++ x ++ " uses the same constructor for multiple formation rules. Constructors:\n\t"
+        ++ show ts ++ "\n" ++ show tds
       else "Duplicate tags: domain " ++ x ++ " uses the same tag for multiple definitions.")
     else if not (disjoint ts s) then
       let

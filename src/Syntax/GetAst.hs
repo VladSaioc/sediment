@@ -19,6 +19,8 @@ pLabel (Label (pos,l)) = let
   in (trimFirst (trimLast label), pos)
 pSymbol :: Symbol -> Const
 pSymbol (Symbol (pos,s)) = Const pos (Sym (drop 1 (take (length s - 1) s)))
+pConsStr :: PConstructor -> String
+pConsStr (PConstructor (_,s)) = drop 1 (take (length s - 1) s)
 
 getRawAst s =
   let
@@ -64,7 +66,7 @@ pDomDefExp pos = \case
 pUnionBranch :: UnionBranch_ -> (String, Dom)
 pUnionBranch = \case
   TagDom_ i d -> (fst (pIdent i), pDom d)
-  Tag_ i' ->
+  BareTagDom_ i' ->
     let (i, pos) = pIdent i'
     in (i, Dom pos EDom)
 
@@ -81,13 +83,26 @@ pDom = \case
   FuncDom_ d1 (PArrow (pos, _)) d2 -> Dom pos (FuncDom (pDom d1) (pDom d2))
   ProdDom_ d1 (PStar (pos, _)) d2 -> Dom pos (ProdDom (pDom d1) (pDom d2))
 
--- Syntax polish
+-- Syntax definition polish
 pFormRule :: FormRule_ -> (String, Dom)
 pFormRule = \case
-  Term_ i d -> (fst (pIdent i), pDom d)
-  BareTerm_ i' ->
-    let (i, pos) = pIdent i'
-    in (i, Dom pos EDom)
+  FormRuleAtoms_ as -> (pFormRuleCons as, pFormRuleDom as)
+
+pFormRuleCons :: [FormRuleAtom_] -> String
+pFormRuleCons as =
+  let str = (\case {
+    [] -> [];
+    FormRuleCons_ p : as -> pConsStr p : str as;
+    FormRuleDom_ _ : as -> "_" : str as })
+  in unwords (str as)
+
+pFormRuleDom :: [FormRuleAtom_] -> Dom
+pFormRuleDom = \case
+  [] -> Dom epos EDom
+  FormRuleCons_ _ : as -> pFormRuleDom as
+  FormRuleDom_ d_ : as -> case pFormRuleDom as of
+    Dom _ EDom -> pDom d_
+    d' -> let Dom pos d = pDom d_ in Dom pos (ProdDom (Dom pos d) d')
 
 -- Transition system domain polish
 pTDom :: TDom_ -> TDom
@@ -154,6 +169,28 @@ pConfig = \case
   PairConfig_ c' cs ->
     let Con pos c = pConfig c'
     in Con pos (PairCon (Con pos c) (pConfigTreeify cs))
+  SyntaxConfigTerm_ as -> pConfigSyntax as
+
+pConfigSyntax :: [SyntaxConfigAtom_] -> Con
+pConfigSyntax as = let Con pos c = pConfigSyntaxConf as
+  in Con pos (TagCon (pConfigSyntaxCons as) (Con pos c))
+
+pConfigSyntaxCons :: [SyntaxConfigAtom_] -> String
+pConfigSyntaxCons as =
+  let str = (\case {
+    [] -> [];
+    SyntaxConfigCons_ p : as -> pConsStr p : str as;
+    SyntaxConfig_ _ : as -> "_" : str as })
+  in unwords (str as)
+
+pConfigSyntaxConf :: [SyntaxConfigAtom_] -> Con
+pConfigSyntaxConf = \case
+  [] -> Con epos ECon
+  SyntaxConfigCons_ _ : as -> pConfigSyntaxConf as
+  SyntaxConfig_ c_ : as -> case pConfigSyntaxConf as of
+    Con _ ECon -> pConfig c_
+    c -> let Con pos c' = pConfig c_ in Con pos (PairCon (Con pos c') c)
+
 pConfigTreeify :: [Config_] -> Con
 pConfigTreeify [c] = pConfig c
 pConfigTreeify (c':cs) =
@@ -210,20 +247,44 @@ pExp = \case
     let Exp pos e2 = pExp e2'
     in Exp pos (Or (pExp e1) (Exp pos e2))
   Neg_ (PNeg (pos, _)) e -> Exp pos (Neg (pExp e))
--- -- Pair and tag operations
+-- -- Tag and syntax operations
   BareTag_ i' ->
     let (i, pos) = pIdent i'
     in Exp pos (Inject i (Exp pos EExp))
   Inject_ i' e ->
     let (i, pos) = pIdent i'
     in Exp pos (Inject i (pExp e))
-  IsTag_ e (PIs (pos, _)) i -> Exp pos (IsTag (pExp e) (fst (pIdent i)))
-  Project_ e (PProj (pos, _)) i -> Exp pos (Project (pExp e) (fst (pIdent i)))
+  SyntaxExpTerm_ as -> pExpSyntax as
+  IsTag_ e (PIs (pos, _)) t -> Exp pos (IsTag (pExp e) (pTag t))
+  Project_ e (PProj (pos, _)) t -> Exp pos (Project (pExp e) (pTag t))
+-- -- Pair operations
   Head_ (PLeft (pos, _)) e -> Exp pos (Head (pExp e))
   Tail_ (PRight (pos, _)) e -> Exp pos (Tail (pExp e))
   Pair_ e' es ->
     let Exp pos e = pExp e'
     in Exp pos (Pair (Exp pos e) (pExpTreeify es))
+
+-- -- Syntax expressions
+pExpSyntax :: [SyntaxExpAtom_] -> Exp
+pExpSyntax as = let Exp pos e = pExpSyntaxExp as
+  in Exp pos (Inject (pExpSyntaxCons as) (Exp pos e))
+
+pExpSyntaxCons :: [SyntaxExpAtom_] -> String
+pExpSyntaxCons as =
+  let str = (\case {
+    [] -> [];
+    SyntaxExpCons_ p : as -> pConsStr p : str as;
+    SyntaxExp_ _ : as -> "_" : str as })
+  in unwords (str as)
+
+pExpSyntaxExp :: [SyntaxExpAtom_] -> Exp
+pExpSyntaxExp = \case
+  [] -> Exp epos EExp
+  SyntaxExpCons_ _ : as -> pExpSyntaxExp as
+  SyntaxExp_ e_ : as -> case pExpSyntaxExp as of
+    Exp _ EExp -> pExp e_
+    e -> let Exp pos e' = pExp e_ in Exp pos (Pair (Exp pos e') e)
+
 pExpTreeify :: [Exp_] -> Exp
 pExpTreeify [e] = pExp e
 pExpTreeify (e':es) =
@@ -239,6 +300,20 @@ pConst = \case
   Sym_ y -> pSymbol y
   BTrue_ (PTrue (pos, _)) -> Const pos (BConst True)
   BFalse_ (PFalse (pos, _)) -> Const pos (BConst False)
+
+-- Tag polish
+pTag :: Tag_ -> String
+pTag = \case
+  TagIdent_ t ->  fst (pIdent t)
+  TagSyntax_ as -> pTagSyntax as
+
+pTagSyntax :: [SyntaxTagAtom_] -> String
+pTagSyntax as = 
+  let str = (\case {
+    [] -> [];
+    SyntaxTagCons_ c : as -> pConsStr c : str as;
+    SyntaxTagHole_ _ : as -> "_" : str as })
+  in unwords (str as)
 
 -- Evaluation polish
 pEval :: Eval_ -> Ev
