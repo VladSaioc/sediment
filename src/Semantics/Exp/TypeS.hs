@@ -146,9 +146,9 @@ expT de tt env (Exp pos e)= let
     d -> errMsg pos ("Incompatible tail operation: expected a pair domain, found " ++ show d ++ " instead.")
   -- Operations on tags
   Inject t e -> case Data.Map.lookup t tt of
-    Nothing -> errMsg pos ("Invalid tag injection: unrecognized tag " ++ t ++ ".")
+    Nothing -> errMsg pos ("Invalid tag injection for " ++ show t ++ ": unrecognized tag " ++ t ++ ".")
     Just (x, d) -> this e >>= \d' -> if deq de d d' then Ok (Dom pos (VarDom x))
-      else errMsg pos ("Invalid tag injection: mismatched expression type. Expected " ++ show d ++ ". Found " ++ show d' ++ " instead.")
+      else errMsg pos ("Invalid tag injection for " ++ show t ++ ": mismatched expression type. Expected " ++ show d ++ ". Found " ++ show d' ++ " instead.")
   Project e t -> case Data.Map.lookup t tt of
     Nothing -> errMsg pos ("Invalid tag projection: unrecognized tag " ++ t ++ ".")
     Just (x, d) -> this e >>= \case
