@@ -8,128 +8,128 @@ domain EnvP = Symbol -> Stm;
 
 domain Sto = Loc -> Int;
 
-syntax Aexp = add of Aexp * Aexp
-  | mul of Aexp * Aexp
-  | sub of Aexp * Aexp
-  | aparens of Aexp
-  | aconst of Int
-  | avar of Symbol;
+syntax Aexp = Aexp '+' Aexp
+  | Aexp '*' Aexp
+  | Aexp '-' Aexp
+  | '(' Aexp ')'
+  | '#' Int
+  | Symbol;
 
-syntax Bexp = eq of Aexp * Aexp
-  | lt of Aexp * Aexp
-  | not of Bexp
-  | and of Bexp * Bexp
-  | bparens of Bexp
-  | bconst of Bool;
+syntax Bexp = Aexp '==' Aexp
+  | Aexp '<' Aexp
+  | '!' Bexp
+  | Bexp '&' Bexp
+  | 'b(' Bexp ')'
+  | '?' Bool;
 
-syntax Stm = ass of Symbol * Aexp
-  | skip
-  | comp of Stm * Stm
-  | ifs of Bexp * Stm * Stm
-  | while of Bexp * Stm
-  | begin of DecV * DecP * Stm
-  | call of Symbol;
+syntax Stm = Symbol '=' Aexp
+  | 'skip'
+  | Stm ';' Stm
+  | 'if' Bexp 'then' Stm 'else' Stm
+  | 'while' Bexp 'do' Stm
+  | DecV DecP Stm
+  | Symbol '()';
 
-syntax DecV = dvar of Symbol * Aexp * DecV
-  | epsDv;
+syntax DecV = 'var' Symbol '=' Aexp ';' DecV
+  | 'ϵv';
 
-syntax DecP = proc of Symbol * Stm * DecP
-  | epsDp;
+syntax DecP = 'proc' Symbol '=' Stm ';' DecP
+  | 'ϵp';
 
 system Aexp : EnvV * Sto |- Aexp ==> Int =
-  [[ NUM ]]: envV, sto |- aconst[n] ==> n;
+  [[ NUM ]]: envV, sto |- {'#' n} ==> n;
 
-  [[ VAR ]]: envV, sto |- avar[x] ==> sto(l) \\
+  [[ VAR ]]: envV, sto |- {x} ==> sto(l) \\
     let l = envV(x);
 
-  [[ ADD ]]: envV, sto |- add[a1, a2] ==> v1 + v2 \\
+  [[ ADD ]]: envV, sto |- {a1 '+' a2} ==> v1 + v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
-  [[ SUB ]]: envV, sto |- sub[a1, a2] ==> v1 - v2 \\
+  [[ SUB ]]: envV, sto |- {a1 '-' a2} ==> v1 - v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
-  [[ MUL ]]: envV, sto |- mul[a1, a2] ==> v1 * v2 \\
+  [[ MUL ]]: envV, sto |- {a1 '*' a2} ==> v1 * v2 \\
     envV, sto |- a1 ==> v1,
     envV, sto |- a2 ==> v2;
   
-  [[ PARENS ]]: envV, sto |- aparens[a] ==> v \\
+  [[ PARENS ]]: envV, sto |- {'(' a ')'} ==> v \\
     envV, sto |- a ==> v;
 end
 
 system Bexp : EnvV * Sto |- Bexp ==> Bool =
-  [[ CONST ]]: envV, sto |- bconst[b] ==> b;
+  [[ CONST ]]: envV, sto |- {'?' b} ==> b;
 
-  [[ EQ ]]: envV, sto |- eq[a1, a2] ==> v1 == v2 \\
+  [[ EQ ]]: envV, sto |- {a1 '==' a2} ==> v1 == v2 \\
     envV, sto |- a1 =Aexp=> v1,
     envV, sto |- a2 =Aexp=> v2;
 
-  [[ LT ]]: envV, sto |- lt[a1, a2] ==> v1 < v2 \\
+  [[ LT ]]: envV, sto |- {a1 '<' a2} ==> v1 < v2 \\
     envV, sto |- a1 =Aexp=> v1,
     envV, sto |- a2 =Aexp=> v2;
   
-  [[ NOT ]]: envV, sto |- not[b] ==> !v \\
+  [[ NOT ]]: envV, sto |- {'!' b} ==> !v \\
     envV, sto |- b ==> v;
   
-  [[ PARENS ]]: envV, sto |- bparens[b] ==> v \\
+  [[ PARENS ]]: envV, sto |- {'b(' b ')'} ==> v \\
     envV, sto |- b ==> v;
   
-  [[ AND ]]: envV, sto |- and[b1, b2] ==> v1 & v2 \\
+  [[ AND ]]: envV, sto |- {b1 '&' b2} ==> v1 & v2 \\
     envV, sto |- b1 ==> v1,
     envV, sto |- b2 ==> v2;
 end
 
 system DecV : DecV * EnvV * Sto ==> EnvV * Sto =
-  [[ VAR-DECL ]]: (dvar[x, a, Dv], envV, sto) ==> (envV', sto') \\
+  [[ VAR-DECL ]]: ({'var' x '=' a ';' Dv}, envV, sto) ==> (envV', sto') \\
     envV, sto |- a =Aexp=> v,
     let l = envV(`next`),
-    let envV'' = [`next` -> new(l)][x -> l]envV,
-    (Dv, envV'', [l -> v]sto) ==> (envV', sto');
+    let envV'' = envV[x -> l][`next` -> new(l)],
+    (Dv, envV'', sto[l -> v]) ==> (envV', sto');
 
-  [[ EMPTY ]]: (epsDv[], envV, sto) ==> (envV, sto);
+  [[ EMPTY ]]: ({'ϵv'}, envV, sto) ==> (envV, sto);
 end
 
 system Stm : EnvV * EnvP |- Stm * Sto ==> Sto =
-  [[ ASS ]]: envV, envP |- (ass[x, a], sto) ==> [l -> v]sto \\
+  [[ ASS ]]: envV, envP |- ({x '=' a}, sto) ==> sto[l -> v] \\
     envV, sto |- a =Aexp=> v,
     let l = envV(x);
   
-  [[ SKIP ]]: envV, envP |- (skip[], sto) ==> sto;
+  [[ SKIP ]]: envV, envP |- (skip{}, sto) ==> sto;
 
-  [[ COMP ]]: envV, envP |- (comp[S1, S2], sto) ==> sto' \\
+  [[ COMP ]]: envV, envP |- ({S1 ';' S2}, sto) ==> sto' \\
     envV, envP |- (S1, sto) ==> sto'',
     envV, envP |- (S2, sto'') ==> sto';
 
-  [[ IF-TRUE ]]: envV, envP |- (ifs[b, S1, S2], sto) ==> sto' \\
+  [[ IF-TRUE ]]: envV, envP |- ({'if' b 'then' S1 'else' S2}, sto) ==> sto' \\
     envV, sto |- b =Bexp=> true,
     envV, envP |- (S1, sto) ==> sto';
 
-  [[ IF-FALSE ]]: envV, envP |- (ifs[b, S1, S2], sto) ==> sto' \\
+  [[ IF-FALSE ]]: envV, envP |- ({'if' b 'then' S1 'else' S2}, sto) ==> sto' \\
     envV, sto |- b =Bexp=> false,
     envV, envP |- (S2, sto) ==> sto';
   
-  [[ WHILE ]]: envV, envP |- (while[b, S], sto) ==> sto' \\
+  [[ WHILE ]]: envV, envP |- ({'while' b 'do' S}, sto) ==> sto' \\
     envV, sto |- b =Bexp=> true,
     envV, envP |- (S, sto) ==> sto'',
-    envV, envP |- (while[b, S], sto'') ==> sto';
+    envV, envP |- ({'while' b 'do' S}, sto'') ==> sto';
   
-  [[ WHILE ]]: envV, envP |- (while[b, S], sto) ==> sto \\
+  [[ WHILE ]]: envV, envP |- ({'while' b 'do' S}, sto) ==> sto \\
     envV, sto |- b =Bexp=> false;
   
-  [[ BLOCK ]]: envV, envP |- (begin[dv, dp, S], sto) ==> sto' \\
+  [[ BLOCK ]]: envV, envP |- ({dv dp S}, sto) ==> sto' \\
     (dv, envV, sto) =DecV=> (envV', sto''),
     envV' |- (dp, envP) =DecP=> envP',
     envV', envP' |- (S, sto'') ==> sto';
   
-  [[ CALL ]]: envV, envP |- (call[p], sto) ==> sto' \\
+  [[ CALL ]]: envV, envP |- ({p '()'}, sto) ==> sto' \\
     let S = envP(p),
     envV, envP |- (S, sto) ==> sto';
 end
 
 system DecP : EnvV |- DecP * EnvP ==> EnvP =
-  [[ PROC-DECL ]]: envV |- (proc[p, S, Dp], envP) ==> envP' \\
-    envV |- (Dp, [p -> S]envP) ==> envP';
+  [[ PROC-DECL ]]: envV |- ({'proc' p '=' S ';' Dp}, envP) ==> envP' \\
+    envV |- (Dp, envP[p -> S]) ==> envP';
 
-  [[ EMPTY ]]: envV |- (epsDp[], envP) ==> envP;
+  [[ EMPTY ]]: envV |- ({'ϵp'}, envP) ==> envP;
 end

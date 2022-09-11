@@ -1,7 +1,7 @@
 syntax Values = '⟨' Fcon '⟩'
 | '(' Values ',' Values ')'
 | Env 'λ' Symbol '.' Fexp
-| Env 'λr' Symbol * Symbol '.' Fexp
+| Env 'λ' Symbol Symbol '.' Fexp
 ;
 
 domain Env = Symbol -> Values;
@@ -42,9 +42,9 @@ system Fexp : Env |- Fexp ==> Values =
   (c, v') =apply=> v;
 
 [[ APP ]]: env |- {e1 e2} ==> v \\
-  env |- e1 ==> {env' 'λr' (f, x) '.' e},
+  env |- e1 ==> {env' 'λ' f x '.' e},
   env |- e2 ==> v',
-  let rclojure = {env' 'λr' (f, x) '.' e},
+  let rclojure = {env' 'λ' f x '.' e},
   env'[f -> rclojure][x -> v'] |- e ==> v;
 
 [[ IF ]]: env |- {'if' b 'then' e1 'else' e2} ==> v \\
@@ -63,28 +63,27 @@ system Fexp : Env |- Fexp ==> Values =
 
 [[ LETREC ]]: env |- {'letrec' f '=' e1 'in' e2} ==> v \\
   env |- e1 ==> {env' 'λ' x '.' e},
-  env[f -> {env' 'λr' (f , x) '.' e}] |- e2 ==> v;
+  env[f -> {env' 'λ' f x '.' e}] |- e2 ==> v;
 end
 
 system apply : Fcon * Values ==> Values =
-[[ PLUS ]]: (
-  {'plus'}, {'('
-    {'⟨'{'#' v1}'⟩'} ',' {'⟨'{'#' v2}'⟩'}
+[[ PLUS ]]: (plus{}, {'('
+  {'⟨'{'#' v1}'⟩'} ',' {'⟨'{'#' v2}'⟩'}
 ')'}) ==> int (v1 + v2);
 
-[[ MINUS ]]: ({'minus'}, {'('
+[[ MINUS ]]: (minus{}, {'('
   {'⟨'{'#' v1}'⟩'} ',' {'⟨'{'#' v2}'⟩'}
 ')'}) ==> int (v1 - v2);
 
-[[ TIMES ]]: ({'times'}, {'('
+[[ TIMES ]]: (times{}, {'('
   {'⟨'{'#' v1}'⟩'} ',' {'⟨'{'#' v2}'⟩'}
 ')'}) ==> int (v1 * v2);
 
-[[ EQUAL ]]: ({'equal'},  {'('
+[[ EQUAL ]]: (equal{},  {'('
   {'⟨'{'#' v1}'⟩'} ',' {'⟨'{'#' v2}'⟩'}
 ')'}) ==> bool (v1 == v2);
 
-[[ NOT ]]: ({'not'}, {'⟨'{'?' b}'⟩'}) ==> bool (!b);
+[[ NOT ]]: (not{}, {'⟨'{'?' b}'⟩'}) ==> bool (!b);
 
-[[ IS-ZERO ]]: ({'is0'}, {'⟨'{'#' n}'⟩'}) ==> bool (n == 0);
+[[ IS-ZERO ]]: (is0{}, {'⟨'{'#' n}'⟩'}) ==> bool (n == 0);
 end
