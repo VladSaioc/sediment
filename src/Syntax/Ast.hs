@@ -129,7 +129,7 @@ instance Show Dom where
   
 instance Show Const where
   show (Const _ c)= case c of
-    Bot d -> "_|_"
+    Bot _ -> "_|_"
     BConst b -> if b then "tt"
       else "ff"
     Int i -> show i
@@ -155,7 +155,7 @@ instance Show Exp where
     Div e1 e2 -> show e1 ++ " / " ++ show e2
     Mod e1 e2 -> show e1 ++ " % " ++ show e2
     Neg e -> "!(" ++ show e ++ ")"
-    Or e1 e2 -> show e1 ++ " || " ++ show e2
+    Or e1 e2 -> show e1 ++ " | " ++ show e2
     And e1 e2 -> show e1 ++ " & " ++ show e2
     Equal e1 e2 -> show e1 ++ " == " ++ show e2
     NotEqual e1 e2 -> show e1 ++ " != " ++ show e2
